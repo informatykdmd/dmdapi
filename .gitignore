@@ -1,0 +1,9 @@
+# Ignoruj plik /bin/config_utils.py
+/bin/config_utils.py
+/logs/errors.log
+temp.py
+gunicorn_config.py
+run_exaple.py
+run_example.py
+oferty.sql
+run_example.py
