@@ -15,6 +15,18 @@
             }
         ],
         "update": [],
-        "delete": []
+        "delete": [
+            {
+                "task_id": 2,
+                "platform": "OLX",
+                "status": "pending",
+                "details": {
+                    "title": "Sprzedam mieszkanie",
+                    "description": "3-pokojowe mieszkanie w centrum",
+                    "price": 350000,
+                    "contact": "example@example.com"
+                }
+            }
+        ]
     }
 }
