@@ -58,4 +58,5 @@ def index():
         return jsonify({"error": "Unauthorized access"}), 401  # Zwrot kodu 401 w przypadku braku autoryzacji
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # app.run(debug=True, port=4000)
+    app.run(debug=True, host='0.0.0.0', port=4040)
