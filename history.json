@@ -1,0 +1,38 @@
+{
+    "api_key": "your_api_key_here",
+    "ads": {
+        "create": [
+            {
+                "task_id": 1,
+                "platform": "OLX",
+                "status": "pending",
+                "details": {
+                    "title": "Sprzedam mieszkanie",
+                    "description": "3-pokojowe mieszkanie w centrum",
+                    "price": 350000,
+                    "contact": "example@example.com"
+                }
+            }
+        ],
+        "update": [
+            {
+                "task_id": 3,
+                "ad_id": 456,
+                "platform": "OTODOM",
+                "status": "pending",
+                "details": {
+                    "title": "Sprzedam mieszkanie - nowa cena",
+                    "price": 340000
+                }
+            }
+        ],
+        "delete": [
+            {
+                "task_id": 4,
+                "ad_id": 789,
+                "platform": "Allegro Lokalnie",
+                "status": "pending"
+            }
+        ]
+    }
+}
