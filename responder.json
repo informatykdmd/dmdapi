@@ -1,7 +1,19 @@
 {
     "api_key": "your_api_key_here",
     "ads": {
-        "create": [],
+        "create": [
+            {
+                "task_id": 1,
+                "platform": "OLX",
+                "status": "pending",
+                "details": {
+                    "title": "Sprzedam mieszkanie",
+                    "description": "3-pokojowe mieszkanie w centrum",
+                    "price": 350000,
+                    "contact": "example@example.com"
+                }
+            }
+        ],
         "update": [],
         "delete": []
     }
