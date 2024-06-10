@@ -34,10 +34,10 @@ def getMainResponder():
     }
 
     # LENTO.PL - wynajem - create
-    for item in new_data_from_rent_lento:
+    for i, item in enumerate(new_data_from_rent_lento):
         zdjecia_string = str(item[19]).split('-@-')
         theme = {
-            "task_id": int(time.time()),
+            "task_id": int(time.time()) + i,
             "platform": "LENTO",
             "rodzaj_ogloszenia": item[1],
             "kategoria_ogloszenia": item[4],
@@ -84,10 +84,12 @@ def getMainResponder():
         action_taks = f'''
             UPDATE ogloszenia_lento
             SET 
-                active_task=%s
+
+                active_task=%s,
+                id_zadania=%s
             WHERE id = %s;
         '''
-        values = (1, item[0])
+        values = (1, theme["task_id"], item[0])
         if msq.insert_to_database(action_taks, values):
             task_data["create"].append(theme)
     return task_data
