@@ -10,12 +10,14 @@ def take_data_where_ID(key, table, id_name, ID):
     dump_key = msq.connect_to_database(f'SELECT {key} FROM {table} WHERE {id_name} = {ID};')
     return dump_key
 
-def take_data_where_ID_AND_somethig(key, table, id_name, ID, nameSomething, valSomething):
+def take_data_where_ID_AND_somethig_AND_Something(key, table, id_name, ID, nameSomething, valSomething, nameSomethingOther, valSomethingOther):
     if isinstance(ID, str):
         ID = f"'{ID}'"
     if isinstance(valSomething, str):
         valSomething = f"'{valSomething}'"
-    dump_key = msq.connect_to_database(f'SELECT {key} FROM {table} WHERE {id_name} = {ID} AND {nameSomething} = {valSomething};')
+    if isinstance(valSomethingOther, str):
+        valSomething = f"'{valSomethingOther}'"
+    dump_key = msq.connect_to_database(f'SELECT {key} FROM {table} WHERE {id_name} = {ID} AND {nameSomething} = {valSomething} AND {nameSomethingOther} = {valSomethingOther};')
     return dump_key
 
 def take_data_table(key, table):
@@ -23,7 +25,7 @@ def take_data_table(key, table):
     return dump_key
 
 def getMainResponder():
-    new_data_from_rent_lento = take_data_where_ID_AND_somethig('*', 'ogloszenia_lento', 'rodzaj_ogloszenia', 'r', 'status', 4)
+    new_data_from_rent_lento = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_lento', 'rodzaj_ogloszenia', 'r', 'status', 4, 'active_task', 0)
     task_data = {
         "create": [],
         "update": [],
@@ -78,7 +80,16 @@ def getMainResponder():
                 "super_oferta_14_dni": item[41]                
             }
         }
-        task_data["create"].append(theme)
+        
+        action_taks = f'''
+            UPDATE ogloszenia_lento
+            SET 
+                active_task=%s
+            WHERE id = %s;
+        '''
+        values = (1, item[0])
+        if msq.insert_to_database(action_taks, values):
+            task_data["create"].append(theme)
     return task_data
     # try:
     #     # Dane do zwrócenia w formacie JSON
