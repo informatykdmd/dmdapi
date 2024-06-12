@@ -3,6 +3,7 @@ import json
 import mysqlDB as msq
 import time
 import datetime
+from bin.config_utils import allowed_API_KEYS
 
 app = Flask(__name__)
 
@@ -80,11 +81,10 @@ def getMainResponder():
                 "super_oferta_14_dni": item[41]                
             }
         }
-        
+
         action_taks = f'''
             UPDATE ogloszenia_lento
             SET 
-
                 active_task=%s,
                 id_zadania=%s
             WHERE id = %s;
@@ -119,8 +119,7 @@ def updateJsonFile(taskID, file_name='responder.json', encodingJson='utf-8'):
     except KeyError: return False
 
 
-# Lista dozwolonych kluczy API
-allowed_API_KEYS = ["your_api_key_here"]  # Dodaj tutaj swoje dozwolone klucze API
+
 
 @app.route("/", methods=['GET'])
 def index():
@@ -134,6 +133,26 @@ def index():
             elif action == 'respond':
                 message = request.headers.get('message')
                 taskID = request.headers.get('taskID')
+                data = request.headers.get('data')
+
+                if message == 'Done-lento-add-new': 
+                    try: 
+                        id_lento_ads = int(data)
+                    except TypeError:
+                        return jsonify({"error": 500})
+                    
+                    action_taks = f'''
+                        UPDATE ogloszenia_lento
+                        SET 
+                            active_task=%s,
+                            status=%s,
+                            id_ogloszenia_na_lento=%s
+                        WHERE id_zadania = %s;
+                    '''
+                    values = (0, 1, id_lento_ads, taskID)
+                    if msq.insert_to_database(action_taks, values):
+                        return jsonify({"message": "Finished"})
+
                 if message == 'Done':
                     print('taskID: ', taskID)
                     if updateJsonFile(taskID):
