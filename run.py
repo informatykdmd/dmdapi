@@ -133,11 +133,11 @@ def index():
             elif action == 'respond':
                 message = request.headers.get('message')
                 taskID = request.headers.get('taskID')
-                data = request.headers.get('data')
+                success = request.headers.get('success')
 
                 if message == 'Done-lento-add-new': 
                     try: 
-                        id_lento_ads = int(data)
+                        id_lento_ads = int(success)
                     except TypeError:
                         return jsonify({"error": 500})
                     
