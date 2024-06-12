@@ -150,6 +150,7 @@ def index():
                         WHERE id_zadania = %s;
                     '''
                     values = (0, 1, id_lento_ads, taskID)
+                    print(values)
                     if msq.insert_to_database(action_taks, values):
                         return jsonify({"message": "Finished"})
 
