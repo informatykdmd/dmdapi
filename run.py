@@ -150,7 +150,7 @@ def index():
                         WHERE id_zadania = %s;
                     '''
                     values = (0, 1, id_lento_ads, taskID)
-                    print(values)
+                    
                     if msq.insert_to_database(action_taks, values):
                         return jsonify({"message": "Finished"})
 
@@ -160,6 +160,22 @@ def index():
                         return jsonify({"message": "Finished"})
                     else:
                         return jsonify({"error": 500})
+                    
+            elif action == 'error':                
+                taskID = request.headers.get('taskID')
+                errorMessage = request.headers.get('error')
+                action_taks = f'''
+                    UPDATE ogloszenia_lento
+                    SET 
+                        active_task=%s,
+                        status=%s,
+                        errors=%s
+                    WHERE id_zadania = %s;
+                '''
+                values = (0, 2, errorMessage, taskID)
+                
+                if msq.insert_to_database(action_taks, values):
+                    return jsonify({"message": "The error description has been saved"})
 
         if 'error' in request.headers:
             error = request.headers.get('error')
