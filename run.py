@@ -176,6 +176,20 @@ def index():
                     
                     if msq.insert_to_database(action_taks, values):
                         return jsonify({"message": "Finished"})
+                    
+                if message == 'Done-lento-hold': 
+
+                    action_taks = f'''
+                        UPDATE ogloszenia_lento
+                        SET 
+                            active_task=%s,
+                            status=%s
+                        WHERE id_zadania = %s;
+                    '''
+                    values = (0, 0, taskID)
+                    
+                    if msq.insert_to_database(action_taks, values):
+                        return jsonify({"message": "Finished"})
 
                 if message == 'Done':
                     print('taskID: ', taskID)
