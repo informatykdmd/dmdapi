@@ -32,6 +32,7 @@ def getMainResponder():
         "update": [],
         "delete": [],
         "hold": [],
+        "resume": [],
         "promotion": []
     }
 
@@ -97,6 +98,27 @@ def getMainResponder():
     hold_rent_lento = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_lento', 'rodzaj_ogloszenia', 'r', 'status', 7, 'active_task', 0)
     # LENTO.PL - wynajem - create    
     for i, item in enumerate(hold_rent_lento):
+        theme = {
+            "task_id": int(time.time()) + i,
+            "platform": "LENTO",
+            "rodzaj_ogloszenia": item[1],
+            "kategoria_ogloszenia": item[4],
+            "id_ogloszenia_na_lento": item[24]
+        }
+        action_taks = f'''
+            UPDATE ogloszenia_lento
+            SET 
+                active_task=%s,
+                id_zadania=%s
+            WHERE id = %s;
+        '''
+        values = (1, theme["task_id"], item[0])
+        if msq.insert_to_database(action_taks, values):
+            task_data["hold"].append(theme)
+
+    resume_rent_lento = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_lento', 'rodzaj_ogloszenia', 'r', 'status', 8, 'active_task', 0)
+    # LENTO.PL - wynajem - create    
+    for i, item in enumerate(resume_rent_lento):
         theme = {
             "task_id": int(time.time()) + i,
             "platform": "LENTO",
@@ -187,6 +209,20 @@ def index():
                         WHERE id_zadania = %s;
                     '''
                     values = (0, 0, taskID)
+                    
+                    if msq.insert_to_database(action_taks, values):
+                        return jsonify({"message": "Finished"})
+                
+                if message == 'Done-lento-resume': 
+
+                    action_taks = f'''
+                        UPDATE ogloszenia_lento
+                        SET 
+                            active_task=%s,
+                            status=%s
+                        WHERE id_zadania = %s;
+                    '''
+                    values = (0, 1, taskID)
                     
                     if msq.insert_to_database(action_taks, values):
                         return jsonify({"message": "Finished"})
