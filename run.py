@@ -135,7 +135,7 @@ def getMainResponder():
         '''
         values = (1, theme["task_id"], item[0])
         if msq.insert_to_database(action_taks, values):
-            task_data["hold"].append(theme)
+            task_data["resume"].append(theme)
     
     return task_data
     # try:
