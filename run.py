@@ -262,7 +262,7 @@ def index():
                 if message == 'Done-lento-delete': 
 
                     action_taks = f'''
-                        DELETE FROM nazwa_tabeli 
+                        DELETE FROM ogloszenia_lento 
                         
                         WHERE id_zadania = %s;
                     '''
