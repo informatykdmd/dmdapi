@@ -259,6 +259,18 @@ def index():
                     if msq.insert_to_database(action_taks, values):
                         return jsonify({"message": "Finished"})
                     
+                if message == 'Done-lento-delete': 
+
+                    action_taks = f'''
+                        DELETE FROM nazwa_tabeli 
+                        
+                        WHERE id_zadania = %s;
+                    '''
+                    values = (taskID,)
+                    
+                    if msq.insert_to_database(action_taks, values):
+                        return jsonify({"message": "Finished"})
+                    
                 if message == 'Done-lento-hold': 
 
                     action_taks = f'''
