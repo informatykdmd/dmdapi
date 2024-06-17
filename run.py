@@ -44,6 +44,7 @@ def getMainResponder():
             "platform": "LENTO",
             "rodzaj_ogloszenia": item[1],
             "kategoria_ogloszenia": item[4],
+            "id_ogloszenia_na_lento": item[24],
             "details": {
                 "tytul_ogloszenia": item[3],
                 "liczba_pieter": item[5],
@@ -63,8 +64,7 @@ def getMainResponder():
                 "zdjecia_string": zdjecia_string, # lista stringów
                 "miejscowosc": item[20],
                 "osoba_kontaktowa": item[21],
-                "nr_telefonu": item[22],
-                "id_ogloszenia_na_lento": item[24]           
+                "nr_telefonu": item[22]         
             }
         }
 
