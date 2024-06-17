@@ -35,49 +35,7 @@ def getMainResponder():
         "promotion": []
     }
 
-    edit_data_from_rent_lento = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_lento', 'rodzaj_ogloszenia', 'r', 'status', 5, 'active_task', 0)
-    # LENTO.PL - wynajem - edit
-    for i, item in enumerate(edit_data_from_rent_lento):
-        zdjecia_string = str(item[19]).split('-@-')
-        theme = {
-            "task_id": int(time.time()) + i,
-            "platform": "LENTO",
-            "rodzaj_ogloszenia": item[1],
-            "kategoria_ogloszenia": item[4],
-            "id_ogloszenia_na_lento": item[24],
-            "details": {
-                "tytul_ogloszenia": item[3],
-                "liczba_pieter": item[5],
-                "pietro": item[6],
-                "zabudowa": item[7],
-                "przeznaczenie_lokalu": item[8],
-                "rodzaj_dzialki": item[9],
-                "numer_kw": item[10],
-                "dodtkowe_info": item[11],
-                "forma_kuchni": item[12],
-                "typ_domu": item[13],
-                "pow_dzialki": item[14],
-                "liczba_pokoi": item[15],
-                "powierzchnia": item[16],
-                "opis_ogloszenia": item[17],
-                "cena": item[18],
-                "zdjecia_string": zdjecia_string, # lista stringów
-                "miejscowosc": item[20],
-                "osoba_kontaktowa": item[21],
-                "nr_telefonu": item[22]         
-            }
-        }
-
-        action_taks = f'''
-            UPDATE ogloszenia_lento
-            SET 
-                active_task=%s,
-                id_zadania=%s
-            WHERE id = %s;
-        '''
-        values = (1, theme["task_id"], item[0])
-        if msq.insert_to_database(action_taks, values):
-            task_data["update"].append(theme)
+    
 
     new_data_from_rent_lento = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_lento', 'rodzaj_ogloszenia', 'r', 'status', 4, 'active_task', 0)
     # LENTO.PL - wynajem - create
@@ -138,6 +96,71 @@ def getMainResponder():
         values = (1, theme["task_id"], item[0])
         if msq.insert_to_database(action_taks, values):
             task_data["create"].append(theme)
+
+    edit_data_from_rent_lento = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_lento', 'rodzaj_ogloszenia', 'r', 'status', 5, 'active_task', 0)
+    # LENTO.PL - wynajem - edit
+    for i, item in enumerate(edit_data_from_rent_lento):
+        zdjecia_string = str(item[19]).split('-@-')
+        theme = {
+            "task_id": int(time.time()) + i,
+            "platform": "LENTO",
+            "rodzaj_ogloszenia": item[1],
+            "kategoria_ogloszenia": item[4],
+            "id_ogloszenia_na_lento": item[24],
+            "details": {
+                "tytul_ogloszenia": item[3],
+                "liczba_pieter": item[5],
+                "pietro": item[6],
+                "zabudowa": item[7],
+                "przeznaczenie_lokalu": item[8],
+                "rodzaj_dzialki": item[9],
+                "numer_kw": item[10],
+                "dodtkowe_info": item[11],
+                "forma_kuchni": item[12],
+                "typ_domu": item[13],
+                "pow_dzialki": item[14],
+                "liczba_pokoi": item[15],
+                "powierzchnia": item[16],
+                "opis_ogloszenia": item[17],
+                "cena": item[18],
+                "zdjecia_string": zdjecia_string, # lista stringów
+                "miejscowosc": item[20],
+                "osoba_kontaktowa": item[21],
+                "nr_telefonu": item[22]         
+            }
+        }
+
+        action_taks = f'''
+            UPDATE ogloszenia_lento
+            SET 
+                active_task=%s,
+                id_zadania=%s
+            WHERE id = %s;
+        '''
+        values = (1, theme["task_id"], item[0])
+        if msq.insert_to_database(action_taks, values):
+            task_data["update"].append(theme)
+
+    delete_rent_lento = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_lento', 'rodzaj_ogloszenia', 'r', 'status', 6, 'active_task', 0)
+    # LENTO.PL - wynajem - del    
+    for i, item in enumerate(delete_rent_lento):
+        theme = {
+            "task_id": int(time.time()) + i,
+            "platform": "LENTO",
+            "rodzaj_ogloszenia": item[1],
+            "kategoria_ogloszenia": item[4],
+            "id_ogloszenia_na_lento": item[24]
+        }
+        action_taks = f'''
+            UPDATE ogloszenia_lento
+            SET 
+                active_task=%s,
+                id_zadania=%s
+            WHERE id = %s;
+        '''
+        values = (1, theme["task_id"], item[0])
+        if msq.insert_to_database(action_taks, values):
+            task_data["delete"].append(theme)
 
     hold_rent_lento = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_lento', 'rodzaj_ogloszenia', 'r', 'status', 7, 'active_task', 0)
     # LENTO.PL - wynajem - create    
