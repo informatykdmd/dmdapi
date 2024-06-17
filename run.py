@@ -76,7 +76,7 @@ def getMainResponder():
         '''
         values = (1, theme["task_id"], item[0])
         if msq.insert_to_database(action_taks, values):
-            task_data["create"].append(theme)
+            task_data["update"].append(theme)
 
     new_data_from_rent_lento = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_lento', 'rodzaj_ogloszenia', 'r', 'status', 4, 'active_task', 0)
     # LENTO.PL - wynajem - create
