@@ -26,7 +26,6 @@ def take_data_table(key, table):
     return dump_key
 
 def getMainResponder():
-    new_data_from_rent_lento = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_lento', 'rodzaj_ogloszenia', 'r', 'status', 4, 'active_task', 0)
     task_data = {
         "create": [],
         "update": [],
@@ -36,6 +35,50 @@ def getMainResponder():
         "promotion": []
     }
 
+    edit_data_from_rent_lento = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_lento', 'rodzaj_ogloszenia', 'r', 'status', 5, 'active_task', 0)
+    # LENTO.PL - wynajem - edit
+    for i, item in enumerate(edit_data_from_rent_lento):
+        zdjecia_string = str(item[19]).split('-@-')
+        theme = {
+            "task_id": int(time.time()) + i,
+            "platform": "LENTO",
+            "rodzaj_ogloszenia": item[1],
+            "kategoria_ogloszenia": item[4],
+            "details": {
+                "tytul_ogloszenia": item[3],
+                "liczba_pieter": item[5],
+                "pietro": item[6],
+                "zabudowa": item[7],
+                "przeznaczenie_lokalu": item[8],
+                "rodzaj_dzialki": item[9],
+                "numer_kw": item[10],
+                "dodtkowe_info": item[11],
+                "forma_kuchni": item[12],
+                "typ_domu": item[13],
+                "pow_dzialki": item[14],
+                "liczba_pokoi": item[15],
+                "powierzchnia": item[16],
+                "opis_ogloszenia": item[17],
+                "cena": item[18],
+                "zdjecia_string": zdjecia_string, # lista stringów
+                "miejscowosc": item[20],
+                "osoba_kontaktowa": item[21],
+                "nr_telefonu": item[22]               
+            }
+        }
+
+        action_taks = f'''
+            UPDATE ogloszenia_lento
+            SET 
+                active_task=%s,
+                id_zadania=%s
+            WHERE id = %s;
+        '''
+        values = (1, theme["task_id"], item[0])
+        if msq.insert_to_database(action_taks, values):
+            task_data["create"].append(theme)
+
+    new_data_from_rent_lento = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_lento', 'rodzaj_ogloszenia', 'r', 'status', 4, 'active_task', 0)
     # LENTO.PL - wynajem - create
     for i, item in enumerate(new_data_from_rent_lento):
         zdjecia_string = str(item[19]).split('-@-')
@@ -138,15 +181,7 @@ def getMainResponder():
             task_data["resume"].append(theme)
     
     return task_data
-    # try:
-    #     # Dane do zwrócenia w formacie JSON
-    #     with open(file_name, 'r', encoding=encodingJson) as responder:
-    #         data = json.load(responder)
-    #     return data
-    # except FileNotFoundError:
-    #     return {"error": "File not found"}
-    # except json.JSONDecodeError:
-    #     return {"error": "Error decoding JSON"}
+
 
 
 def updateJsonFile(taskID, file_name='responder.json', encodingJson='utf-8'):
@@ -174,6 +209,7 @@ def index():
         if 'action' in request.headers:
             action = request.headers.get('action')
             if action == 'get_json':
+                print(data)
                 return jsonify(data)
             elif action == 'respond':
                 message = request.headers.get('message')
@@ -214,6 +250,20 @@ def index():
                         return jsonify({"message": "Finished"})
                 
                 if message == 'Done-lento-resume': 
+
+                    action_taks = f'''
+                        UPDATE ogloszenia_lento
+                        SET 
+                            active_task=%s,
+                            status=%s
+                        WHERE id_zadania = %s;
+                    '''
+                    values = (0, 1, taskID)
+                    
+                    if msq.insert_to_database(action_taks, values):
+                        return jsonify({"message": "Finished"})
+                    
+                if message == 'Done-lento-update': 
 
                     action_taks = f'''
                         UPDATE ogloszenia_lento
