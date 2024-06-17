@@ -63,7 +63,8 @@ def getMainResponder():
                 "zdjecia_string": zdjecia_string, # lista stringów
                 "miejscowosc": item[20],
                 "osoba_kontaktowa": item[21],
-                "nr_telefonu": item[22]               
+                "nr_telefonu": item[22],
+                "id_ogloszenia_na_lento": item[24]           
             }
         }
 
