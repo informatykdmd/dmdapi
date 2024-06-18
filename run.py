@@ -96,6 +96,66 @@ def getMainResponder():
         values = (1, theme["task_id"], item[0])
         if msq.insert_to_database(action_taks, values):
             task_data["create"].append(theme)
+    
+    new_data_from_sell_lento = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_lento', 'rodzaj_ogloszenia', 's', 'status', 4, 'active_task', 0)
+    # LENTO.PL - sprzedaż - create
+    for i, item in enumerate(new_data_from_sell_lento):
+        zdjecia_string = str(item[19]).split('-@-')
+        theme = {
+            "task_id": int(time.time()) + i,
+            "platform": "LENTO",
+            "rodzaj_ogloszenia": item[1],
+            "kategoria_ogloszenia": item[4],
+            "details": {
+                "tytul_ogloszenia": item[3],
+                "liczba_pieter": item[5],
+                "pietro": item[6],
+                "zabudowa": item[7],
+                "przeznaczenie_lokalu": item[8],
+                "rodzaj_dzialki": item[9],
+                "numer_kw": item[10],
+                "rynek": item[11],
+                "forma_kuchni": item[12],
+                "typ_domu": item[13],
+                "pow_dzialki": item[14],
+                "liczba_pokoi": item[15],
+                "powierzchnia": item[16],
+                "opis_ogloszenia": item[17],
+                "cena": item[18],
+                "zdjecia_string": zdjecia_string, # lista stringów
+                "miejscowosc": item[20],
+                "osoba_kontaktowa": item[21],
+                "nr_telefonu": item[22],
+                "bez_promowania": item[25],
+                "promowanie_lokalne_14_dni": item[26],
+                "promowanie_lokalne_30_dni": item[27],
+                "promowanie_regionalne_14_dni": item[28],
+                "promowanie_regionalne_30_dni": item[29],
+                "promowanie_ogolnopolskie_14_dni": item[30],
+                "promowanie_ogolnopolskie_30_dni": item[31],
+                "top_ogloszenie_7_dni": item[32],
+                "top_ogloszenie_14_dni": item[33],
+                "etykieta_pilne_7_dni": item[34],
+                "etykieta_pilne_14_dni": item[35],
+                "codzienne_odswiezenie_7_dni": item[36],
+                "codzienne_odswiezenie_14_dni": item[37],
+                "wyswietlanie_na_stronie_glownej_14_dni": item[38],
+                "wyswietlanie_na_stronie_glownej_30_dni": item[39],
+                "super_oferta_7_dni": item[40],
+                "super_oferta_14_dni": item[41]                
+            }
+        }
+
+        action_taks = f'''
+            UPDATE ogloszenia_lento
+            SET 
+                active_task=%s,
+                id_zadania=%s
+            WHERE id = %s;
+        '''
+        values = (1, theme["task_id"], item[0])
+        if msq.insert_to_database(action_taks, values):
+            task_data["create"].append(theme)
 
     edit_data_from_rent_lento = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_lento', 'rodzaj_ogloszenia', 'r', 'status', 5, 'active_task', 0)
     # LENTO.PL - wynajem - edit
@@ -116,6 +176,50 @@ def getMainResponder():
                 "rodzaj_dzialki": item[9],
                 "numer_kw": item[10],
                 "dodtkowe_info": item[11],
+                "forma_kuchni": item[12],
+                "typ_domu": item[13],
+                "pow_dzialki": item[14],
+                "liczba_pokoi": item[15],
+                "powierzchnia": item[16],
+                "opis_ogloszenia": item[17],
+                "cena": item[18],
+                "zdjecia_string": zdjecia_string, # lista stringów
+                "miejscowosc": item[20],
+                "osoba_kontaktowa": item[21],
+                "nr_telefonu": item[22]         
+            }
+        }
+
+        action_taks = f'''
+            UPDATE ogloszenia_lento
+            SET 
+                active_task=%s,
+                id_zadania=%s
+            WHERE id = %s;
+        '''
+        values = (1, theme["task_id"], item[0])
+        if msq.insert_to_database(action_taks, values):
+            task_data["update"].append(theme)
+    
+    edit_data_from_sell_lento = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_lento', 'rodzaj_ogloszenia', 'r', 'status', 5, 'active_task', 0)
+    # LENTO.PL - sprzedaż - edit
+    for i, item in enumerate(edit_data_from_sell_lento):
+        zdjecia_string = str(item[19]).split('-@-')
+        theme = {
+            "task_id": int(time.time()) + i,
+            "platform": "LENTO",
+            "rodzaj_ogloszenia": item[1],
+            "kategoria_ogloszenia": item[4],
+            "id_ogloszenia_na_lento": item[24],
+            "details": {
+                "tytul_ogloszenia": item[3],
+                "liczba_pieter": item[5],
+                "pietro": item[6],
+                "zabudowa": item[7],
+                "przeznaczenie_lokalu": item[8],
+                "rodzaj_dzialki": item[9],
+                "numer_kw": item[10],
+                "rynek": item[11],
                 "forma_kuchni": item[12],
                 "typ_domu": item[13],
                 "pow_dzialki": item[14],
@@ -258,6 +362,8 @@ def index():
                     
                     if msq.insert_to_database(action_taks, values):
                         return jsonify({"message": "Finished"})
+                    else:
+                        return jsonify({"error": 500})
                     
                 if message == 'Done-lento-delete': 
 
@@ -270,6 +376,8 @@ def index():
                     
                     if msq.insert_to_database(action_taks, values):
                         return jsonify({"message": "Finished"})
+                    else:
+                        return jsonify({"error": 500})
                     
                 if message == 'Done-lento-hold': 
 
@@ -284,6 +392,8 @@ def index():
                     
                     if msq.insert_to_database(action_taks, values):
                         return jsonify({"message": "Finished"})
+                    else:
+                        return jsonify({"error": 500})
                 
                 if message == 'Done-lento-resume': 
 
@@ -298,6 +408,8 @@ def index():
                     
                     if msq.insert_to_database(action_taks, values):
                         return jsonify({"message": "Finished"})
+                    else:
+                        return jsonify({"error": 500})
                     
                 if message == 'Done-lento-update': 
 
@@ -312,6 +424,8 @@ def index():
                     
                     if msq.insert_to_database(action_taks, values):
                         return jsonify({"message": "Finished"})
+                    else:
+                        return jsonify({"error": 500})
 
                 if message == 'Done':
                     print('taskID: ', taskID)
@@ -335,6 +449,8 @@ def index():
                 
                 if msq.insert_to_database(action_taks, values):
                     return jsonify({"message": "The error description has been saved"})
+                else:
+                    return jsonify({"error": 500})
 
         if 'error' in request.headers:
             error = request.headers.get('error')
