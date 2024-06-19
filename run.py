@@ -25,6 +25,12 @@ def take_data_table(key, table):
     dump_key = msq.connect_to_database(f'SELECT {key} FROM {table};')
     return dump_key
 
+def checkLentoAction_before_errors(task_id):
+    try:
+        return msq.connect_to_database(f'SELECT status FROM ogloszenia_lento WHERE id_zadania="{task_id}";')[0][0]
+    except IndexError:
+        return None
+
 def getMainResponder():
     task_data = {
         "create": [],
@@ -34,8 +40,6 @@ def getMainResponder():
         "resume": [],
         "promotion": []
     }
-
-    
 
     new_data_from_rent_lento = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_lento', 'rodzaj_ogloszenia', 'r', 'status', 4, 'active_task', 0)
     # LENTO.PL - wynajem - create
@@ -500,15 +504,17 @@ def index():
             elif action == 'error':                
                 taskID = request.headers.get('taskID')
                 errorMessage = request.headers.get('error')
+                oldStatus = checkLentoAction_before_errors(taskID)
                 action_taks = f'''
                     UPDATE ogloszenia_lento
                     SET 
                         active_task=%s,
                         status=%s,
-                        errors=%s
+                        errors=%s,
+                        action_before_errors=%s
                     WHERE id_zadania = %s;
                 '''
-                values = (0, 2, errorMessage, taskID)
+                values = (0, 2, errorMessage, oldStatus, taskID)
                 
                 if msq.insert_to_database(action_taks, values):
                     return jsonify({"message": "The error description has been saved"})
