@@ -50,7 +50,7 @@ def getMainResponder():
             "task_id": int(time.time()) + i,
             "platform": "FACEBOOK",
             "rodzaj_ogloszenia": item[1],
-            "id_ogloszenia_na_facebook": item[4],
+            "id_ogloszenia_na_facebook": item[14],
             "details": {
                 "tytul_ogloszenia": item[3],
                 "opis_ogloszenia": item[4],
