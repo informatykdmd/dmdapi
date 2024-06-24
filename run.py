@@ -56,7 +56,7 @@ def getMainResponder():
                 "opis_ogloszenia": item[4],
                 "cena": item[5],
                 "stan_nieruchomosci": item[6],
-                "lokalizacja": item[7],
+                "miejscowosc": item[7],
                 "znaczniki": znaczniki, # lista znaczników
                 "promowanie": item[9],
                 "zdjecia_string": zdjecia_string, # lista stringów
