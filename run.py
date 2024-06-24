@@ -477,6 +477,21 @@ def index():
                     else:
                         return jsonify({"error": 500})
                     
+                if message == 'Done-facebook-add-new': 
+                    action_taks = f'''
+                        UPDATE ogloszenia_facebook
+                        SET 
+                            active_task=%s,
+                            status=%s
+                        WHERE id_zadania = %s;
+                    '''
+                    values = (0, 1, taskID)
+                    
+                    if msq.insert_to_database(action_taks, values):
+                        return jsonify({"message": "Finished"})
+                    else:
+                        return jsonify({"error": 500})
+                    
                 if message == 'Done-lento-delete': 
 
                     action_taks = f'''
