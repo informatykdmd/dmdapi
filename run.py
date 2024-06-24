@@ -42,7 +42,7 @@ def getMainResponder():
     }
 
     new_data_from_rent_facebook = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_facebook', 'rodzaj_ogloszenia', 'r', 'status', 4, 'active_task', 0)
-    # LENTO.PL - wynajem - create
+    # FACEBOOK - wynajem - create
     for i, item in enumerate(new_data_from_rent_facebook):
         znaczniki = str(item[8]).split('-@-')
         zdjecia_string = str(item[10]).split('-@-')
@@ -55,7 +55,7 @@ def getMainResponder():
                 "tytul_ogloszenia": item[3],
                 "opis_ogloszenia": item[4],
                 "cena": item[5],
-                "stan": item[6],
+                "stan_nieruchomosci": item[6],
                 "lokalizacja": item[7],
                 "znaczniki": znaczniki, # lista znaczników
                 "promowanie": item[9],
