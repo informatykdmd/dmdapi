@@ -41,6 +41,42 @@ def getMainResponder():
         "promotion": []
     }
 
+    new_data_from_rent_facebook = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_facebook', 'rodzaj_ogloszenia', 'r', 'status', 4, 'active_task', 0)
+    # LENTO.PL - wynajem - create
+    for i, item in enumerate(new_data_from_rent_facebook):
+        znaczniki = str(item[8]).split('-@-')
+        zdjecia_string = str(item[10]).split('-@-')
+        theme = {
+            "task_id": int(time.time()) + i,
+            "platform": "FACEBOOK",
+            "rodzaj_ogloszenia": item[1],
+            "id_ogloszenia_na_facebook": item[4],
+            "details": {
+                "tytul_ogloszenia": item[3],
+                "opis_ogloszenia": item[4],
+                "cena": item[5],
+                "stan": item[6],
+                "lokalizacja": item[7],
+                "znaczniki": znaczniki, # lista znaczników
+                "promowanie": item[9],
+                "zdjecia_string": zdjecia_string, # lista stringów
+                "osoba_kontaktowa": item[11],
+                "nr_telefonu": item[12]               
+            }
+        }
+
+        action_taks = f'''
+            UPDATE ogloszenia_facebook
+            SET 
+                active_task=%s,
+                id_zadania=%s
+            WHERE id = %s;
+        '''
+        values = (1, theme["task_id"], item[0])
+        if msq.insert_to_database(action_taks, values):
+            task_data["create"].append(theme)
+            return task_data
+
     new_data_from_rent_lento = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_lento', 'rodzaj_ogloszenia', 'r', 'status', 4, 'active_task', 0)
     # LENTO.PL - wynajem - create
     for i, item in enumerate(new_data_from_rent_lento):
