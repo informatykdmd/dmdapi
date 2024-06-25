@@ -78,7 +78,7 @@ def getMainResponder():
             return task_data
 
     new_data_from_sell_facebook = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_facebook', 'rodzaj_ogloszenia', 's', 'status', 4, 'active_task', 0)
-    # FACEBOOK - wynajem - create
+    # FACEBOOK - sprzedaż - create
     for i, item in enumerate(new_data_from_sell_facebook):
         znaczniki = str(item[8]).split('-@-')
         zdjecia_string = str(item[10]).split('-@-')
@@ -113,7 +113,6 @@ def getMainResponder():
             task_data["create"].append(theme)
             return task_data
     
-
     new_data_from_rent_lento = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_lento', 'rodzaj_ogloszenia', 'r', 'status', 4, 'active_task', 0)
     # LENTO.PL - wynajem - create
     for i, item in enumerate(new_data_from_rent_lento):
@@ -239,6 +238,40 @@ def getMainResponder():
     edit_data_from_rent_facebook = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_facebook', 'rodzaj_ogloszenia', 'r', 'status', 5, 'active_task', 0)
     # FACEBOOK - wynajem - edit
     for i, item in enumerate(edit_data_from_rent_facebook):
+        zdjecia_string = str(item[19]).split('-@-')
+        znaczniki = str(item[8]).split('-@-')
+        zdjecia_string = str(item[10]).split('-@-')
+        theme = {
+            "task_id": int(time.time()) + i,
+            "platform": "FACEBOOK",
+            "rodzaj_ogloszenia": item[1],
+            "id_ogloszenia_na_facebook": item[14],
+            "details": {
+                "tytul_ogloszenia": item[3],
+                "opis_ogloszenia": item[4],
+                "cena": item[5],
+                "stan_nieruchomosci": item[6],
+                "miejscowosc": item[7],
+                "znaczniki": znaczniki, # lista znaczników
+                "zdjecia_string": zdjecia_string # lista stringów
+            }
+        }
+
+        action_taks = f'''
+            UPDATE ogloszenia_facebook
+            SET 
+                active_task=%s,
+                id_zadania=%s
+            WHERE id = %s;
+        '''
+        values = (1, theme["task_id"], item[0])
+        if msq.insert_to_database(action_taks, values):
+            task_data["update"].append(theme)
+            return task_data
+        
+    edit_data_from_sell_facebook = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_facebook', 'rodzaj_ogloszenia', 's', 'status', 5, 'active_task', 0)
+    # FACEBOOK - sprzedaż - edit
+    for i, item in enumerate(edit_data_from_sell_facebook):
         zdjecia_string = str(item[19]).split('-@-')
         znaczniki = str(item[8]).split('-@-')
         zdjecia_string = str(item[10]).split('-@-')
@@ -401,6 +434,48 @@ def getMainResponder():
         values = (1, theme["task_id"], item[0])
         if msq.insert_to_database(action_taks, values):
             task_data["delete"].append(theme)
+            return task_data
+
+    hold_rent_facebook = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_facebook', 'rodzaj_ogloszenia', 'r', 'status', 7, 'active_task', 0)
+    # FACEBOOK - wynajem - hold    
+    for i, item in enumerate(hold_rent_facebook):
+        theme = {
+            "task_id": int(time.time()) + i,
+            "platform": "FACEBOOK",
+            "rodzaj_ogloszenia": item[1],
+            "id_ogloszenia_na_facebook": item[14],
+        }
+        action_taks = f'''
+            UPDATE ogloszenia_facebook
+            SET 
+                active_task=%s,
+                id_zadania=%s
+            WHERE id = %s;
+        '''
+        values = (1, theme["task_id"], item[0])
+        if msq.insert_to_database(action_taks, values):
+            task_data["hold"].append(theme)
+            return task_data
+        
+    hold_sell_facebook = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_facebook', 'rodzaj_ogloszenia', 's', 'status', 7, 'active_task', 0)
+    # FACEBOOK - wynajem - hold    
+    for i, item in enumerate(hold_sell_facebook):
+        theme = {
+            "task_id": int(time.time()) + i,
+            "platform": "FACEBOOK",
+            "rodzaj_ogloszenia": item[1],
+            "id_ogloszenia_na_facebook": item[14],
+        }
+        action_taks = f'''
+            UPDATE ogloszenia_facebook
+            SET 
+                active_task=%s,
+                id_zadania=%s
+            WHERE id = %s;
+        '''
+        values = (1, theme["task_id"], item[0])
+        if msq.insert_to_database(action_taks, values):
+            task_data["hold"].append(theme)
             return task_data
 
     hold_rent_lento = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_lento', 'rodzaj_ogloszenia', 'r', 'status', 7, 'active_task', 0)
@@ -581,6 +656,22 @@ def index():
 
                     action_taks = f'''
                         UPDATE ogloszenia_lento
+                        SET 
+                            active_task=%s,
+                            status=%s
+                        WHERE id_zadania = %s;
+                    '''
+                    values = (0, 0, taskID)
+                    
+                    if msq.insert_to_database(action_taks, values):
+                        return jsonify({"message": "Finished"})
+                    else:
+                        return jsonify({"error": 500})
+                    
+                if message == 'Done-facebook-hold': 
+
+                    action_taks = f'''
+                        UPDATE ogloszenia_facebook
                         SET 
                             active_task=%s,
                             status=%s
