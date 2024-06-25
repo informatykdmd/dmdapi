@@ -31,6 +31,11 @@ def checkLentoAction_before_errors(task_id):
     except IndexError:
         return None
 
+def checkFacebookAction_before_errors(task_id):
+    try:
+        return msq.connect_to_database(f'SELECT status FROM ogloszenia_facebook WHERE id_zadania="{task_id}";')[0][0]
+    except IndexError:
+        return None
 def getMainResponder():
     task_data = {
         "create": [],
@@ -393,6 +398,46 @@ def getMainResponder():
             task_data["update"].append(theme)
             return task_data
 
+    delete_rent_facebook = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_facebook', 'rodzaj_ogloszenia', 'r', 'status', 6, 'active_task', 0)
+    # FACEBOOK - wynajem - del    
+    for i, item in enumerate(delete_rent_facebook):
+        theme = {
+            "task_id": int(time.time()) + i,
+            "platform": "FACEBOOK",
+            "rodzaj_ogloszenia": item[1],
+            "id_ogloszenia_na_facebook": item[14],
+        }
+        action_taks = f'''
+            UPDATE ogloszenia_facebook
+            SET 
+                active_task=%s,
+                id_zadania=%s
+            WHERE id = %s;
+        '''
+        values = (1, theme["task_id"], item[0])
+        if msq.insert_to_database(action_taks, values):
+            task_data["delete"].append(theme)
+
+    delete_sell_facebook = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_facebook', 'rodzaj_ogloszenia', 's', 'status', 6, 'active_task', 0)
+    # FACEBOOK - sprzedaż - del    
+    for i, item in enumerate(delete_sell_facebook):
+        theme = {
+            "task_id": int(time.time()) + i,
+            "platform": "FACEBOOK",
+            "rodzaj_ogloszenia": item[1],
+            "id_ogloszenia_na_facebook": item[14],
+        }
+        action_taks = f'''
+            UPDATE ogloszenia_facebook
+            SET 
+                active_task=%s,
+                id_zadania=%s
+            WHERE id = %s;
+        '''
+        values = (1, theme["task_id"], item[0])
+        if msq.insert_to_database(action_taks, values):
+            task_data["delete"].append(theme)
+
     delete_rent_lento = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_lento', 'rodzaj_ogloszenia', 'r', 'status', 6, 'active_task', 0)
     # LENTO.PL - wynajem - del    
     for i, item in enumerate(delete_rent_lento):
@@ -520,6 +565,48 @@ def getMainResponder():
         values = (1, theme["task_id"], item[0])
         if msq.insert_to_database(action_taks, values):
             task_data["hold"].append(theme)
+            return task_data
+
+    resume_rent_facebook = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_facebook', 'rodzaj_ogloszenia', 'r', 'status', 8, 'active_task', 0)
+    # FACEBOOK - wynajem - wznow    
+    for i, item in enumerate(resume_rent_facebook):
+        theme = {
+            "task_id": int(time.time()) + i,
+            "platform": "FACEBOOK",
+            "rodzaj_ogloszenia": item[1],
+            "id_ogloszenia_na_facebook": item[14],
+        }
+        action_taks = f'''
+            UPDATE ogloszenia_facebook
+            SET 
+                active_task=%s,
+                id_zadania=%s
+            WHERE id = %s;
+        '''
+        values = (1, theme["task_id"], item[0])
+        if msq.insert_to_database(action_taks, values):
+            task_data["resume"].append(theme)
+            return task_data
+        
+    resume_sell_facebook = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_facebook', 'rodzaj_ogloszenia', 's', 'status', 8, 'active_task', 0)
+    # FACEBOOK - sprzedaż - wznow    
+    for i, item in enumerate(resume_sell_facebook):
+        theme = {
+            "task_id": int(time.time()) + i,
+            "platform": "FACEBOOK",
+            "rodzaj_ogloszenia": item[1],
+            "id_ogloszenia_na_facebook": item[14],
+        }
+        action_taks = f'''
+            UPDATE ogloszenia_facebook
+            SET 
+                active_task=%s,
+                id_zadania=%s
+            WHERE id = %s;
+        '''
+        values = (1, theme["task_id"], item[0])
+        if msq.insert_to_database(action_taks, values):
+            task_data["resume"].append(theme)
             return task_data
 
     resume_rent_lento = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_lento', 'rodzaj_ogloszenia', 'r', 'status', 8, 'active_task', 0)
@@ -652,6 +739,20 @@ def index():
                     else:
                         return jsonify({"error": 500})
                     
+                if message == 'Done-facebook-delete': 
+
+                    action_taks = f'''
+                        DELETE FROM ogloszenia_facebook
+                        
+                        WHERE id_zadania = %s;
+                    '''
+                    values = (taskID,)
+                    
+                    if msq.insert_to_database(action_taks, values):
+                        return jsonify({"message": "Finished"})
+                    else:
+                        return jsonify({"error": 500})
+                    
                 if message == 'Done-lento-hold': 
 
                     action_taks = f'''
@@ -700,6 +801,22 @@ def index():
                     else:
                         return jsonify({"error": 500})
                     
+                if message == 'Done-facebook-resume': 
+
+                    action_taks = f'''
+                        UPDATE ogloszenia_facebook
+                        SET 
+                            active_task=%s,
+                            status=%s
+                        WHERE id_zadania = %s;
+                    '''
+                    values = (0, 1, taskID)
+                    
+                    if msq.insert_to_database(action_taks, values):
+                        return jsonify({"message": "Finished"})
+                    else:
+                        return jsonify({"error": 500})
+                    
                 if message == 'Done-lento-update': 
 
                     action_taks = f'''
@@ -732,28 +849,38 @@ def index():
                     else:
                         return jsonify({"error": 500})
 
-                if message == 'Done':
-                    print('taskID: ', taskID)
-                    if updateJsonFile(taskID):
-                        return jsonify({"message": "Finished"})
-                    else:
-                        return jsonify({"error": 500})
+
                     
-            elif action == 'error':                
+            elif action == 'error':
                 taskID = request.headers.get('taskID')
                 errorMessage = request.headers.get('error')
-                oldStatus = checkLentoAction_before_errors(taskID)
-                action_taks = f'''
-                    UPDATE ogloszenia_lento
-                    SET 
-                        active_task=%s,
-                        status=%s,
-                        errors=%s,
-                        action_before_errors=%s
-                    WHERE id_zadania = %s;
-                '''
-                values = (0, 2, errorMessage, oldStatus, taskID)
-                
+                message_flag = request.headers.get('message')
+                if message_flag == 'error-lento':
+                    oldStatus = checkLentoAction_before_errors(taskID)
+                    action_taks = f'''
+                        UPDATE ogloszenia_lento
+                        SET 
+                            active_task=%s,
+                            status=%s,
+                            errors=%s,
+                            action_before_errors=%s
+                        WHERE id_zadania = %s;
+                    '''
+                    values = (0, 2, errorMessage, oldStatus, taskID)
+
+                elif message_flag == 'error-facebook':
+                    oldStatus = checkFacebookAction_before_errors(taskID)
+                    action_taks = f'''
+                        UPDATE ogloszenia_facebook
+                        SET 
+                            active_task=%s,
+                            status=%s,
+                            errors=%s,
+                            action_before_errors=%s
+                        WHERE id_zadania = %s;
+                    '''
+                    values = (0, 2, errorMessage, oldStatus, taskID)
+                    
                 if msq.insert_to_database(action_taks, values):
                     return jsonify({"message": "The error description has been saved"})
                 else:
