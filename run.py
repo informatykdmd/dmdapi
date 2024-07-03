@@ -46,6 +46,118 @@ def getMainResponder():
         "promotion": []
     }
 
+    new_data_from_rent_adresowo = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_adresowo', 'rodzaj_ogloszenia', 'r', 'status', 4, 'active_task', 0)
+    # ADRESOWO - wynajem - create
+    for i, item in enumerate(new_data_from_rent_adresowo):
+        # mazowieckie / warszawski zachodni / Izabelin / Izabelin / Brak /
+        region = tuple(str(item[5])[:-2].split(' / '))
+
+        zdjecia_string = str(item[22]).split('-@-')
+        theme = {
+            "task_id": int(time.time()) + i,
+            "platform": "ADRESOWO",
+            "rodzaj_ogloszenia": item[1],
+            "kategoria_ogloszenia": item[4],
+            "details": {
+                "tytul_ogloszenia": item[3],
+                "cena": item[6],
+
+                "wojewodztwo": region[0],
+                "powiat": region[1],
+                "gmina": region[2],
+                "miejscowosc": region[3],
+                "dzielnica": region[4],
+
+                "ulica": item[12],
+
+                "umeblowanie": item[7],
+                "opis_ogloszenia": item[8],
+                "liczba_pieter": item[9],
+                "liczba_pokoi": item[10],
+                "poziom": item[11],
+                "winda": item[13],
+                "powierzchnia": item[14],
+                "pow_dzialki": item[15],
+                "rok_budowy": item[16],
+                "stan": item[17],
+                "typ_budynku": item[18],
+                "rodzaj_dzialki": item[19],
+                "przeznaczenie_lokalu": item[20],
+                "forma_wlasnosci": item[21],
+                "zdjecia_string": zdjecia_string, # lista stringów
+                "osoba_kontaktowa": item[23],
+                "nr_telefonu": item[24]         
+            }
+        }
+
+        action_taks = f'''
+            UPDATE ogloszenia_adresowo
+            SET 
+                active_task=%s,
+                id_zadania=%s
+            WHERE id = %s;
+        '''
+        values = (1, theme["task_id"], item[0])
+        if msq.insert_to_database(action_taks, values):
+            task_data["create"].append(theme)
+            return task_data
+
+    new_data_from_sell_adresowo = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_adresowo', 'rodzaj_ogloszenia', 's', 'status', 4, 'active_task', 0)
+    # ADRESOWO - sell - create
+    for i, item in enumerate(new_data_from_sell_adresowo):
+        # mazowieckie / warszawski zachodni / Izabelin / Izabelin / Brak /
+        region = tuple(str(item[5])[:-2].split(' / '))
+
+        zdjecia_string = str(item[22]).split('-@-')
+        theme = {
+            "task_id": int(time.time()) + i,
+            "platform": "ADRESOWO",
+            "rodzaj_ogloszenia": item[1],
+            "kategoria_ogloszenia": item[4],
+            "details": {
+                "tytul_ogloszenia": item[3],
+                "cena": item[6],
+
+                "wojewodztwo": region[0],
+                "powiat": region[1],
+                "gmina": region[2],
+                "miejscowosc": region[3],
+                "dzielnica": region[4],
+
+                "ulica": item[12],
+
+                "umeblowanie": item[7],
+                "opis_ogloszenia": item[8],
+                "liczba_pieter": item[9],
+                "liczba_pokoi": item[10],
+                "poziom": item[11],
+                "winda": item[13],
+                "powierzchnia": item[14],
+                "pow_dzialki": item[15],
+                "rok_budowy": item[16],
+                "stan": item[17],
+                "typ_budynku": item[18],
+                "rodzaj_dzialki": item[19],
+                "przeznaczenie_lokalu": item[20],
+                "forma_wlasnosci": item[21],
+                "zdjecia_string": zdjecia_string, # lista stringów
+                "osoba_kontaktowa": item[23],
+                "nr_telefonu": item[24]         
+            }
+        }
+
+        action_taks = f'''
+            UPDATE ogloszenia_adresowo
+            SET 
+                active_task=%s,
+                id_zadania=%s
+            WHERE id = %s;
+        '''
+        values = (1, theme["task_id"], item[0])
+        if msq.insert_to_database(action_taks, values):
+            task_data["create"].append(theme)
+            return task_data
+
     new_data_from_rent_facebook = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_facebook', 'rodzaj_ogloszenia', 'r', 'status', 4, 'active_task', 0)
     # FACEBOOK - wynajem - create
     for i, item in enumerate(new_data_from_rent_facebook):
