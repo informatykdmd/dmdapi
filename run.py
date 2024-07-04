@@ -360,6 +360,10 @@ def getMainResponder():
             task_data["create"].append(theme)
             return task_data
 
+
+
+
+
     edit_data_from_rent_facebook = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_facebook', 'rodzaj_ogloszenia', 'r', 'status', 5, 'active_task', 0)
     # FACEBOOK - wynajem - edit
     for i, item in enumerate(edit_data_from_rent_facebook):
@@ -518,6 +522,50 @@ def getMainResponder():
             task_data["update"].append(theme)
             return task_data
 
+
+
+
+
+    delete_rent_adresowo = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_adresowo', 'rodzaj_ogloszenia', 'r', 'status', 6, 'active_task', 0)
+    # ADRESOWO - rent - del    
+    for i, item in enumerate(delete_rent_adresowo):
+        theme = {
+            "task_id": int(time.time()) + i,
+            "platform": "ADRESOWO",
+            "rodzaj_ogloszenia": item[1],
+            "id_ogloszenia_na_adresowo": item[26],
+        }
+        action_taks = f'''
+            UPDATE ogloszenia_adresowo
+            SET 
+                active_task=%s,
+                id_zadania=%s
+            WHERE id = %s;
+        '''
+        values = (1, theme["task_id"], item[0])
+        if msq.insert_to_database(action_taks, values):
+            task_data["delete"].append(theme)
+
+    delete_sell_adresowo = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_adresowo', 'rodzaj_ogloszenia', 's', 'status', 6, 'active_task', 0)
+    # ADRESOWO - sell - del    
+    for i, item in enumerate(delete_sell_adresowo):
+        theme = {
+            "task_id": int(time.time()) + i,
+            "platform": "ADRESOWO",
+            "rodzaj_ogloszenia": item[1],
+            "id_ogloszenia_na_adresowo": item[26],
+        }
+        action_taks = f'''
+            UPDATE ogloszenia_adresowo
+            SET 
+                active_task=%s,
+                id_zadania=%s
+            WHERE id = %s;
+        '''
+        values = (1, theme["task_id"], item[0])
+        if msq.insert_to_database(action_taks, values):
+            task_data["delete"].append(theme)
+
     delete_rent_facebook = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_facebook', 'rodzaj_ogloszenia', 'r', 'status', 6, 'active_task', 0)
     # FACEBOOK - wynajem - del    
     for i, item in enumerate(delete_rent_facebook):
@@ -600,6 +648,9 @@ def getMainResponder():
         if msq.insert_to_database(action_taks, values):
             task_data["delete"].append(theme)
             return task_data
+
+
+
 
     hold_rent_adresowo = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_adresowo', 'rodzaj_ogloszenia', 'r', 'status', 7, 'active_task', 0)
     # ADRESOWO - wynajem - hold    
@@ -728,6 +779,7 @@ def getMainResponder():
         if msq.insert_to_database(action_taks, values):
             task_data["hold"].append(theme)
             return task_data
+
 
 
     resume_rent_adresowo = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_adresowo', 'rodzaj_ogloszenia', 'r', 'status', 8, 'active_task', 0)
@@ -969,6 +1021,20 @@ def index():
 
                     action_taks = f'''
                         DELETE FROM ogloszenia_facebook
+                        
+                        WHERE id_zadania = %s;
+                    '''
+                    values = (taskID,)
+                    
+                    if msq.insert_to_database(action_taks, values):
+                        return jsonify({"message": "Finished"})
+                    else:
+                        return jsonify({"error": 500})
+                    
+                if message == 'Done-adresowo-delete': 
+
+                    action_taks = f'''
+                        DELETE FROM ogloszenia_adresowo
                         
                         WHERE id_zadania = %s;
                     '''
