@@ -601,6 +601,48 @@ def getMainResponder():
             task_data["delete"].append(theme)
             return task_data
 
+    hold_rent_adresowo = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_adresowo', 'rodzaj_ogloszenia', 'r', 'status', 7, 'active_task', 0)
+    # ADRESOWO - wynajem - hold    
+    for i, item in enumerate(hold_rent_adresowo):
+        theme = {
+            "task_id": int(time.time()) + i,
+            "platform": "ADRESOWO",
+            "rodzaj_ogloszenia": item[1],
+            "id_ogloszenia_na_adresowo": item[26],
+        }
+        action_taks = f'''
+            UPDATE ogloszenia_adresowo
+            SET 
+                active_task=%s,
+                id_zadania=%s
+            WHERE id = %s;
+        '''
+        values = (1, theme["task_id"], item[0])
+        if msq.insert_to_database(action_taks, values):
+            task_data["hold"].append(theme)
+            return task_data
+        
+    hold_sell_adresowo = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_adresowo', 'rodzaj_ogloszenia', 's', 'status', 7, 'active_task', 0)
+    # ADRESOWO - sell - hold    
+    for i, item in enumerate(hold_sell_adresowo):
+        theme = {
+            "task_id": int(time.time()) + i,
+            "platform": "ADRESOWO",
+            "rodzaj_ogloszenia": item[1],
+            "id_ogloszenia_na_adresowo": item[26],
+        }
+        action_taks = f'''
+            UPDATE ogloszenia_adresowo
+            SET 
+                active_task=%s,
+                id_zadania=%s
+            WHERE id = %s;
+        '''
+        values = (1, theme["task_id"], item[0])
+        if msq.insert_to_database(action_taks, values):
+            task_data["hold"].append(theme)
+            return task_data
+
     hold_rent_facebook = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_facebook', 'rodzaj_ogloszenia', 'r', 'status', 7, 'active_task', 0)
     # FACEBOOK - wynajem - hold    
     for i, item in enumerate(hold_rent_facebook):
@@ -914,6 +956,22 @@ def index():
 
                     action_taks = f'''
                         UPDATE ogloszenia_facebook
+                        SET 
+                            active_task=%s,
+                            status=%s
+                        WHERE id_zadania = %s;
+                    '''
+                    values = (0, 0, taskID)
+                    
+                    if msq.insert_to_database(action_taks, values):
+                        return jsonify({"message": "Finished"})
+                    else:
+                        return jsonify({"error": 500})
+                    
+                if message == 'Done-adresowo-hold': 
+
+                    action_taks = f'''
+                        UPDATE ogloszenia_adresowo
                         SET 
                             active_task=%s,
                             status=%s
