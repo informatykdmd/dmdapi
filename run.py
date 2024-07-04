@@ -36,6 +36,14 @@ def checkFacebookAction_before_errors(task_id):
         return msq.connect_to_database(f'SELECT status FROM ogloszenia_facebook WHERE id_zadania="{task_id}";')[0][0]
     except IndexError:
         return None
+
+def checkAdresowoAction_before_errors(task_id):
+    try:
+        return msq.connect_to_database(f'SELECT status FROM ogloszenia_adresowo WHERE id_zadania="{task_id}";')[0][0]
+    except IndexError:
+        return None
+    
+    
 def getMainResponder():
     task_data = {
         "create": [],
@@ -1007,11 +1015,25 @@ def index():
                         WHERE id_zadania = %s;
                     '''
                     values = (0, 2, errorMessage, oldStatus, taskID)
+                
+                elif message_flag == 'error-adresowo':
+                    oldStatus = checkAdresowoAction_before_errors(taskID)
+                    action_taks = f'''
+                        UPDATE ogloszenia_adresowo
+                        SET 
+                            active_task=%s,
+                            status=%s,
+                            errors=%s,
+                            action_before_errors=%s
+                        WHERE id_zadania = %s;
+                    '''
+                    values = (0, 2, errorMessage, oldStatus, taskID)
                     
                 if msq.insert_to_database(action_taks, values):
                     return jsonify({"message": "The error description has been saved"})
                 else:
                     return jsonify({"error": 500})
+                
 
         if 'error' in request.headers:
             error = request.headers.get('error')
