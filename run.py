@@ -846,14 +846,20 @@ def index():
                         return jsonify({"error": 500})
                     
                 if message == 'Done-adresowo-add-new': 
+                    if success!='' and success is not None: 
+                        id_adresowo_ads = str(success)
+                    else: 
+                        return jsonify({"error": 500})
+                    
                     action_taks = f'''
                         UPDATE ogloszenia_adresowo
                         SET 
                             active_task=%s,
-                            status=%s
+                            status=%s,
+                            id_ogloszenia_na_adresowo=%s
                         WHERE id_zadania = %s;
                     '''
-                    values = (0, 1, taskID)
+                    values = (0, 1, id_adresowo_ads, taskID)
                     
                     if msq.insert_to_database(action_taks, values):
                         return jsonify({"message": "Finished"})
