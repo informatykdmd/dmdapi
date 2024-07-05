@@ -420,7 +420,7 @@ def getMainResponder():
             task_data["update"].append(theme)
             return task_data
 
-    edit_data_from_sell_adresowo = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_adresowo', 'rodzaj_ogloszenia', 'r', 'status', 5, 'active_task', 0)
+    edit_data_from_sell_adresowo = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_adresowo', 'rodzaj_ogloszenia', 's', 'status', 5, 'active_task', 0)
     # ADRESOWO - sell - edit
     for i, item in enumerate(edit_data_from_sell_adresowo):
         # mazowieckie / warszawski zachodni / Izabelin / Izabelin / Brak /
