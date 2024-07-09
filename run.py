@@ -1360,7 +1360,7 @@ def index():
 
 @app.route('/get-data/', methods=['POST'])
 def public_on_lento():
-    api_key = request.headers.get('api_key')  # Pobieranie klucza API z nagłówka
+    api_key = request.json.get('api_key')  # Pobieranie klucza API z nagłówka
     if api_key and api_key in allowed_API_KEYS:
         if request.method == 'POST':
             device_id = request.json.get('device_id')
@@ -1375,6 +1375,9 @@ def public_on_lento():
             return jsonify({'status': 'success', 'device_id': device_id, 'device_type': device_type, 'data': data})
     else:
         return jsonify({"error": "Unauthorized access"}), 401  # Zwrot kodu 401 w przypadku braku autoryzacji
+    
+
+
 if __name__ == "__main__":
     # app.run(debug=True, port=4000)
     app.run(debug=True, host='0.0.0.0', port=4040)
