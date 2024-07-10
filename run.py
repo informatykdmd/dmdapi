@@ -1360,21 +1360,27 @@ def index():
 
 @app.route('/get-data/', methods=['POST'])
 def public_on_lento():
-    api_key = request.json.get('api_key')  # Pobieranie klucza API z nagłówka
+    api_key = request.json.get('api_key')  # Pobieranie klucza API 
     if api_key and api_key in allowed_API_KEYS:
         if request.method == 'POST':
-            task_id = request.json.get('task_id')
             platform = request.json.get('platform')
-            question = request.json.get('question')
-            data = request.json.get('data')
-            
-            # Przykładowe przetwarzanie danych
-            print(f'task_id: {task_id}')
-            print(f'platform: {platform}')
-            print(f'question: {question}')
-            print(f'Data: {data}')
-            
-            return jsonify({'success': 'success'})
+            """
+                    CHARACTER AI
+            """
+            if platform and platform == 'CHARACTER':
+                task_id = request.json.get('task_id')
+                question = request.json.get('question')
+                data = request.json.get('data')
+                
+                # Przykładowe przetwarzanie danych
+                print(f'task_id: {task_id}')
+                print(f'platform: {platform}')
+                print(f'question: {question}')
+                print(f'Data: {data}')
+                
+                return jsonify({'success': 'Dane zostały zapisane'})
+            else:
+                return jsonify({"error": "Bad structure json file!"})
     else:
         return jsonify({"error": "Unauthorized access"}), 401  # Zwrot kodu 401 w przypadku braku autoryzacji
     
