@@ -1363,16 +1363,18 @@ def public_on_lento():
     api_key = request.json.get('api_key')  # Pobieranie klucza API z nagłówka
     if api_key and api_key in allowed_API_KEYS:
         if request.method == 'POST':
-            device_id = request.json.get('device_id')
-            device_type = request.json.get('device_type')
+            task_id = request.json.get('task_id')
+            platform = request.json.get('platform')
+            question = request.json.get('question')
             data = request.json.get('data')
             
             # Przykładowe przetwarzanie danych
-            print(f'Device ID: {device_id}')
-            print(f'Device Type: {device_type}')
+            print(f'task_id: {task_id}')
+            print(f'platform: {platform}')
+            print(f'question: {question}')
             print(f'Data: {data}')
             
-            return jsonify({'status': 'success', 'device_id': device_id, 'device_type': device_type, 'data': data})
+            return jsonify({'success': 'success'})
     else:
         return jsonify({"error": "Unauthorized access"}), 401  # Zwrot kodu 401 w przypadku braku autoryzacji
     
