@@ -1430,10 +1430,25 @@ def public_on_lento():
                 print(f'platform: {platform}')
                 print(f'question: {question}')
                 print(f'Data: {data}')
+
+                action_taks = f'''
+                        INSERT INTO Messages
+                            (user_name, content)
+                        VALUES 
+                            (%s, %s);
+                    '''
+                values = ('aifa', data)
+                    
+                if msq.insert_to_database(action_taks, values):
+                    return jsonify({'success': 'Dane zostały zapisane'})
+                else:
+                    return jsonify({"error": "Bad structure json file!"})
                 
-                return jsonify({'success': 'Dane zostały zapisane'})
-            else:
-                return jsonify({"error": "Bad structure json file!"})
+
+            return jsonify({"error": "Bad structure json file!"})
+        return jsonify({"error": "Bad POST data!"})
+        
+
     else:
         return jsonify({"error": "Unauthorized access"}), 401  # Zwrot kodu 401 w przypadku braku autoryzacji
     
