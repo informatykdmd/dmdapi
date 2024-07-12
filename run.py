@@ -1433,11 +1433,11 @@ def get_data():
 
                 action_taks = f'''
                         INSERT INTO Messages
-                            (user_name, content)
+                            (user_name, content, status)
                         VALUES 
-                            (%s, %s);
+                            (%s, %s, %s);
                     '''
-                values = ('aifa', data)
+                values = ('aifa', data, 2)
                     
                 if msq.insert_to_database(action_taks, values):
                     return jsonify({'success': 'Dane zostały zapisane'})
