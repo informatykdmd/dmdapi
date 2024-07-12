@@ -1437,7 +1437,7 @@ def get_data():
                         VALUES 
                             (%s, %s, %s);
                     '''
-                values = ('aifa', data, 1)
+                values = ('aifa', data, 2)
                     
                 if msq.insert_to_database(action_taks, values):
                     return jsonify({'success': 'Dane zostały zapisane'})
