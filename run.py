@@ -54,6 +54,31 @@ def getMainResponder():
         "promotion": []
     }
 
+    new_data_from_chat = msq.connect_to_database(f'SELECT * FROM chat_task WHERE status = 4 AND active_task = 0;')
+    # CHAT - create
+    for i, item in enumerate(new_data_from_chat):
+
+        theme = {
+            "task_id": int(time.time()) + i,
+            "platform": "CHARACTER",
+            "id": item[0],
+            "question": item[1]
+
+        }
+
+        action_taks = f'''
+            UPDATE chat_task
+            SET 
+                active_task=%s,
+                id_zadania=%s
+            WHERE id = %s;
+        '''
+        values = (1, theme["task_id"], theme["id"])
+        if msq.insert_to_database(action_taks, values):
+            task_data["create"].append(theme)
+            return task_data
+
+
     new_data_from_rent_adresowo = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_adresowo', 'rodzaj_ogloszenia', 'r', 'status', 4, 'active_task', 0)
     # ADRESOWO - wynajem - create
     for i, item in enumerate(new_data_from_rent_adresowo):
@@ -1059,6 +1084,23 @@ def index():
                 taskID = request.headers.get('taskID')
                 success = request.headers.get('success')
 
+                if message == 'Done-chat-add-new': 
+                                        
+                    action_taks = f'''
+                        UPDATE chat_task
+                        SET 
+                            active_task=%s,
+                            status=%s,
+                        WHERE id_zadania = %s;
+                    '''
+                    values = (0, 1, taskID)
+                    
+                    if msq.insert_to_database(action_taks, values):
+                        return jsonify({"message": "Finished"})
+                    else:
+                        return jsonify({"error": 500})
+                    
+
                 if message == 'Done-lento-add-new': 
                     try: 
                         id_lento_ads = int(success)
@@ -1344,6 +1386,17 @@ def index():
                         WHERE id_zadania = %s;
                     '''
                     values = (0, 2, errorMessage, oldStatus, taskID)
+                
+                elif message_flag == 'error-chat':
+                    action_taks = f'''
+                        UPDATE chat_task
+                        SET 
+                            active_task=%s,
+                            status=%s,
+                            errors=%s,
+                        WHERE id_zadania = %s;
+                    '''
+                    values = (0, 4, errorMessage, taskID)
                     
                 if msq.insert_to_database(action_taks, values):
                     return jsonify({"message": "The error description has been saved"})
