@@ -1090,7 +1090,7 @@ def index():
                         UPDATE chat_task
                         SET 
                             active_task=%s,
-                            status=%s,
+                            status=%s
                         WHERE id_zadania = %s;
                     '''
                     values = (0, 1, taskID)
