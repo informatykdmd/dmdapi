@@ -1083,7 +1083,7 @@ def index():
                 message = request.headers.get('message')
                 taskID = request.headers.get('taskID')
                 success = request.headers.get('success')
-
+                print(taskID)
                 if message == 'Done-chat-add-new': 
                                         
                     action_taks = f'''
