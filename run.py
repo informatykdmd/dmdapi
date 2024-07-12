@@ -1412,7 +1412,7 @@ def index():
         return jsonify({"error": "Unauthorized access"}), 401  # Zwrot kodu 401 w przypadku braku autoryzacji
 
 @app.route('/get-data/', methods=['POST'])
-def public_on_lento():
+def get_data():
     api_key = request.json.get('api_key')  # Pobieranie klucza API 
     if api_key and api_key in allowed_API_KEYS:
         if request.method == 'POST':
