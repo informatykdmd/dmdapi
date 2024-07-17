@@ -592,7 +592,6 @@ def getMainResponder():
             task_data["update"].append(theme)
             return task_data
 
-
     edit_data_from_sell_allegro = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_allegrolokalnie', 'rodzaj_ogloszenia', 's', 'status', 5, 'active_task', 0)
     # ALLEGRO - sell - edit
     for i, item in enumerate(edit_data_from_sell_allegro):
@@ -935,6 +934,45 @@ def getMainResponder():
 
 
 
+    delete_rent_allegro = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_allegrolokalnie', 'rodzaj_ogloszenia', 'r', 'status', 6, 'active_task', 0)
+    # ALLEGRO - rent - del    
+    for i, item in enumerate(delete_rent_allegro):
+        theme = {
+            "task_id": int(time.time()) + i,
+            "platform": "ALLEGRO",
+            "rodzaj_ogloszenia": item[1],
+            "id_ogloszenia_na_adresowo": item[26],
+        }
+        action_taks = f'''
+            UPDATE ogloszenia_allegrolokalnie
+            SET 
+                active_task=%s,
+                id_zadania=%s
+            WHERE id = %s;
+        '''
+        values = (1, theme["task_id"], item[0])
+        if msq.insert_to_database(action_taks, values):
+            task_data["delete"].append(theme)
+
+    delete_sell_allegro = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_allegrolokalnie', 'rodzaj_ogloszenia', 's', 'status', 6, 'active_task', 0)
+    # ALLEGRO - sell - del    
+    for i, item in enumerate(delete_sell_allegro):
+        theme = {
+            "task_id": int(time.time()) + i,
+            "platform": "ALLEGRO",
+            "rodzaj_ogloszenia": item[1],
+            "id_ogloszenia_na_adresowo": item[26],
+        }
+        action_taks = f'''
+            UPDATE ogloszenia_allegrolokalnie
+            SET 
+                active_task=%s,
+                id_zadania=%s
+            WHERE id = %s;
+        '''
+        values = (1, theme["task_id"], item[0])
+        if msq.insert_to_database(action_taks, values):
+            task_data["delete"].append(theme)
 
     delete_rent_adresowo = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_adresowo', 'rodzaj_ogloszenia', 'r', 'status', 6, 'active_task', 0)
     # ADRESOWO - rent - del    
@@ -1483,6 +1521,20 @@ def index():
 
                     action_taks = f'''
                         DELETE FROM ogloszenia_adresowo
+                        
+                        WHERE id_zadania = %s;
+                    '''
+                    values = (taskID,)
+                    
+                    if msq.insert_to_database(action_taks, values):
+                        return jsonify({"message": "Finished"})
+                    else:
+                        return jsonify({"error": 500})
+                    
+                if message == 'Done-allegro-delete': 
+
+                    action_taks = f'''
+                        DELETE FROM ogloszenia_allegrolokalnie
                         
                         WHERE id_zadania = %s;
                     '''
