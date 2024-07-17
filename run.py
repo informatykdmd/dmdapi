@@ -525,6 +525,140 @@ def getMainResponder():
 
 
 
+    edit_data_from_rent_allegro = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_allegrolokalnie', 'rodzaj_ogloszenia', 'r', 'status', 5, 'active_task', 0)
+    # ALLEGRO - wynajem - edit
+    for i, item in enumerate(edit_data_from_rent_allegro):
+        # mazowieckie / warszawski zachodni / Izabelin / Izabelin / Brak /
+        region = tuple(str(item[5])[:-2].split(' / '))
+
+        zdjecia_string = str(item[24]).split('-@-')
+        theme = {
+            "task_id": int(time.time()) + i,
+            "platform": "ALLEGRO",
+            "rodzaj_ogloszenia": item[1],
+            "kategoria_ogloszenia": item[4],
+            "id_ogloszenia_na_allegro": item[29],
+            "details": {
+                "tytul_ogloszenia": item[3],
+                "cena": item[8],
+
+                "wojewodztwo": region[0],
+                "powiat": region[1],
+                "gmina": region[2],
+                "miejscowosc": region[3],
+                "dzielnica": region[4],
+
+                "kod_pocztowy": item[6],
+                "ulica": item[7],
+
+
+                "opis_ogloszenia": item[9],
+                "liczba_pieter": item[10],
+                "liczba_pokoi": item[11],
+                "poziom": item[12],
+
+                "powierzchnia": item[13],
+                "pow_dzialki": item[14],
+
+                "typ_budynku": item[15],
+                "typ_komercyjny": item[16],
+                "typ_dzialki": item[17],
+                "typ_kuchni": item[18],
+                "rodzaj_zabudowy": item[19],
+
+                "rynek": item[20],
+
+                "pakiet": item[21],
+                "extra_wyroznienie": item[22],
+                "extra_wznawianie": item[23],
+
+                "zdjecia_string": zdjecia_string, # lista stringów
+
+                "osoba_kontaktowa": item[25],
+                "nr_telefonu": item[26],
+                "adres_email": item[27]
+            }
+        }
+
+        action_taks = f'''
+            UPDATE ogloszenia_allegrolokalnie
+            SET 
+                active_task=%s,
+                id_zadania=%s
+            WHERE id = %s;
+        '''
+        values = (1, theme["task_id"], item[0])
+        if msq.insert_to_database(action_taks, values):
+            task_data["update"].append(theme)
+            return task_data
+
+
+    edit_data_from_sell_allegro = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_allegrolokalnie', 'rodzaj_ogloszenia', 's', 'status', 5, 'active_task', 0)
+    # ALLEGRO - sell - edit
+    for i, item in enumerate(edit_data_from_sell_allegro):
+        # mazowieckie / warszawski zachodni / Izabelin / Izabelin / Brak /
+        region = tuple(str(item[5])[:-2].split(' / '))
+
+        zdjecia_string = str(item[24]).split('-@-')
+        theme = {
+            "task_id": int(time.time()) + i,
+            "platform": "ALLEGRO",
+            "rodzaj_ogloszenia": item[1],
+            "kategoria_ogloszenia": item[4],
+            "id_ogloszenia_na_allegro": item[29],
+            "details": {
+                "tytul_ogloszenia": item[3],
+                "cena": item[8],
+
+                "wojewodztwo": region[0],
+                "powiat": region[1],
+                "gmina": region[2],
+                "miejscowosc": region[3],
+                "dzielnica": region[4],
+
+                "kod_pocztowy": item[6],
+                "ulica": item[7],
+
+
+                "opis_ogloszenia": item[9],
+                "liczba_pieter": item[10],
+                "liczba_pokoi": item[11],
+                "poziom": item[12],
+
+                "powierzchnia": item[13],
+                "pow_dzialki": item[14],
+
+                "typ_budynku": item[15],
+                "typ_komercyjny": item[16],
+                "typ_dzialki": item[17],
+                "typ_kuchni": item[18],
+                "rodzaj_zabudowy": item[19],
+
+                "rynek": item[20],
+
+                "pakiet": item[21],
+                "extra_wyroznienie": item[22],
+                "extra_wznawianie": item[23],
+
+                "zdjecia_string": zdjecia_string, # lista stringów
+
+                "osoba_kontaktowa": item[25],
+                "nr_telefonu": item[26],
+                "adres_email": item[27]
+            }
+        }
+
+        action_taks = f'''
+            UPDATE ogloszenia_allegrolokalnie
+            SET 
+                active_task=%s,
+                id_zadania=%s
+            WHERE id = %s;
+        '''
+        values = (1, theme["task_id"], item[0])
+        if msq.insert_to_database(action_taks, values):
+            task_data["update"].append(theme)
+            return task_data
 
     edit_data_from_rent_adresowo = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_adresowo', 'rodzaj_ogloszenia', 'r', 'status', 5, 'active_task', 0)
     # ADRESOWO - wynajem - edit
@@ -1491,6 +1625,22 @@ def index():
 
                     action_taks = f'''
                         UPDATE ogloszenia_adresowo
+                        SET 
+                            active_task=%s,
+                            status=%s
+                        WHERE id_zadania = %s;
+                    '''
+                    values = (0, 1, taskID)
+                    
+                    if msq.insert_to_database(action_taks, values):
+                        return jsonify({"message": "Finished"})
+                    else:
+                        return jsonify({"error": 500})
+                    
+                if message == 'Done-allegro-update': 
+
+                    action_taks = f'''
+                        UPDATE ogloszenia_allegrolokalnie
                         SET 
                             active_task=%s,
                             status=%s
