@@ -48,6 +48,12 @@ def checkAllegroAction_before_errors(task_id):
         return msq.connect_to_database(f'SELECT status FROM ogloszenia_allegrolokalnie WHERE id_zadania="{task_id}";')[0][0]
     except IndexError:
         return None
+
+def checkOtodomAction_before_errors(task_id):
+    try:
+        return msq.connect_to_database(f'SELECT status FROM ogloszenia_otodom WHERE id_zadania="{task_id}";')[0][0]
+    except IndexError:
+        return None
     
 def getMainResponder():
     task_data = {
@@ -79,6 +85,150 @@ def getMainResponder():
             WHERE id = %s;
         '''
         values = (1, theme["task_id"], theme["id"])
+        if msq.insert_to_database(action_taks, values):
+            task_data["create"].append(theme)
+            return task_data
+
+    new_data_from_rent_otodom = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_otodom', 'rodzaj_ogloszenia', 'r', 'status', 4, 'active_task', 0)
+    # Otodom - wynajem - create
+    for i, item in enumerate(new_data_from_rent_otodom):
+        # mazowieckie / warszawski zachodni / Izabelin / Izabelin / Brak /
+        region = tuple(str(item[5])[:-2].split(' / '))
+
+        zdjecia_string = str(item[31]).split('-@-')
+        theme = {
+            "task_id": int(time.time()) + i,
+            "platform": "OTODOM",
+            "rodzaj_ogloszenia": item[1],
+            "kategoria_ogloszenia": item[4],
+            "id_ogloszenia_na_otodom": item[33],
+            "details": {
+                "tytul_ogloszenia": item[3],
+                "cena": item[6],
+
+                "wojewodztwo": region[0],
+                "powiat": region[1],
+                "gmina": region[2],
+                "miejscowosc": region[3],
+                "dzielnica": region[4],
+
+
+                "opis_ogloszenia": item[7],
+                "liczba_pieter": item[8],
+                "liczba_pokoi": item[9],
+                "poziom": item[10],
+
+                "powierzchnia": item[11],
+                "konstrukcja": item[12],
+                "stan_wykonczenia": item[13],
+
+                "pow_dzialki": item[14],
+                "typ_dzialki": item[15],
+
+                "rodzaj_zabudowy": item[16],
+                "rynek": item[17],
+                "rok_budowy": item[18],
+
+                "promo": item[19],
+                "auto_refresh": item[20],
+                "extra_top": item[21],
+                "extra_home": item[22],
+                "export_olx": item[23],
+                "extra_raise": item[24],
+                "mega_raise": item[25],
+
+                "pakiet_olx_mini": item[26],
+                "pakiet_olx_midi": item[27],
+                "pakiet_olx_maxi": item[28],
+
+                "pick_olx": item[29],
+                "auto_refresh_olx": item[30],
+
+                "zdjecia_string": zdjecia_string, # lista stringów
+
+            }
+        }
+
+        action_taks = f'''
+            UPDATE ogloszenia_otodom
+            SET 
+                active_task=%s,
+                id_zadania=%s
+            WHERE id = %s;
+        '''
+        values = (1, theme["task_id"], item[0])
+        if msq.insert_to_database(action_taks, values):
+            task_data["create"].append(theme)
+            return task_data
+
+    new_data_from_sell_otodom = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_otodom', 'rodzaj_ogloszenia', 's', 'status', 4, 'active_task', 0)
+    # Otodom - sell - create
+    for i, item in enumerate(new_data_from_sell_otodom):
+        # mazowieckie / warszawski zachodni / Izabelin / Izabelin / Brak /
+        region = tuple(str(item[5])[:-2].split(' / '))
+
+        zdjecia_string = str(item[31]).split('-@-')
+        theme = {
+            "task_id": int(time.time()) + i,
+            "platform": "OTODOM",
+            "rodzaj_ogloszenia": item[1],
+            "kategoria_ogloszenia": item[4],
+            "id_ogloszenia_na_otodom": item[33],
+            "details": {
+                "tytul_ogloszenia": item[3],
+                "cena": item[6],
+
+                "wojewodztwo": region[0],
+                "powiat": region[1],
+                "gmina": region[2],
+                "miejscowosc": region[3],
+                "dzielnica": region[4],
+
+
+                "opis_ogloszenia": item[7],
+                "liczba_pieter": item[8],
+                "liczba_pokoi": item[9],
+                "poziom": item[10],
+
+                "powierzchnia": item[11],
+                "konstrukcja": item[12],
+                "stan_wykonczenia": item[13],
+
+                "pow_dzialki": item[14],
+                "typ_dzialki": item[15],
+
+                "rodzaj_zabudowy": item[16],
+                "rynek": item[17],
+                "rok_budowy": item[18],
+
+                "promo": item[19],
+                "auto_refresh": item[20],
+                "extra_top": item[21],
+                "extra_home": item[22],
+                "export_olx": item[23],
+                "extra_raise": item[24],
+                "mega_raise": item[25],
+
+                "pakiet_olx_mini": item[26],
+                "pakiet_olx_midi": item[27],
+                "pakiet_olx_maxi": item[28],
+
+                "pick_olx": item[29],
+                "auto_refresh_olx": item[30],
+
+                "zdjecia_string": zdjecia_string, # lista stringów
+
+            }
+        }
+
+        action_taks = f'''
+            UPDATE ogloszenia_otodom
+            SET 
+                active_task=%s,
+                id_zadania=%s
+            WHERE id = %s;
+        '''
+        values = (1, theme["task_id"], item[0])
         if msq.insert_to_database(action_taks, values):
             task_data["create"].append(theme)
             return task_data
@@ -525,6 +675,150 @@ def getMainResponder():
 
 
 
+    edit_data_from_rent_otodom = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_otodom', 'rodzaj_ogloszenia', 'r', 'status', 5, 'active_task', 0)
+    # OTODOM - wynajem - edit
+    for i, item in enumerate(edit_data_from_rent_otodom):
+        # mazowieckie / warszawski zachodni / Izabelin / Izabelin / Brak /
+        region = tuple(str(item[5])[:-2].split(' / '))
+
+        zdjecia_string = str(item[31]).split('-@-')
+        theme = {
+            "task_id": int(time.time()) + i,
+            "platform": "OTODOM",
+            "rodzaj_ogloszenia": item[1],
+            "kategoria_ogloszenia": item[4],
+            "id_ogloszenia_na_otodom": item[33],
+            "details": {
+                "tytul_ogloszenia": item[3],
+                "cena": item[6],
+
+                "wojewodztwo": region[0],
+                "powiat": region[1],
+                "gmina": region[2],
+                "miejscowosc": region[3],
+                "dzielnica": region[4],
+
+
+                "opis_ogloszenia": item[7],
+                "liczba_pieter": item[8],
+                "liczba_pokoi": item[9],
+                "poziom": item[10],
+
+                "powierzchnia": item[11],
+                "konstrukcja": item[12],
+                "stan_wykonczenia": item[13],
+
+                "pow_dzialki": item[14],
+                "typ_dzialki": item[15],
+
+                "rodzaj_zabudowy": item[16],
+                "rynek": item[17],
+                "rok_budowy": item[18],
+
+                "promo": item[19],
+                "auto_refresh": item[20],
+                "extra_top": item[21],
+                "extra_home": item[22],
+                "export_olx": item[23],
+                "extra_raise": item[24],
+                "mega_raise": item[25],
+
+                "pakiet_olx_mini": item[26],
+                "pakiet_olx_midi": item[27],
+                "pakiet_olx_maxi": item[28],
+
+                "pick_olx": item[29],
+                "auto_refresh_olx": item[30],
+
+                "zdjecia_string": zdjecia_string, # lista stringów
+
+            }
+        }
+
+        action_taks = f'''
+            UPDATE ogloszenia_otodom
+            SET 
+                active_task=%s,
+                id_zadania=%s
+            WHERE id = %s;
+        '''
+        values = (1, theme["task_id"], item[0])
+        if msq.insert_to_database(action_taks, values):
+            task_data["update"].append(theme)
+            return task_data
+
+    edit_data_from_sell_otodom = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_otodom', 'rodzaj_ogloszenia', 's', 'status', 5, 'active_task', 0)
+    # OTODOM - sell - edit
+    for i, item in enumerate(edit_data_from_sell_otodom):
+        # mazowieckie / warszawski zachodni / Izabelin / Izabelin / Brak /
+        region = tuple(str(item[5])[:-2].split(' / '))
+
+        zdjecia_string = str(item[31]).split('-@-')
+        theme = {
+            "task_id": int(time.time()) + i,
+            "platform": "OTODOM",
+            "rodzaj_ogloszenia": item[1],
+            "kategoria_ogloszenia": item[4],
+            "id_ogloszenia_na_otodom": item[33],
+            "details": {
+                "tytul_ogloszenia": item[3],
+                "cena": item[6],
+
+                "wojewodztwo": region[0],
+                "powiat": region[1],
+                "gmina": region[2],
+                "miejscowosc": region[3],
+                "dzielnica": region[4],
+
+
+                "opis_ogloszenia": item[7],
+                "liczba_pieter": item[8],
+                "liczba_pokoi": item[9],
+                "poziom": item[10],
+
+                "powierzchnia": item[11],
+                "konstrukcja": item[12],
+                "stan_wykonczenia": item[13],
+
+                "pow_dzialki": item[14],
+                "typ_dzialki": item[15],
+
+                "rodzaj_zabudowy": item[16],
+                "rynek": item[17],
+                "rok_budowy": item[18],
+
+                "promo": item[19],
+                "auto_refresh": item[20],
+                "extra_top": item[21],
+                "extra_home": item[22],
+                "export_olx": item[23],
+                "extra_raise": item[24],
+                "mega_raise": item[25],
+
+                "pakiet_olx_mini": item[26],
+                "pakiet_olx_midi": item[27],
+                "pakiet_olx_maxi": item[28],
+
+                "pick_olx": item[29],
+                "auto_refresh_olx": item[30],
+
+                "zdjecia_string": zdjecia_string, # lista stringów
+
+            }
+        }
+
+        action_taks = f'''
+            UPDATE ogloszenia_otodom
+            SET 
+                active_task=%s,
+                id_zadania=%s
+            WHERE id = %s;
+        '''
+        values = (1, theme["task_id"], item[0])
+        if msq.insert_to_database(action_taks, values):
+            task_data["update"].append(theme)
+            return task_data
+
     edit_data_from_rent_allegro = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_allegrolokalnie', 'rodzaj_ogloszenia', 'r', 'status', 5, 'active_task', 0)
     # ALLEGRO - wynajem - edit
     for i, item in enumerate(edit_data_from_rent_allegro):
@@ -933,6 +1227,46 @@ def getMainResponder():
 
 
 
+
+    delete_rent_otodom = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_otodom', 'rodzaj_ogloszenia', 'r', 'status', 6, 'active_task', 0)
+    # OTODOM - rent - del    
+    for i, item in enumerate(delete_rent_otodom):
+        theme = {
+            "task_id": int(time.time()) + i,
+            "platform": "OTODOM",
+            "rodzaj_ogloszenia": item[1],
+            "id_ogloszenia_na_otodom": item[33]
+        }
+        action_taks = f'''
+            UPDATE ogloszenia_otodom
+            SET 
+                active_task=%s,
+                id_zadania=%s
+            WHERE id = %s;
+        '''
+        values = (1, theme["task_id"], item[0])
+        if msq.insert_to_database(action_taks, values):
+            task_data["delete"].append(theme)
+
+    delete_sell_otodom = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_otodom', 'rodzaj_ogloszenia', 's', 'status', 6, 'active_task', 0)
+    # OTODOM - sell - del    
+    for i, item in enumerate(delete_sell_otodom):
+        theme = {
+            "task_id": int(time.time()) + i,
+            "platform": "OTODOM",
+            "rodzaj_ogloszenia": item[1],
+            "id_ogloszenia_na_otodom": item[33]
+        }
+        action_taks = f'''
+            UPDATE ogloszenia_otodom
+            SET 
+                active_task=%s,
+                id_zadania=%s
+            WHERE id = %s;
+        '''
+        values = (1, theme["task_id"], item[0])
+        if msq.insert_to_database(action_taks, values):
+            task_data["delete"].append(theme)
 
     delete_rent_allegro = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_allegrolokalnie', 'rodzaj_ogloszenia', 'r', 'status', 6, 'active_task', 0)
     # ALLEGRO - rent - del    
@@ -1410,7 +1744,6 @@ def index():
                     else:
                         return jsonify({"error": 500})
                     
-
                 if message == 'Done-lento-add-new': 
                     try: 
                         id_lento_ads = int(success)
@@ -1488,6 +1821,27 @@ def index():
                         return jsonify({"message": "Finished"})
                     else:
                         return jsonify({"error": 500})
+                
+                if message == 'Done-otodom-add-new': 
+                    if success!='' and success is not None: 
+                        id_otodom_ads = str(success)
+                    else: 
+                        return jsonify({"error": 500})
+                    
+                    action_taks = f'''
+                        UPDATE ogloszenia_otodom
+                        SET 
+                            active_task=%s,
+                            status=%s,
+                            id_ogloszenia_na_otodom=%s
+                        WHERE id_zadania = %s;
+                    '''
+                    values = (0, 1, id_otodom_ads, taskID)
+                    
+                    if msq.insert_to_database(action_taks, values):
+                        return jsonify({"message": "Finished"})
+                    else:
+                        return jsonify({"error": 500})
                     
                 if message == 'Done-lento-delete': 
 
@@ -1535,6 +1889,20 @@ def index():
 
                     action_taks = f'''
                         DELETE FROM ogloszenia_allegrolokalnie
+                        
+                        WHERE id_zadania = %s;
+                    '''
+                    values = (taskID,)
+                    
+                    if msq.insert_to_database(action_taks, values):
+                        return jsonify({"message": "Finished"})
+                    else:
+                        return jsonify({"error": 500})
+                
+                if message == 'Done-otodom-delete': 
+
+                    action_taks = f'''
+                        DELETE FROM ogloszenia_otodom
                         
                         WHERE id_zadania = %s;
                     '''
@@ -1705,6 +2073,22 @@ def index():
                     else:
                         return jsonify({"error": 500})
                     
+                if message == 'Done-otodom-update': 
+
+                    action_taks = f'''
+                        UPDATE ogloszenia_otodom
+                        SET 
+                            active_task=%s,
+                            status=%s
+                        WHERE id_zadania = %s;
+                    '''
+                    values = (0, 1, taskID)
+                    
+                    if msq.insert_to_database(action_taks, values):
+                        return jsonify({"message": "Finished"})
+                    else:
+                        return jsonify({"error": 500})
+                    
             elif action == 'error':
                 taskID = request.headers.get('taskID')
                 errorMessage = request.headers.get('error')
@@ -1752,6 +2136,19 @@ def index():
                     oldStatus = checkAllegroAction_before_errors(taskID)
                     action_taks = f'''
                         UPDATE ogloszenia_allegrolokalnie
+                        SET 
+                            active_task=%s,
+                            status=%s,
+                            errors=%s,
+                            action_before_errors=%s
+                        WHERE id_zadania = %s;
+                    '''
+                    values = (0, 2, errorMessage, oldStatus, taskID)
+
+                elif message_flag == 'error-otodom':
+                    oldStatus = checkOtodomAction_before_errors(taskID)
+                    action_taks = f'''
+                        UPDATE ogloszenia_otodom
                         SET 
                             active_task=%s,
                             status=%s,
