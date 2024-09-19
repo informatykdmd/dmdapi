@@ -17,7 +17,7 @@ def take_data_where_ID_AND_somethig_AND_Something(key, table, id_name, ID, nameS
     if isinstance(valSomething, str):
         valSomething = f"'{valSomething}'"
     if isinstance(valSomethingOther, str):
-        valSomething = f"'{valSomethingOther}'"
+        valSomethingOther = f"'{valSomethingOther}'"
     dump_key = msq.connect_to_database(f'SELECT {key} FROM {table} WHERE {id_name} = {ID} AND {nameSomething} = {valSomething} AND {nameSomethingOther} = {valSomethingOther};')
     return dump_key
 
