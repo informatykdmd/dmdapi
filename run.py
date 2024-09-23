@@ -1717,7 +1717,7 @@ def updateJsonFile(taskID, file_name='responder.json', encodingJson='utf-8'):
 def index():
     data = getMainResponder()
     api_key = request.headers.get('api_key')  # Pobieranie klucza API z nagłówka
-    print(api_key)
+    print(request.headers)
     if api_key and api_key in allowed_API_KEYS:
         if 'action' in request.headers:
             action = request.headers.get('action')
