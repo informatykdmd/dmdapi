@@ -89,6 +89,64 @@ def getMainResponder():
             task_data["create"].append(theme)
             return task_data
 
+    new_data_from_career_fbgropus = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_fbgroups', 'sekcja_ogloszenia', 'career', 'status', 4, 'active_task', 0)
+    # Career - FB GROUPS - create
+    for i, item in enumerate(new_data_from_career_fbgropus):
+        """
+        id
+        id_ogloszenia
+        waitnig_list_id
+        kategoria_ogloszenia
+        sekcja_ogloszenia
+        tresc_ogloszenia
+        styl_ogloszenia
+        poziom_harmonogramu
+        linkigrup_string
+        zdjecia_string
+        id_zadania
+        status
+        active_task
+        errors
+        data_aktualizacji
+        action_before_errors
+        """
+        if item[8] is not None:
+            linkigrup_string = str(item[8]).split('-@-')
+        else: 
+            linkigrup_string = []
+        
+        if item[9] is not None:
+            zdjecia_string = str(item[9]).split('-@-')
+        else: 
+            zdjecia_string = []
+
+        theme = {
+            "task_id": int(item[10]),
+            "platform": "FB-GROUPS",
+            "waitinig_list_id": int(item[2]),
+            "kategoria_ogloszenia": item[3],
+            "id_ogloszenia": item[1],
+            "sekcja_ogloszenia": item[4],
+            'poziom_harmonogramu': item[7],
+            "details": {
+                "tresc_ogloszenia": item[5],
+                "styl_ogloszenia": int(item[6]),
+                "linkigrup_string": linkigrup_string, # lista stringów
+                "zdjecia_string": zdjecia_string # lista stringów
+            }
+        }
+
+        action_taks = f'''
+            UPDATE ogloszenia_fbgroups
+            SET 
+                active_task=%s
+            WHERE id = %s;
+        '''
+        values = (1, item[0])
+        if msq.insert_to_database(action_taks, values):
+            task_data["create"].append(theme)
+            return task_data
+
     new_data_from_rent_otodom = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_otodom', 'rodzaj_ogloszenia', 'r', 'status', 4, 'active_task', 0)
     # Otodom - wynajem - create
     for i, item in enumerate(new_data_from_rent_otodom):
@@ -1717,7 +1775,7 @@ def updateJsonFile(taskID, file_name='responder.json', encodingJson='utf-8'):
 def index():
     data = getMainResponder()
     api_key = request.headers.get('api_key')  # Pobieranie klucza API z nagłówka
-    print(request.headers)
+    # print(request.headers)
     if api_key and api_key in allowed_API_KEYS:
         if 'action' in request.headers:
             action = request.headers.get('action')
@@ -1733,6 +1791,22 @@ def index():
                                         
                     action_taks = f'''
                         UPDATE chat_task
+                        SET 
+                            active_task=%s,
+                            status=%s
+                        WHERE id_zadania = %s;
+                    '''
+                    values = (0, 1, taskID)
+                    
+                    if msq.insert_to_database(action_taks, values):
+                        return jsonify({"message": "Finished"})
+                    else:
+                        return jsonify({"error": 500})
+                    
+                if message == 'Done-career-add-fbgroups': 
+                                        
+                    action_taks = f'''
+                        UPDATE ogloszenia_fbgroups
                         SET 
                             active_task=%s,
                             status=%s
@@ -2170,10 +2244,24 @@ def index():
                     '''
                     values = (0, 4, errorMessage, taskID)
                     
+                elif message_flag == 'error-career-fbgroups':
+                    action_taks = f'''
+                        UPDATE ogloszenia_fbgroups
+                        SET 
+                            active_task=%s,
+                            status=%s,
+                            errors=%s,
+                        WHERE id_zadania = %s;
+                    '''
+                    values = (0, 4, errorMessage, taskID)
+
                 if msq.insert_to_database(action_taks, values):
                     return jsonify({"message": "The error description has been saved"})
                 else:
                     return jsonify({"error": 500})
+
+                    
+
                 
 
         if 'error' in request.headers:
@@ -2212,6 +2300,37 @@ def get_data():
                 values = ('aifa', data, 2)
                     
                 if msq.insert_to_database(action_taks, values):
+                    return jsonify({'success': 'Dane zostały zapisane'})
+                else:
+                    return jsonify({"error": "Bad structure json file!"})
+            
+            """
+                    FB-GROUPS
+            """
+            if platform and platform == 'FB-GROUPS':
+                task_id = request.json.get('task_id')
+                waiting_list_id = request.json.get('waiting_list_id')
+                poziom_harmonogramu = request.json.get('poziom_harmonogramu')
+                status = request.json.get('status')
+                errors = request.json.get('errors')
+                
+                # Przykładowe przetwarzanie danych
+                print(f'task_id: {task_id}')
+                print(f'platform: {platform}')
+                print(f'waiting_list_id: {waiting_list_id}')
+                print(f'poziom_harmonogramu: {poziom_harmonogramu}')
+                print(f'status: {status}')
+                print(f'errors: {errors}')
+
+                action_task = f'''
+                    UPDATE waitinglist_fbgroups
+                    SET schedule_{poziom_harmonogramu}_status = %s, 
+                        schedule_{poziom_harmonogramu}_errors = %s
+                    WHERE id = %s;
+                '''
+                values = (status, errors, waiting_list_id)
+
+                if msq.insert_to_database(action_task, values):
                     return jsonify({'success': 'Dane zostały zapisane'})
                 else:
                     return jsonify({"error": "Bad structure json file!"})
