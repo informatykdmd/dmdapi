@@ -92,24 +92,7 @@ def getMainResponder():
     new_data_from_career_fbgropus = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_fbgroups', 'sekcja_ogloszenia', 'career', 'status', 4, 'active_task', 0)
     # Career - FB GROUPS - create
     for i, item in enumerate(new_data_from_career_fbgropus):
-        """
-        id
-        id_ogloszenia
-        waitnig_list_id
-        kategoria_ogloszenia
-        sekcja_ogloszenia
-        tresc_ogloszenia
-        styl_ogloszenia
-        poziom_harmonogramu
-        linkigrup_string
-        zdjecia_string
-        id_zadania
-        status
-        active_task
-        errors
-        data_aktualizacji
-        action_before_errors
-        """
+
         if item[8] is not None:
             linkigrup_string = str(item[8]).split('-@-')
         else: 
