@@ -123,7 +123,7 @@ def getMainResponder():
         theme = {
             "task_id": int(item[10]),
             "platform": "FB-GROUPS",
-            "waitinig_list_id": int(item[2]),
+            "waiting_list_id": int(item[2]),
             "kategoria_ogloszenia": item[3],
             "id_ogloszenia": item[1],
             "sekcja_ogloszenia": item[4],
