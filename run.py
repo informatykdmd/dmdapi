@@ -131,8 +131,49 @@ def getMainResponder():
             return task_data
 
     new_data_from_estateAdsRent_fbgropus = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_fbgroups', 'sekcja_ogloszenia', 'estateAdsRent', 'status', 4, 'active_task', 0)
-    # Career - FB GROUPS - create
+    # Estate - FB GROUPS - Rent
     for i, item in enumerate(new_data_from_estateAdsRent_fbgropus):
+
+        if item[8] is not None:
+            linkigrup_string = str(item[8]).split('-@-')
+        else: 
+            linkigrup_string = []
+        
+        if item[9] is not None:
+            zdjecia_string = str(item[9]).split('-@-')
+        else: 
+            zdjecia_string = []
+
+        theme = {
+            "task_id": int(item[10]),
+            "platform": "FB-GROUPS",
+            "waiting_list_id": int(item[2]),
+            "kategoria_ogloszenia": item[3],
+            "id_ogloszenia": item[1],
+            "sekcja_ogloszenia": item[4],
+            'poziom_harmonogramu': item[7],
+            "details": {
+                "tresc_ogloszenia": item[5],
+                "styl_ogloszenia": int(item[6]),
+                "linkigrup_string": linkigrup_string, # lista stringów
+                "zdjecia_string": zdjecia_string # lista stringów
+            }
+        }
+
+        action_taks = f'''
+            UPDATE ogloszenia_fbgroups
+            SET 
+                active_task=%s
+            WHERE id = %s;
+        '''
+        values = (1, item[0])
+        if msq.insert_to_database(action_taks, values):
+            task_data["create"].append(theme)
+            return task_data
+        
+    new_data_from_estateAdsSell_fbgropus = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_fbgroups', 'sekcja_ogloszenia', 'estateAdsSell', 'status', 4, 'active_task', 0)
+    # Estate - FB GROUPS - Sell
+    for i, item in enumerate(new_data_from_estateAdsSell_fbgropus):
 
         if item[8] is not None:
             linkigrup_string = str(item[8]).split('-@-')
