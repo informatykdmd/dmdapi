@@ -1838,15 +1838,14 @@ def updateJsonFile(taskID, file_name='responder.json', encodingJson='utf-8'):
 
 @app.route("/", methods=['GET'])
 def index():
-    data = getMainResponder()
+    
     api_key = request.headers.get('api_key')  # Pobieranie klucza API z nagłówka
     # print(request.headers)
     if api_key and api_key in allowed_API_KEYS:
         if 'action' in request.headers:
             action = request.headers.get('action')
             if action == 'get_json':
-                print(data)
-                return jsonify(data)
+                return jsonify(getMainResponder()) # Pobieranie danych po weryfikacji
             elif action == 'respond':
                 message = request.headers.get('message')
                 taskID = request.headers.get('taskID')
