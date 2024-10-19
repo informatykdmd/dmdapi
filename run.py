@@ -111,6 +111,7 @@ def getMainResponder():
             "id_ogloszenia": item[1],
             "sekcja_ogloszenia": item[4],
             'poziom_harmonogramu': item[7],
+            'created_by': item[16],
             "details": {
                 "tresc_ogloszenia": item[5],
                 "styl_ogloszenia": int(item[6]),
@@ -152,6 +153,7 @@ def getMainResponder():
             "id_ogloszenia": item[1],
             "sekcja_ogloszenia": item[4],
             'poziom_harmonogramu': item[7],
+            'created_by': item[16],
             "details": {
                 "tresc_ogloszenia": item[5],
                 "styl_ogloszenia": int(item[6]),
@@ -193,6 +195,7 @@ def getMainResponder():
             "id_ogloszenia": item[1],
             "sekcja_ogloszenia": item[4],
             'poziom_harmonogramu': item[7],
+            'created_by': item[16],
             "details": {
                 "tresc_ogloszenia": item[5],
                 "styl_ogloszenia": int(item[6]),
