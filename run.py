@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request
 import json
+import os
 import mysqlDB as msq
 import time
 import datetime
@@ -54,7 +55,21 @@ def checkOtodomAction_before_errors(task_id):
         return msq.connect_to_database(f'SELECT status FROM ogloszenia_otodom WHERE id_zadania="{task_id}";')[0][0]
     except IndexError:
         return None
+
+def add_aifaLog(message: str, systemInfoFilePath='/home/johndoe/app/newsletterdemon/logs/logsForAifa.json') -> None:
+    # Utwórz plik JSON, jeśli nie istnieje
+    if not os.path.exists(systemInfoFilePath):
+        with open(systemInfoFilePath, 'w') as file:
+            json.dump({"logs": []}, file)
     
+    # Dodaj nowy log do pliku
+    with open(systemInfoFilePath, 'r+', encoding='utf-8') as file:
+        data = json.load(file)
+        data["logs"].append({"message": message, "oddany": False})  # dodaj nowy log jako nieoddany
+        file.seek(0)  # wróć na początek pliku
+        json.dump(data, file, indent=4)  # zapisz zmiany
+        file.truncate()  # obetnij zawartość do nowej długości
+
 def getMainResponder():
     task_data = {
         "create": [],
@@ -1966,6 +1981,7 @@ def index():
                     values = (0, 1, taskID)
                     
                     if msq.insert_to_database(action_taks, values):
+                        add_aifaLog(f'Emisja kampanii o id:{taskID}, zakończona sukcesem.')
                         return jsonify({"message": "Finished"})
                     else:
                         return jsonify({"error": 500})
@@ -1987,6 +2003,7 @@ def index():
                     values = (0, 1, id_lento_ads, taskID)
                     
                     if msq.insert_to_database(action_taks, values):
+                        add_aifaLog(f'Dodawanie nowego ogłoszenia o id:{taskID} na Lento.pl, zakończone sukcesem.')
                         return jsonify({"message": "Finished"})
                     else:
                         return jsonify({"error": 500})
@@ -2002,6 +2019,7 @@ def index():
                     values = (0, 1, taskID)
                     
                     if msq.insert_to_database(action_taks, values):
+                        add_aifaLog(f'Dodawanie nowego ogłoszenia o id:{taskID} na facebook, zakończone sukcesem.')
                         return jsonify({"message": "Finished"})
                     else:
                         return jsonify({"error": 500})
@@ -2023,6 +2041,7 @@ def index():
                     values = (0, 1, id_adresowo_ads, taskID)
                     
                     if msq.insert_to_database(action_taks, values):
+                        add_aifaLog(f'Dodawanie nowego ogłoszenia o id:{taskID} na adresowo.pl, zakończone sukcesem.')
                         return jsonify({"message": "Finished"})
                     else:
                         return jsonify({"error": 500})
@@ -2044,6 +2063,7 @@ def index():
                     values = (0, 1, id_adresowo_ads, taskID)
                     
                     if msq.insert_to_database(action_taks, values):
+                        add_aifaLog(f'Dodawanie nowego ogłoszenia o id:{taskID} na allegrolokalnie.pl, zakończone sukcesem.')
                         return jsonify({"message": "Finished"})
                     else:
                         return jsonify({"error": 500})
@@ -2065,6 +2085,7 @@ def index():
                     values = (0, 1, id_otodom_ads, taskID)
                     
                     if msq.insert_to_database(action_taks, values):
+                        add_aifaLog(f'Dodawanie nowego ogłoszenia o id:{taskID} na otodom.pl, zakończone sukcesem.')
                         return jsonify({"message": "Finished"})
                     else:
                         return jsonify({"error": 500})
@@ -2079,6 +2100,7 @@ def index():
                     values = (taskID,)
                     
                     if msq.insert_to_database(action_taks, values):
+                        add_aifaLog(f'Z powodzeniem usunięto ogłoszenie o id:{taskID} z lento.pl')
                         return jsonify({"message": "Finished"})
                     else:
                         return jsonify({"error": 500})
@@ -2093,6 +2115,7 @@ def index():
                     values = (taskID,)
                     
                     if msq.insert_to_database(action_taks, values):
+                        add_aifaLog(f'Z powodzeniem usunięto ogłoszenie o id:{taskID} z facebook.com')
                         return jsonify({"message": "Finished"})
                     else:
                         return jsonify({"error": 500})
@@ -2107,6 +2130,7 @@ def index():
                     values = (taskID,)
                     
                     if msq.insert_to_database(action_taks, values):
+                        add_aifaLog(f'Z powodzeniem usunięto ogłoszenie o id:{taskID} z adresowo.pl')
                         return jsonify({"message": "Finished"})
                     else:
                         return jsonify({"error": 500})
@@ -2121,6 +2145,7 @@ def index():
                     values = (taskID,)
                     
                     if msq.insert_to_database(action_taks, values):
+                        add_aifaLog(f'Z powodzeniem usunięto ogłoszenie o id:{taskID} z allegrolokalnie.pl')
                         return jsonify({"message": "Finished"})
                     else:
                         return jsonify({"error": 500})
@@ -2135,6 +2160,7 @@ def index():
                     values = (taskID,)
                     
                     if msq.insert_to_database(action_taks, values):
+                        add_aifaLog(f'Z powodzeniem usunięto ogłoszenie o id:{taskID} z otodom.pl')
                         return jsonify({"message": "Finished"})
                     else:
                         return jsonify({"error": 500})
@@ -2151,6 +2177,7 @@ def index():
                     values = (0, 0, taskID)
                     
                     if msq.insert_to_database(action_taks, values):
+                        add_aifaLog(f'Z powodzeniem wstrzymano ogłoszenie o id:{taskID} na lento.pl')
                         return jsonify({"message": "Finished"})
                     else:
                         return jsonify({"error": 500})
@@ -2167,6 +2194,7 @@ def index():
                     values = (0, 0, taskID)
                     
                     if msq.insert_to_database(action_taks, values):
+                        add_aifaLog(f'Z powodzeniem wstrzymano ogłoszenie o id:{taskID} na facebook.com')
                         return jsonify({"message": "Finished"})
                     else:
                         return jsonify({"error": 500})
@@ -2183,6 +2211,7 @@ def index():
                     values = (0, 0, taskID)
                     
                     if msq.insert_to_database(action_taks, values):
+                        add_aifaLog(f'Z powodzeniem wstrzymano ogłoszenie o id:{taskID} na adresowo.pl')
                         return jsonify({"message": "Finished"})
                     else:
                         return jsonify({"error": 500})
@@ -2199,6 +2228,7 @@ def index():
                     values = (0, 1, taskID)
                     
                     if msq.insert_to_database(action_taks, values):
+                        add_aifaLog(f'Z powodzeniem wznowiono ogłoszenie o id:{taskID} na lento.pl')
                         return jsonify({"message": "Finished"})
                     else:
                         return jsonify({"error": 500})
@@ -2215,6 +2245,7 @@ def index():
                     values = (0, 1, taskID)
                     
                     if msq.insert_to_database(action_taks, values):
+                        add_aifaLog(f'Z powodzeniem wznowiono ogłoszenie o id:{taskID} na facebook.com')
                         return jsonify({"message": "Finished"})
                     else:
                         return jsonify({"error": 500})
@@ -2231,6 +2262,7 @@ def index():
                     values = (0, 1, taskID)
                     
                     if msq.insert_to_database(action_taks, values):
+                        add_aifaLog(f'Z powodzeniem wznowiono ogłoszenie o id:{taskID} na adresowo.pl')
                         return jsonify({"message": "Finished"})
                     else:
                         return jsonify({"error": 500})
@@ -2247,6 +2279,7 @@ def index():
                     values = (0, 1, taskID)
                     
                     if msq.insert_to_database(action_taks, values):
+                        add_aifaLog(f'Aktualizacja ogłoszenia o id:{taskID} na lento.pl, przebiegła pomyślnie!')
                         return jsonify({"message": "Finished"})
                     else:
                         return jsonify({"error": 500})
@@ -2263,6 +2296,7 @@ def index():
                     values = (0, 1, taskID)
                     
                     if msq.insert_to_database(action_taks, values):
+                        add_aifaLog(f'Aktualizacja ogłoszenia o id:{taskID} na facebook.com, przebiegła pomyślnie!')
                         return jsonify({"message": "Finished"})
                     else:
                         return jsonify({"error": 500})
@@ -2279,6 +2313,7 @@ def index():
                     values = (0, 1, taskID)
                     
                     if msq.insert_to_database(action_taks, values):
+                        add_aifaLog(f'Aktualizacja ogłoszenia o id:{taskID} na adresowo.pl, przebiegła pomyślnie!')
                         return jsonify({"message": "Finished"})
                     else:
                         return jsonify({"error": 500})
@@ -2295,6 +2330,7 @@ def index():
                     values = (0, 1, taskID)
                     
                     if msq.insert_to_database(action_taks, values):
+                        add_aifaLog(f'Aktualizacja ogłoszenia o id:{taskID} na allegrolokalnie.pl, przebiegła pomyślnie!')
                         return jsonify({"message": "Finished"})
                     else:
                         return jsonify({"error": 500})
@@ -2311,6 +2347,7 @@ def index():
                     values = (0, 1, taskID)
                     
                     if msq.insert_to_database(action_taks, values):
+                        add_aifaLog(f'Aktualizacja ogłoszenia o id:{taskID} na otodom.pl, przebiegła pomyślnie!')
                         return jsonify({"message": "Finished"})
                     else:
                         return jsonify({"error": 500})
@@ -2406,7 +2443,9 @@ def index():
                     '''
                     values = (0, 4, errorMessage, taskID)
 
+
                 if msq.insert_to_database(action_taks, values):
+                    add_aifaLog(f'Uwaga! Zaleziono błędy {errorMessage}, o fladze: {message_flag} dla idZadania: {taskID}.')
                     return jsonify({"message": "The error description has been saved"})
                 else:
                     return jsonify({"error": 500})
