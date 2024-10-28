@@ -80,6 +80,29 @@ def getMainResponder():
         "promotion": []
     }
 
+    new_data_from_logs = msq.connect_to_database(f'SELECT * FROM system_logs_monitor WHERE status = 4 AND active_task = 0;')
+    # CHAT - create
+    for i, item in enumerate(new_data_from_logs):
+
+        theme = {
+            "task_id": int(time.time()) + i,
+            "platform": "BOT-LOGS",
+            "id": item[0],
+            "log_prompt": item[1]
+        }
+
+        action_taks = f'''
+            UPDATE system_logs_monitor
+            SET 
+                active_task=%s,
+                id_zadania=%s
+            WHERE id = %s;
+        '''
+        values = (1, theme["task_id"], theme["id"])
+        if msq.insert_to_database(action_taks, values):
+            task_data["create"].append(theme)
+            return task_data
+
     new_data_from_chat = msq.connect_to_database(f'SELECT * FROM chat_task WHERE status = 4 AND active_task = 0;')
     # CHAT - create
     for i, item in enumerate(new_data_from_chat):
@@ -1952,11 +1975,27 @@ def index():
                 message = request.headers.get('message')
                 taskID = request.headers.get('taskID')
                 success = request.headers.get('success')
-                print(taskID)
+
                 if message == 'Done-chat-add-new': 
                                         
                     action_taks = f'''
                         UPDATE chat_task
+                        SET 
+                            active_task=%s,
+                            status=%s
+                        WHERE id_zadania = %s;
+                    '''
+                    values = (0, 1, taskID)
+                    
+                    if msq.insert_to_database(action_taks, values):
+                        return jsonify({"message": "Finished"})
+                    else:
+                        return jsonify({"error": 500})
+                
+                if message == 'Done-system-logs': 
+                                        
+                    action_taks = f'''
+                        UPDATE system_logs_monitor
                         SET 
                             active_task=%s,
                             status=%s
@@ -2431,6 +2470,18 @@ def index():
                         WHERE id_zadania = %s;
                     '''
                     values = (0, 4, errorMessage, taskID)
+
+                elif message_flag == 'error-system-logs':
+                    action_taks = f'''
+                        UPDATE system_logs_monitor
+                        SET 
+                            active_task=%s,
+                            status=%s,
+                            errors=%s,
+                        WHERE id_zadania = %s;
+                    '''
+                    values = (0, 4, errorMessage, taskID)
+
                     
                 elif message_flag == 'error-career-fbgroups':
                     action_taks = f'''
