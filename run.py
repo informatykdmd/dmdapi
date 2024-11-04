@@ -104,7 +104,7 @@ def getMainResponder():
     }
 
     new_data_from_logs = msq.connect_to_database(f'SELECT * FROM system_logs_monitor WHERE status = 4 AND active_task = 0;')
-    # CHAT - create
+    # CHAT - botlogs
     for i, item in enumerate(new_data_from_logs):
 
         theme = {
@@ -133,6 +133,30 @@ def getMainResponder():
         theme = {
             "task_id": int(time.time()) + i,
             "platform": "CHARACTER",
+            "id": item[0],
+            "question": item[1]
+
+        }
+
+        action_taks = f'''
+            UPDATE chat_task
+            SET 
+                active_task=%s,
+                id_zadania=%s
+            WHERE id = %s;
+        '''
+        values = (1, theme["task_id"], theme["id"])
+        if msq.insert_to_database(action_taks, values):
+            task_data["create"].append(theme)
+            return task_data
+    
+    new_data_from_chat_openai = msq.connect_to_database(f'SELECT * FROM chat_task WHERE status = 5 AND active_task = 0;')
+    # CHAT - Open AI
+    for i, item in enumerate(new_data_from_chat_openai):
+
+        theme = {
+            "task_id": int(time.time()) + i,
+            "platform": "OPEN-AI",
             "id": item[0],
             "question": item[1]
 
@@ -2564,6 +2588,33 @@ def get_data():
                     CHARACTER AI
             """
             if platform and platform == 'CHARACTER':
+                task_id = request.json.get('task_id')
+                question = request.json.get('question')
+                data = request.json.get('data')
+                
+                # Przykładowe przetwarzanie danych
+                print(f'task_id: {task_id}')
+                print(f'platform: {platform}')
+                print(f'question: {question}')
+                print(f'Data: {data}')
+
+                action_taks = f'''
+                        INSERT INTO Messages
+                            (user_name, content, status)
+                        VALUES 
+                            (%s, %s, %s);
+                    '''
+                values = ('aifa', data, 2)
+                    
+                if msq.insert_to_database(action_taks, values):
+                    return jsonify({'success': 'Dane zostały zapisane'})
+                else:
+                    return jsonify({"error": "Bad structure json file!"})
+            
+            """
+                    OPEN AI
+            """
+            if platform and platform == 'OPEN-AI':
                 task_id = request.json.get('task_id')
                 question = request.json.get('question')
                 data = request.json.get('data')
