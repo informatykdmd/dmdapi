@@ -1987,6 +1987,33 @@ def getMainResponder():
             task_data["resume"].append(theme)
             return task_data
     
+    fbgroups_stats_collector = msq.connect_to_database(f'SELECT * FROM fbgroups_stats_monitor WHERE status = 4 AND active_task = 0;')
+    # FB GROUPS STATS   
+    for i, item in enumerate(fbgroups_stats_collector):
+        ready_tuple_list  = []
+        groups_object = str(item[1]).split('-@-')
+        for string_id_link in groups_object:
+            tuple_item = (int(string_id_link.split('-$-')[0]), string_id_link.split('-$-')[1])
+            ready_tuple_list.append(tuple_item)
+
+        theme = {
+            "task_id": int(time.time()) + i,
+            "platform": "FBGROUPS-MONITOR",
+            "ready_tuple_list": ready_tuple_list,
+            "created_by": item[2]
+        }
+        action_taks = f'''
+            UPDATE fbgroups_stats_monitor
+            SET 
+                active_task=%s,
+                id_zadania=%s
+            WHERE id = %s;
+        '''
+        values = (1, theme["task_id"], item[0])
+        if msq.insert_to_database(action_taks, values):
+            task_data["update"].append(theme)
+            return task_data
+    
     return task_data
 
 
@@ -2459,6 +2486,24 @@ def index():
                         return jsonify({"message": "Finished"})
                     else:
                         return jsonify({"error": 500})
+                
+                if message == 'Done-fbmonitor-update': 
+
+                    action_taks = f'''
+                        UPDATE fbgroups_stats_monitor
+                        SET 
+                            active_task=%s,
+                            status=%s
+                        WHERE id_zadania = %s;
+                    '''
+                    values = (0, 1, taskID)
+                    
+                    if msq.insert_to_database(action_taks, values):
+                        # add_aifaLog(f'Aktualizacja ogłoszenia o id:{taskID} na otodom.pl, przebiegła pomyślnie!')
+                        addDataLogs(f'MOnotoroeanie grup FB o id-cyklu:{taskID} przebiegło pomyślnie!', 'success')
+                        return jsonify({"message": "Finished"})
+                    else:
+                        return jsonify({"error": 500})
                     
             elif action == 'error':
                 taskID = request.headers.get('taskID')
@@ -2538,7 +2583,7 @@ def index():
                             errors=%s,
                         WHERE id_zadania = %s;
                     '''
-                    values = (0, 4, errorMessage, taskID)
+                    values = (0, 2, errorMessage, taskID)
 
                 elif message_flag == 'error-system-logs':
                     action_taks = f'''
@@ -2549,9 +2594,19 @@ def index():
                             errors=%s,
                         WHERE id_zadania = %s;
                     '''
-                    values = (0, 4, errorMessage, taskID)
+                    values = (0, 2, errorMessage, taskID)
 
-                    
+                elif message_flag == 'error-fbmonitor':
+                    action_taks = f'''
+                        UPDATE fbgroups_stats_monitor
+                        SET 
+                            active_task=%s,
+                            status=%s,
+                            errors=%s,
+                        WHERE id_zadania = %s;
+                    '''
+                    values = (0, 2, errorMessage, taskID)
+                
                 elif message_flag == 'error-career-fbgroups':
                     action_taks = f'''
                         UPDATE ogloszenia_fbgroups
@@ -2663,6 +2718,55 @@ def get_data():
                     WHERE id = %s;
                 '''
                 values = (status, errors, waiting_list_id)
+
+                if msq.insert_to_database(action_task, values):
+                    return jsonify({'success': 'Dane zostały zapisane'})
+                else:
+                    return jsonify({"error": "Bad structure json file!"})
+
+            """
+                    FBGROUPS-MONITOR
+            """
+            if platform and platform == 'FBGROUPS-MONITOR':
+                group_id = request.json.get('stats', {}).get('group_id', None)
+                members = request.json.get('stats', {}).get('members', None)
+                my_pending_content = request.json.get('stats', {}).get('my_pending_content', 0)
+                my_posted_content = request.json.get('stats', {}).get('my_posted_content', 0)
+                my_declined_content = request.json.get('stats', {}).get('my_declined_content', 0)
+                my_removed_content = request.json.get('stats', {}).get('my_removed_content', 0)
+                if group_id and members:
+                    try: old_data = msq.connect_to_database(f"SELECT oczekujace, opublikowane, odrzucone, usuniete FROM facebook_gropus WHERE id={group_id};")[0]
+                    except IndexError: jsonify({"error": "Faild id!"})
+                else:
+                    return jsonify({"error": "Faild id or members!"})
+
+                old_my_pending_content = old_data[0]
+                old_my_posted_content = old_data[1]
+                old_my_declined_content = old_data[2]
+                old_my_removed_content = old_data[3]
+
+
+                action_task = f'''
+                    UPDATE facebook_gropus
+                    SET prev_oczekujace = %s, 
+                        oczekujace = %s,
+                        prev_opublikowane = %s,
+                        opublikowane = %s,
+                        prev_odrzucone = %s,
+                        odrzucone = %s,
+                        prev_usuniete = %s,
+                        usuniete = %s,
+                        ilosc_czlonkow = %s
+                    WHERE id = %s;
+                '''
+                values = (
+                    old_my_pending_content, my_pending_content, 
+                    old_my_posted_content, my_posted_content,
+                    old_my_declined_content, my_declined_content,
+                    old_my_removed_content, my_removed_content,
+                    members,
+                    group_id
+                    )
 
                 if msq.insert_to_database(action_task, values):
                     return jsonify({'success': 'Dane zostały zapisane'})
