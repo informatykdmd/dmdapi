@@ -2736,7 +2736,10 @@ def get_data():
                 my_removed_content = request.json.get('stats', {}).get('my_removed_content', 0)
                 if group_id and members:
                     try: old_data = msq.connect_to_database(f"SELECT oczekujace, opublikowane, odrzucone, usuniete FROM facebook_gropus WHERE id={group_id};")[0]
-                    except IndexError: jsonify({"error": "Faild id!"})
+                    except IndexError:
+                        return jsonify({"error": "Failed id!"})
+                    except Exception as e:
+                        return jsonify({"error": f"Database error: {str(e)}"})
                 else:
                     return jsonify({"error": "Faild id or members!"})
 
@@ -2772,7 +2775,6 @@ def get_data():
                     return jsonify({'success': 'Dane zostały zapisane'})
                 else:
                     return jsonify({"error": "Bad structure json file!"})
-                
 
             return jsonify({"error": "Bad structure json file!"})
         return jsonify({"error": "Bad POST data!"})
