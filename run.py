@@ -2509,6 +2509,8 @@ def index():
                 taskID = request.headers.get('taskID')
                 errorMessage = request.headers.get('error')
                 message_flag = request.headers.get('message')
+                action_taks = f""
+                values = ()
                 if message_flag == 'error-lento':
                     oldStatus = checkLentoAction_before_errors(taskID)
                     action_taks = f'''
@@ -2522,7 +2524,7 @@ def index():
                     '''
                     values = (0, 2, errorMessage, oldStatus, taskID)
 
-                elif message_flag == 'error-facebook':
+                if message_flag == 'error-facebook':
                     oldStatus = checkFacebookAction_before_errors(taskID)
                     action_taks = f'''
                         UPDATE ogloszenia_facebook
@@ -2535,7 +2537,7 @@ def index():
                     '''
                     values = (0, 2, errorMessage, oldStatus, taskID)
                 
-                elif message_flag == 'error-adresowo':
+                if message_flag == 'error-adresowo':
                     oldStatus = checkAdresowoAction_before_errors(taskID)
                     action_taks = f'''
                         UPDATE ogloszenia_adresowo
@@ -2548,7 +2550,7 @@ def index():
                     '''
                     values = (0, 2, errorMessage, oldStatus, taskID)
 
-                elif message_flag == 'error-allegro':
+                if message_flag == 'error-allegro':
                     oldStatus = checkAllegroAction_before_errors(taskID)
                     action_taks = f'''
                         UPDATE ogloszenia_allegrolokalnie
@@ -2561,7 +2563,7 @@ def index():
                     '''
                     values = (0, 2, errorMessage, oldStatus, taskID)
 
-                elif message_flag == 'error-otodom':
+                if message_flag == 'error-otodom':
                     oldStatus = checkOtodomAction_before_errors(taskID)
                     action_taks = f'''
                         UPDATE ogloszenia_otodom
@@ -2574,7 +2576,7 @@ def index():
                     '''
                     values = (0, 2, errorMessage, oldStatus, taskID)
                 
-                elif message_flag == 'error-chat':
+                if message_flag == 'error-chat':
                     action_taks = f'''
                         UPDATE chat_task
                         SET 
@@ -2585,7 +2587,7 @@ def index():
                     '''
                     values = (0, 2, errorMessage, taskID)
 
-                elif message_flag == 'error-system-logs':
+                if message_flag == 'error-system-logs':
                     action_taks = f'''
                         UPDATE system_logs_monitor
                         SET 
@@ -2596,7 +2598,7 @@ def index():
                     '''
                     values = (0, 2, errorMessage, taskID)
 
-                elif message_flag == 'error-fbmonitor':
+                if message_flag == 'error-fbmonitor':
                     action_taks = f'''
                         UPDATE fbgroups_stats_monitor
                         SET 
@@ -2607,7 +2609,7 @@ def index():
                     '''
                     values = (0, 2, errorMessage, taskID)
                 
-                elif message_flag == 'error-career-fbgroups':
+                if message_flag == 'error-career-fbgroups':
                     action_taks = f'''
                         UPDATE ogloszenia_fbgroups
                         SET 
@@ -2618,13 +2620,13 @@ def index():
                     '''
                     values = (0, 4, errorMessage, taskID)
 
-
-                if msq.insert_to_database(action_taks, values):
-                    # add_aifaLog(f'Uwaga! Zaleziono błędy {errorMessage}, o fladze: {message_flag} dla idZadania: {taskID}.')
-                    addDataLogs(f'Uwaga! Zaleziono błędy {errorMessage}, o fladze: {message_flag} dla idZadania: {taskID}.', 'danger')
-                    return jsonify({"message": "The error description has been saved"})
-                else:
-                    return jsonify({"error": 500})
+                if action_taks and values:
+                    if msq.insert_to_database(action_taks, values):
+                        # add_aifaLog(f'Uwaga! Zaleziono błędy {errorMessage}, o fladze: {message_flag} dla idZadania: {taskID}.')
+                        addDataLogs(f'Uwaga! Zaleziono błędy {errorMessage}, o fladze: {message_flag} dla idZadania: {taskID}.', 'danger')
+                        return jsonify({"message": "The error description has been saved"})
+                    else:
+                        return jsonify({"error": 500})
 
         if 'error' in request.headers:
             error = request.headers.get('error')
