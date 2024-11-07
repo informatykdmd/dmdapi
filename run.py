@@ -2582,7 +2582,7 @@ def index():
                         SET 
                             active_task=%s,
                             status=%s,
-                            errors=%s,
+                            errors=%s
                         WHERE id_zadania = %s;
                     '''
                     values = (0, 2, errorMessage, taskID)
@@ -2593,7 +2593,7 @@ def index():
                         SET 
                             active_task=%s,
                             status=%s,
-                            errors=%s,
+                            errors=%s
                         WHERE id_zadania = %s;
                     '''
                     values = (0, 2, errorMessage, taskID)
@@ -2604,7 +2604,7 @@ def index():
                         SET 
                             active_task=%s,
                             status=%s,
-                            errors=%s,
+                            errors=%s
                         WHERE id_zadania = %s;
                     '''
                     values = (0, 2, errorMessage, taskID)
@@ -2615,7 +2615,7 @@ def index():
                         SET 
                             active_task=%s,
                             status=%s,
-                            errors=%s,
+                            errors=%s
                         WHERE id_zadania = %s;
                     '''
                     values = (0, 4, errorMessage, taskID)
@@ -2627,6 +2627,9 @@ def index():
                         return jsonify({"message": "The error description has been saved"})
                     else:
                         return jsonify({"error": 500})
+                else:
+                    addDataLogs(f'Uwaga! Brak danych do zapisu w bazie przez serwer automatyzacji', 'danger')
+                    return jsonify({"error": 500})
 
         if 'error' in request.headers:
             error = request.headers.get('error')
