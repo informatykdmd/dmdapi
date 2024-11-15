@@ -5,6 +5,12 @@ import mysqlDB as msq
 import time
 import datetime
 from bin.config_utils import allowed_API_KEYS
+from MindForge import addNewUser, get_next_template,\
+    json_string_to_dict, validate_response_structure,\
+        template_managment, dict_to_json_string,\
+            resumeJson_structure
+import saver_ver
+import requests
 
 app = Flask(__name__)
 
@@ -2014,6 +2020,27 @@ def getMainResponder():
             task_data["update"].append(theme)
             return task_data
     
+    mind_forge_si = msq.connect_to_database(f'SELECT * FROM mind_forge_si WHERE status = 4 AND active_task = 0;')
+    # FB GROUPS STATS   
+    for i, item in enumerate(mind_forge_si):
+        theme = {
+            "task_id": int(time.time()) + i,
+            "platform": "MINDFORGE",
+            "task_description": item[2],
+            "user_name": item[1]
+        }
+        action_taks = f'''
+            UPDATE mind_forge_si
+            SET 
+                active_task=%s,
+                id_zadania=%s
+            WHERE id = %s;
+        '''
+        values = (1, theme["task_id"], item[0])
+        if msq.insert_to_database(action_taks, values):
+            task_data["update"].append(theme)
+            return task_data
+
     return task_data
 
 
@@ -2500,7 +2527,25 @@ def index():
                     
                     if msq.insert_to_database(action_taks, values):
                         # add_aifaLog(f'Aktualizacja ogłoszenia o id:{taskID} na otodom.pl, przebiegła pomyślnie!')
-                        addDataLogs(f'MOnotoroeanie grup FB o id-cyklu:{taskID} przebiegło pomyślnie!', 'success')
+                        addDataLogs(f'Monitorowanie grup FB o id-cyklu:{taskID} przebiegło pomyślnie!', 'success')
+                        return jsonify({"message": "Finished"})
+                    else:
+                        return jsonify({"error": 500})
+                
+                if message == 'Done-mind-forge': 
+
+                    action_taks = f'''
+                        UPDATE mind_forge_si
+                        SET 
+                            active_task=%s,
+                            status=%s
+                        WHERE id_zadania = %s;
+                    '''
+                    values = (0, 1, taskID)
+                    
+                    if msq.insert_to_database(action_taks, values):
+                        # add_aifaLog(f'Aktualizacja ogłoszenia o id:{taskID} na otodom.pl, przebiegła pomyślnie!')
+                        addDataLogs(f'Zadania modułu decyzyjnego o id: {taskID} zostało zrealizowane!', 'success')
                         return jsonify({"message": "Finished"})
                     else:
                         return jsonify({"error": 500})
@@ -2618,7 +2663,18 @@ def index():
                             errors=%s
                         WHERE id_zadania = %s;
                     '''
-                    values = (0, 4, errorMessage, taskID)
+                    values = (0, 2, errorMessage, taskID)
+                
+                if message_flag == 'error-mind-forge':
+                    action_taks = f'''
+                        UPDATE mind_forge_si
+                        SET 
+                            active_task=%s,
+                            status=%s,
+                            errors=%s
+                        WHERE id_zadania = %s;
+                    '''
+                    values = (0, 2, errorMessage, taskID)
 
                 if action_taks and values:
                     if msq.insert_to_database(action_taks, values):
@@ -2783,12 +2839,539 @@ def get_data():
 
             return jsonify({"error": "Bad structure json file!"})
         return jsonify({"error": "Bad POST data!"})
-        
-
     else:
         return jsonify({"error": "Unauthorized access"}), 401  # Zwrot kodu 401 w przypadku braku autoryzacji
     
 
+@app.route('/api/get-template', methods=['POST'])
+def get_template():
+    data = request.get_json()
+    user = data.get("user")
+    api_key = data.get("api_key")
+
+    if api_key and api_key not in allowed_API_KEYS:
+        return  jsonify({"data": None, "prompt": None, "level": None, "error": "Unauthorized access"}), 401
+
+    if not user:
+        return  jsonify({"data": None, "prompt": None, "level": None, "error": "Brak nazwy użytkownika"})
+    
+    dane_users_dict = saver_ver.open_ver("MINDFORGE", "dane_users_dict")
+    if user not in dane_users_dict:
+        if not addNewUser(dane_users_dict, user):
+            return jsonify({"data": None, "prompt": None, "level": None, "error": "Nieudana rejestracja nowego użytkownika!"})
+        saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict)
+        dane_users_dict = saver_ver.open_ver("MINDFORGE", "dane_users_dict")
+
+    system_level_data = get_next_template(dane_users_dict[user])
+    ostatni_level = system_level_data['ostatni_level']
+    ostatni_level_int = int(ostatni_level)
+    # print(ostatni_level_int)
+
+    return jsonify({"data": system_level_data.get('odpowiedz'), "prompt": system_level_data.get('prompt'), "level": ostatni_level_int}), 200
+
+
+@app.route('/api/handling-responses', methods=['POST'])
+def handling_responses():
+    dane_users_dict = saver_ver.open_ver("MINDFORGE", "dane_users_dict")
+    # Pobieramy dane JSON z żądania
+    data = request.get_json()
+    # Sprawdzamy, czy dane zostały poprawnie przesłane
+    if not data:
+        return jsonify({"error": "Brak danych"}), 400
+    
+    user_aswer = data.get("primary_key", None)
+    user = data.get("user", None)
+    api_key = data.get("api_key", None)
+    api_url = data.get("api_url", None)
+
+        
+    if not user_aswer or not user or not api_key or not api_url:
+        return  jsonify({"success": False, "error": "Niewłaściwe dane zapytania!"}), 200
+    
+    if api_key and api_key not in allowed_API_KEYS:
+        return  jsonify({"data": None, "prompt": None, "level": None, "error": "Unauthorized access"}), 401
+
+    if user not in dane_users_dict:
+        dane_users_dict = addNewUser(dane_users_dict, user)
+        saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict)
+        dane_users_dict = saver_ver.open_ver("MINDFORGE", "dane_users_dict")
+
+    ostatni_level = get_next_template(dane_users_dict[user])['ostatni_level']
+    ostatni_level_int = int(ostatni_level)
+    # print(ostatni_level_int)
+
+    template_to_return = get_next_template(dane_users_dict[user])['odpowiedz']
+    # print(template_to_return)
+    curent_tempalte_process_response = json_string_to_dict(template_to_return)
+    if curent_tempalte_process_response['error'] is not None:
+        return  jsonify({"success": False, "error": curent_tempalte_process_response["error"]}), 200
+    curent_tempalte = curent_tempalte_process_response['json']
+
+    current_procedure_name = dane_users_dict.get(user, {}).get(f"{ostatni_level}", {}).get("dane", {}).get("procedura", None)
+    raport_koncowy = ""
+    if curent_tempalte:
+        
+        user_process_response = json_string_to_dict(user_aswer)
+
+        if user_process_response['error'] is not None:
+            return jsonify({"success": False, "error": user_process_response["error"]}), 200
+        user_json = user_process_response['json']
+
+        validator_dict = validate_response_structure(curent_tempalte, user_json)
+
+        if user_json and validator_dict.get("zgodnosc_struktury")\
+            and not validator_dict.get("error") and not validator_dict.get("success")\
+                and not validator_dict.get("anuluj_zadanie"):
+            if validator_dict.get("rozne_wartosci"):
+                """
+                    POZIOM 0                            POZIOM 0                            POZIOM 0
+                """
+                if ostatni_level == "0":
+                    picket_procedures = [label[1:] for label in validator_dict.get("rozne_wartosci", {}).keys()]
+                    current_procedure_name = picket_procedures[0] if picket_procedures else None
+                    prompt_level_0 = "Wybierz potrzebne narzędzia, aktualizując wartość true przy wybranych opcjach.\nJeśli odeślesz niezmieniony obiekt, model decyzyjny zostanie dezaktywowany."
+                    ustaw_dane_poziom_0 = {"prompt": prompt_level_0, "poczekalnia_0": picket_procedures}
+                    ustaw_dane_poziom_1 = {}
+
+                    # ############################################################################
+                    # AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM
+                    # ############################################################################
+                    if current_procedure_name == "AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM":
+                        tabela = "OfertyNajmu"
+                        zapyanie = "SELECT"
+                        kolumny_lista = ["id", "tytul"]
+                        kolumny = "id, tytul"
+                        warunki = ""
+                        wartosci = ()
+                        prompt_level_1 = "Wybierz ogłoszenie, aktualizując wartość true przy wybranej opcji.\nJeśli odeślesz niezmieniony obiekt, wrócisz do poprzedniej opcji decyzyjnej."
+
+                        ustaw_dane_poziom_1 = {
+                            "procedura": current_procedure_name,
+                            "tabela": tabela,
+                            "zapyanie": zapyanie,
+                            "kolumny_lista": kolumny_lista,
+                            "kolumny": kolumny,
+                            "warunki": warunki,
+                            "wartosci": wartosci,
+                            "prompt": prompt_level_1
+                        }
+                        ustaw_dane_poziom_0["procedura"] = current_procedure_name
+                        ustaw_dane_poziom_0["poczekalnia_0"].remove(current_procedure_name)
+
+                    if ustaw_dane_poziom_0:    
+                        dane_users_dict = template_managment(dane_users_dict, user, f"0", ustaw_dane_poziom_0)
+                    if ustaw_dane_poziom_1:
+                        dane_users_dict = template_managment(dane_users_dict, user, f"1", ustaw_dane_poziom_1)
+
+                    saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict)
+                    dane_users_dict = saver_ver.open_ver("MINDFORGE", "dane_users_dict")
+
+                    dane_poziomu_1 = dane_users_dict.get(user, {}).get(f"1", {}).get("dane", {})
+                    # print(dane_poziomu)
+                    export_data = ""
+                    # if current_procedure == "AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM":
+
+                    if dane_poziomu_1:
+                        zapyanie_sql = f"""
+                            {dane_poziomu_1.get("zapyanie", "")} 
+                                {dane_poziomu_1.get("kolumny", "")} 
+                            FROM {dane_poziomu_1.get("tabela", "")} 
+                            {dane_poziomu_1.get("warunki", "")};
+                        """
+                        values= dane_poziomu_1.get("wartosci", ())
+                        # zapyanie_sql jest pobierane z bazy
+                        pobrane_dane_z_bazy = [(1, 'tytuł pozycji1'), (2, 'tytuł pozycji2'), (3, 'tytuł pozycji3')]
+                        export_data = "{\n"
+                        for row in pobrane_dane_z_bazy:
+                            export_data += f'''"'''
+                            for e in row:
+                                export_data += f'''[{e}]::'''
+                            export_data += f'''[{dane_poziomu_1.get("tabela", "")}]": false,\n'''
+                        export_data = export_data[:-2]
+                        export_data += "\n}\n"
+                        dane_users_dict[user]["1"]["szablon"] = export_data
+                    # print(dane_users_dict)
+
+                    dane_users_dict[user]["0"]["wybor"] = dict_to_json_string(user_json)["json_string"]
+                    saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict)
+                    dane_users_dict =saver_ver.open_ver("MINDFORGE", "dane_users_dict")
+                    raport_koncowy += f"Udane przetworzenie poziomu {ostatni_level} dla {current_procedure_name}"
+
+                """
+                    POZIOM 1                            POZIOM 1                            POZIOM 1
+                """
+                if ostatni_level == "1":
+                    picket_choice = [label[1:] for label in validator_dict.get("rozne_wartosci", {}).keys()]
+                    current_choice = picket_choice[0] if picket_choice else None
+                    if current_choice:
+                        splited_id = int(current_choice.split("]::")[0][1:])
+                    ustaw_dane_poziom_2 = {}
+                    ustaw_dane_poziomu_1 = dane_users_dict.get(user, {}).get(f"1", {}).get("dane", {})
+                    # ############################################################################
+                    # AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM
+                    # ############################################################################
+                    if current_procedure_name == "AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM":
+
+                        
+                        tabela = "OfertyNajmu"
+                        zapyanie = "SELECT"
+                        kolumny_lista = ["tytul", "opis", "cena", "metraz"]
+                        kolumny = "tytul, opis, cena, metraz"
+                        warunki = "WHERE id = %s"
+                        wybrane_id = splited_id
+                        wartosci = (splited_id,)
+                        prompt_level_2 = "Przejrzyj szczegóły oferty i dokonaj niezbędnych zmian, aktualizując wartości odpowiednich parametrów.\nJeśli odeślesz niezmieniony obiekt, wrócisz do poprzedniej opcji decyzyjnej."
+
+                        ustaw_dane_poziom_2 = {
+                            "procedura": dane_users_dict[user][f"{ostatni_level}"]["dane"]["procedura"],
+                            "tabela": tabela,
+                            "zapyanie": zapyanie,
+                            "kolumny_lista": kolumny_lista,
+                            "kolumny": kolumny,
+                            "warunki": warunki,
+                            "wybrane_id": wybrane_id,
+                            "wartosci": wartosci,
+                            "prompt": prompt_level_2
+                        }
+                        
+                        
+                    if ustaw_dane_poziomu_1:
+                        ustaw_dane_poziomu_1["poczekalnia_1"] = picket_choice
+                        ustaw_dane_poziomu_1["wybrano"] = current_choice
+                        ustaw_dane_poziomu_1["poczekalnia_1"].remove(current_choice)
+                        dane_users_dict = template_managment(dane_users_dict, user, f"1", ustaw_dane_poziomu_1)
+
+                    if ustaw_dane_poziom_2:
+                        dane_users_dict = template_managment(dane_users_dict, user, f"2", ustaw_dane_poziom_2)
+
+                    dane_users_dict[user]["1"]["wybor"] = dict_to_json_string(user_json)["json_string"]
+
+                    saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict)
+                    dane_users_dict =saver_ver.open_ver("MINDFORGE", "dane_users_dict")
+
+                    dane_poziomu_2 = dane_users_dict.get(user, {}).get(f"2", {}).get("dane", {})
+                    if dane_poziomu_2:
+                        zapyanie_sql = f"""
+                            {dane_poziomu_2.get("zapyanie", "")} 
+                                {dane_poziomu_2.get("kolumny", "")} 
+                            FROM {dane_poziomu_2.get("tabela", "")} 
+                            {dane_poziomu_2.get("warunki", "")};
+                        """
+                        values= dane_poziomu_2.get("wartosci", ())
+                        # zapyanie_sql jest pobierane z bazy
+                        [{"p":"paragraf"}, {"li":["dynamiczny", "stylowalny"]}]
+                        # pobrane_dane_z_bazy = [("tytuł", 'opis', 651450, 89),][0]
+                        pobrane_dane_z_bazy = [("tytuł", '[{"p":"paragraf 1"}, {"li":["dynamiczny 1", "stylowalny 1"]}]', 651450, 89)][0]
+                        def is_json_like_string(text):
+                            """Sprawdza, czy string wygląda na strukturę JSON po usunięciu znaku ^."""
+                            
+                            # Usuwamy wszystkie wystąpienia ^ z tekstu
+                            text = text.replace('^', '')
+
+                            # Sprawdzamy, czy tekst zawiera kluczowe znaki JSON
+                            json_chars = ['{', '[', ']', ':', '"']
+                            contains_json_structure = any(char in text for char in json_chars)
+                            
+                            # Zwraca True, tylko jeśli są kluczowe znaki JSON po usunięciu ^
+                            return contains_json_structure
+
+                        # Zastosowanie warunku do listy pobrane_dane_z_bazy
+                        pobrane_dane_z_bazy_escaped = [
+                            poz.replace('^', "").replace('"', "^") if isinstance(poz, str) and is_json_like_string(poz) else poz 
+                            for poz in pobrane_dane_z_bazy
+                        ]
+                        export_data = "{\n"
+                        try: nazwy_zip= zip(pobrane_dane_z_bazy_escaped, dane_poziomu_2.get("kolumny_lista", []))
+                        except: 
+                            nazwy_zip= []
+                            export_data = None
+                        for data, name_kol in nazwy_zip:
+                            if isinstance(data, str):
+                                export_data += f'"{name_kol}": "{data}",\n'
+                            else:
+                                export_data += f'"{name_kol}": {data},\n'
+                        if export_data:
+                            export_data = export_data[:-2]
+                            export_data += "\n}\n"
+                            dane_users_dict[user]["2"]["szablon"] = export_data
+                        del export_data
+
+                        saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict)
+                        dane_users_dict =saver_ver.open_ver("MINDFORGE", "dane_users_dict")
+                        raport_koncowy += f"Udane przetworzenie poziomu {ostatni_level} dla {current_procedure_name}"
+                """
+                    POZIOM 2                            POZIOM 2                            POZIOM 2
+                """
+                if ostatni_level == "2":
+                    ostatni_level_int = int(ostatni_level)
+                    vanles_changes = []
+                    kolumny_lista = []
+                    kolumny_generator = "("
+                    values_list = []
+                    for label, changes in validator_dict.get("rozne_wartosci", {}).items():
+                        # print(label)
+                        if label[1:] in dane_users_dict.get(user, {}).get(f"2", {}).get("dane", {}).get("kolumny_lista", []):
+                            preared_data = (label[1:], resumeJson_structure(changes))
+                            vanles_changes.append(preared_data)
+                            kolumny_lista.append(label[1:])
+                            kolumny_generator += f"{label[1:]}=%s, "
+                            values_list.append(resumeJson_structure(changes))
+                    if kolumny_generator: kolumny_generator = kolumny_generator[:-2] + ")"
+                    # print(vanles_changes)
+                    if vanles_changes:
+                        ustaw_dane_poziomu_3 = {}
+
+                        # ############################################################################
+                        # AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM
+                        # ############################################################################
+                        if current_procedure_name == "AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM":
+
+                            tabela = "OfertyNajmu"
+                            zapyanie = "UPDATE SET"
+                            warunki = "WHERE id = %s"
+                            wybrane_id = dane_users_dict[user][f"{ostatni_level}"]["dane"]["wybrane_id"]
+                            wartosci = tuple(values_list)
+
+                            prompt_level_3 = "Zmiany zostaną wprowadzone po wysłaniu raportu. Wypełnij pole raportu, aby zakończyć proces aktualizacji.\nJeśli odeślesz niezmieniony obiekt, wrócisz do poprzedniej opcji decyzyjnej a zmiany nie zostaną wprowadzone."
+                            ustaw_dane_poziomu_3 = {
+                                "procedura": dane_users_dict[user][f"{ostatni_level}"]["dane"]["procedura"],
+                                "tabela": tabela,
+                                "zapyanie": zapyanie,
+                                "kolumny_lista": kolumny_lista,
+                                "kolumny": kolumny_generator,
+                                "warunki": warunki,
+                                "wybrane_id": wybrane_id,
+                                "wartosci": wartosci,
+                                "aktualizacja": vanles_changes,
+                                "prompt": prompt_level_3
+
+                            }
+                        if ustaw_dane_poziomu_3:
+                            dane_users_dict = template_managment(dane_users_dict, user, f"3", ustaw_dane_poziomu_3)
+
+                        dane_users_dict[user]["2"]["wybor"] = dict_to_json_string(user_json)["json_string"]
+                        saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict)
+                        dane_users_dict =saver_ver.open_ver("MINDFORGE", "dane_users_dict")
+                        raport_koncowy += f"Udane przetworzenie poziomu {ostatni_level} dla {current_procedure_name}"
+                """
+                    POZIOM 3                            POZIOM 3                            POZIOM 3
+                """
+                if ostatni_level == "3":
+                    raport_data = None
+                    for label, changes in validator_dict.get("rozne_wartosci", {}).items():
+                        if label[1:] == "raport" and changes != "":
+                            raport_data = changes
+                    if raport_data:
+                        dane_poziomu_3 = dane_users_dict.get(user, {}).get(f"3", {}).get("dane", {})
+                        dane_poziomu_3["raport"] = raport_data
+                        dane_users_dict = template_managment(dane_users_dict, user, f"3", dane_poziomu_3)
+
+                    dane_users_dict[user]["3"]["wybor"] = dict_to_json_string(user_json)["json_string"]
+
+                    saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict)
+                    dane_users_dict =saver_ver.open_ver("MINDFORGE", "dane_users_dict")
+                    raport_koncowy += f"Udane przetworzenie poziomu {ostatni_level} dla {current_procedure_name}"
+
+        # ###########################################################################
+        #                                                                           #
+        #                               Anuluj Zadanie                              #
+        #                                                                           #
+        # ###########################################################################
+
+        if user_json and validator_dict.get("anuluj_zadanie") and ostatni_level_int:
+            # print("anuluj_zadanie")
+            raport_cancel = ""
+            if "wybor" in dane_users_dict[user][f"{ostatni_level_int -1}"]:
+                raport_cancel +=f'usunięto: wybor dla poziomu: {ostatni_level_int -1} | '
+                del dane_users_dict[user][f"{ostatni_level_int -1}"]["wybor"]
+            
+            if "wybor" in dane_users_dict[user][f"{ostatni_level_int}"]:
+                raport_cancel +=f'usunięto: wybor dla poziomu: {ostatni_level_int} | '
+                del dane_users_dict[user][f"{ostatni_level_int}"]["wybor"]
+            for lvels_up in range(ostatni_level_int -1, 4):
+                if lvels_up == 0:
+                    raport_cancel +=f'wyzerowano: dane dla poziomu: {lvels_up} | '
+                    if dane_users_dict.get(user, {}).get(f"{lvels_up}", {}).get("dane", {}).get("poczekalnia_0", True):
+                        del dane_users_dict[user][f"{lvels_up}"]["dane"]["poczekalnia_0"]
+                    if dane_users_dict.get(user, {}).get(f"{lvels_up}", {}).get("dane", {}).get("procedura", True):
+                        del dane_users_dict[user][f"{lvels_up}"]["dane"]["procedura"]
+                    
+                else:
+                    raport_cancel +=f'wyzerowano: dane dla poziomu: {lvels_up} | '
+                    dane_users_dict[user][f"{lvels_up}"]["dane"] = {}
+
+            saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict)
+            dane_users_dict =saver_ver.open_ver("MINDFORGE", "dane_users_dict")
+
+            return jsonify({"success": True, "anuluj_zadanie": raport_cancel}), 200
+
+        # ###########################################################################
+        #                                                                           #
+        #                       Zakończ tryb Decyzyjny                              #
+        #                                                                           #
+        # ###########################################################################
+        elif user_json and validator_dict.get("anuluj_zadanie") and ostatni_level_int == 0:
+            
+            del dane_users_dict[user]
+
+            saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict)
+            dane_users_dict =saver_ver.open_ver("MINDFORGE", "dane_users_dict")
+
+            return jsonify({"success": True, "zakoncz": "Moduł decyzyjny został porawnie zakończony, wszystkie decyzje zostały anulowane."}), 200
+
+
+        # ###########################################################################
+        #                                                                           #
+        #   SĄ Różnice w kluczach  (Brak elementu na pozycji)   To nie ten json!    #
+        #                                                                           #
+        # ###########################################################################
+
+        if user_json and not validator_dict.get("zgodnosc_struktury")\
+            and validator_dict.get("error", "").startswith("Brak elementu na pozycji") and not validator_dict.get("success"):
+            # print("zgodnosc_struktury")
+            raport_zgodnosc = validator_dict.get("error")
+            return jsonify({"success": False, "raport_zgodnosc": f"Brak elementu na pozycji. To nie ten json! {raport_zgodnosc}"}), 200
+
+
+
+        # import pprint
+        # pprint.pprint(dane_users_dict[user])
+    # ###########################################################################
+    #                                                                           #
+    #   LEVEL 3 - LEVEL WYKONAWCZY, musi istnieć decyzja drugiego poziomu       #
+    #                                                                           #
+    # ###########################################################################
+    """
+        POZIOM 3                            POZIOM 3                            POZIOM 3
+    """
+    if ostatni_level == "3" and dane_users_dict.get(user, {}).get(f"{ostatni_level_int}", {}).get("wybor", ""):
+        dane_do_realizacji = dane_users_dict.get(user, {}).get(f"{ostatni_level}", {}).get("dane", {})
+        # Realizacja zadania
+        if current_procedure_name == "AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM":
+            dane_do_realizacji
+
+        # procedury przygotowania do kolejnych zadań
+        dane_poziomu_0 = dane_users_dict.get(user, {}).get(f"0", {}).get("dane", {})
+        dane_poziomu_1 = dane_users_dict.get(user, {}).get(f"1", {}).get("dane", {})
+
+        raport_cancel = ""
+        if dane_poziomu_1.get("poczekalnia_1", []):
+            # ############################################################################
+            # WYSTARTUJ NASTĘPNY WYBÓR Z LISTY ("poczekalnia_1", []) poziomu 1
+            # ############################################################################
+
+            # Pobrać wybór z poziomu 1
+            wybor_1 = dane_users_dict.get(user, {}).get(f"1", {}).get("wybor", "")
+            # pobrać procedurę z dane_poziomu_1.get("wybrano", None) 
+            poziom_1_procedury = dane_poziomu_1.get("wybrano", "")
+            if wybor_1 and poziom_1_procedury and poziom_1_procedury in wybor_1:
+                # pobrać wybór z poziomu 1 i ustawić false przy "wybrano" poziomu 1
+                stara_pozycja_w_wybor_poziom_1 = f'"{poziom_1_procedury}": true'
+                nowa_pozycja_w_wybor_poziom_1 = f'"{poziom_1_procedury}": false'
+                # ustawić jako user_aswer wyedytowany szablon z odznaczonym zrealizowanym wyborem
+                gotowy_wybor_poziom_1 = str(wybor_1).replace(stara_pozycja_w_wybor_poziom_1, nowa_pozycja_w_wybor_poziom_1)
+            
+            # usunąć niepotrzebne dane i wybory z poziomów 3, 2 oraz wybór z poziomu 1
+            raport_cancel +=f'Wykasowano szablon dla poziomu: 2 | '
+            del dane_users_dict[user][f"2"]["szablon"]
+            raport_cancel +=f'Wykasowano wybór dla poziomu: 1 | '
+            del dane_users_dict[user][f"1"]["wybor"]
+            for lvels_up in range(2, 4):
+                if "wybor" in dane_users_dict[user][f"{lvels_up}"]:
+                    raport_cancel +=f'Wykasowano wybór dla poziomu: {lvels_up} | '
+                    del dane_users_dict[user][f"{lvels_up}"]["wybor"]
+                    raport_cancel +=f'wyzerowano: dane dla poziomu: {lvels_up} | '
+                    dane_users_dict[user][f"{lvels_up}"]["dane"] = {}
+            
+            
+            saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict)
+            dane_users_dict =saver_ver.open_ver("MINDFORGE", "dane_users_dict")
+
+            payload_1 = {
+                "primary_key": gotowy_wybor_poziom_1,
+                "user": user,
+                "api_key": api_key,
+                "api_url": api_url
+            }
+            # przekazać do realizacji string json tak aby procedura zaczęła się od poziomu 1 dla kolejnego wyboru z listy poczekalnia_1
+            try:
+                response = requests.post(api_url, json=payload_1)
+                response.raise_for_status()  # Upewnia się, że nie ma błędów
+            except requests.exceptions.RequestException as e:
+                return jsonify({"success": False, "error": str(e)}), 500
+
+            return jsonify({"success": True, "procedura_zakonczona": f"System został ustawiony dla użytkownika {user} do realizacji zaplanowanych wyborów z poziomu 1"}), 200
+        
+        elif dane_poziomu_0.get("poczekalnia_0", []):
+            # ############################################################################
+            # WYSTARTUJ NASTĘPNY WYBÓR Z LISTY ("poczekalnia_0", [])
+            # ############################################################################
+
+            # Pobrać wybór z poziomu 0
+            wybor_0 = dane_users_dict.get(user, {}).get(f"0", {}).get("wybor", "")
+            # pobrać procedurę z dane_poziomu_0.get("procedura", None) 
+            poziom_0_procedura = dane_poziomu_1.get("procedura", "")
+            # pobrać wybór z poziomu 0 i ustawić false przy procedurze poziomu 0
+            if wybor_0 and poziom_0_procedura and poziom_0_procedura in wybor_0:
+                # pobrać wybór z poziomu 1 i ustawić false przy "wybrano" poziomu 1
+                stara_pozycja_w_procedury_poziom_0 = f'"{poziom_0_procedura}": true'
+                nowa_pozycja_w_procedury_poziom_0 = f'"{poziom_0_procedura}": false'
+                # ustawić jako user_aswer wyedytowany szablon z odznaczonym zrealizowanym wyborem
+                gotowy_wybor_poziom_0 = str(wybor_0).replace(stara_pozycja_w_procedury_poziom_0, nowa_pozycja_w_procedury_poziom_0)
+            # usunąć niepotrzebne dane i wybory z poziomów 3, 2, 1 oraz wybór z poziomu 0
+            raport_cancel +=f'Wykasowano szablon dla poziomu: 1 | '
+            del dane_users_dict[user][f"1"]["szablon"]
+            raport_cancel +=f'Wykasowano szablon dla poziomu: 2 | '
+            del dane_users_dict[user][f"2"]["szablon"]
+            raport_cancel +=f'Wykasowano wybór dla poziomu: 0 | '
+            del dane_users_dict[user][f"0"]["wybor"]
+            for lvels_up in range(1, 4):
+                if "wybor" in dane_users_dict[user][f"{lvels_up}"]:
+                    raport_cancel +=f'Wykasowano wybór dla poziomu: {lvels_up} | '
+                    del dane_users_dict[user][f"{lvels_up}"]["wybor"]
+                    raport_cancel +=f'wyzerowano: dane dla poziomu: {lvels_up} | '
+                    dane_users_dict[user][f"{lvels_up}"]["dane"] = {}
+
+            saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict)
+            dane_users_dict =saver_ver.open_ver("MINDFORGE", "dane_users_dict")
+
+            # przekazać do realizacji string json tak aby procedura zaczęła się od poziomu 0 dla kolejnej procedury z listy poczekalnia_0
+            payload_0 = {
+                "primary_key": gotowy_wybor_poziom_0,
+                "user": user,
+                "api_key": api_key,
+                "api_url": api_url
+            }
+            try:
+                response = requests.post(api_url, json=payload_0)
+                response.raise_for_status()  # Upewnia się, że nie ma błędów
+            except requests.exceptions.RequestException as e:
+                return jsonify({"success": False, "error": str(e)}), 500
+            
+            return jsonify({"success": True, "procedura_zakonczona": f"System został ustawiony dla użytkownika {user} do realizacji zaplanowanych procedur z poziomu 0"}), 200
+        else:
+            raport_cancel +=f'Wykasowano szablon dla poziomu: 1 | '
+            del dane_users_dict[user][f"1"]["szablon"]
+            raport_cancel +=f'Wykasowano szablon dla poziomu: 2 | '
+            del dane_users_dict[user][f"2"]["szablon"]
+            for lvels_up in range(0, 4):
+                if "wybor" in dane_users_dict[user][f"{lvels_up}"]:
+                    del dane_users_dict[user][f"{lvels_up}"]["wybor"]
+
+                if lvels_up == 0:
+                    raport_cancel += f'wyzerowano: dane dla poziomu: {lvels_up} | '
+                    del dane_users_dict[user][f"{lvels_up}"]["dane"]["procedura"]
+                    
+                else:
+                    raport_cancel +=f'wyzerowano: dane dla poziomu: {lvels_up} | '
+                    dane_users_dict[user][f"{lvels_up}"]["dane"] = {}
+
+            saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict)
+            dane_users_dict =saver_ver.open_ver("MINDFORGE", "dane_users_dict")
+            return jsonify({"success": True, "dane_do_realizacji": dane_do_realizacji}), 200
+    
+    # Zwracamy odpowiedź w formacie JSON
+    return jsonify({"success": True, "raport_koncowy": raport_koncowy}), 200
 
 if __name__ == "__main__":
     # app.run(debug=True, port=4000)
