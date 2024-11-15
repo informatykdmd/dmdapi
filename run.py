@@ -3020,7 +3020,7 @@ def handling_responses():
                         warunki = "WHERE id = %s"
                         wybrane_id = splited_id
                         wartosci = (splited_id,)
-                        prompt_level_2 = "Przejrzyj szczegóły oferty i dokonaj niezbędnych zmian, aktualizując wartości odpowiednich parametrów.\nJeśli odeślesz niezmieniony obiekt, wrócisz do poprzedniej opcji decyzyjnej."
+                        prompt_level_2 = "Przejrzyj szczegóły oferty i dokonaj niezbędnych zmian, aktualizując wartości odpowiednich parametrów. Jeżeli w treści są karaty (^) użyj ich ponieważ są to znaczniki stylowania zastępujące cudzysłowy więc zachowaj obecną strukturę. To ważne!\nJeśli odeślesz niezmieniony obiekt, wrócisz do poprzedniej opcji decyzyjnej."
 
                         ustaw_dane_poziom_2 = {
                             "procedura": dane_users_dict[user][f"{ostatni_level}"]["dane"]["procedura"],
