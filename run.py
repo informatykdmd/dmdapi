@@ -88,7 +88,7 @@ def addDataLogs(message: str, category: str, file_name_json: str = "/home/johndo
     new_log = {
         "id": len(data_json) + 1,  # Generowanie unikalnego ID
         "message": message,
-         "date": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%MZ"),
+        "date": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%MZ"),
         "category": category,
         "issued": []
     }
@@ -2889,7 +2889,7 @@ def handling_responses():
         return  jsonify({"success": False, "error": "Niewłaściwe dane zapytania!"}), 200
     
     if api_key and api_key not in allowed_API_KEYS:
-        return  jsonify({"data": None, "prompt": None, "level": None, "error": "Unauthorized access"}), 401
+        return  jsonify({"success": False, "error": "Unauthorized access"}), 401
 
     if user not in dane_users_dict:
         dane_users_dict = addNewUser(dane_users_dict, user)
