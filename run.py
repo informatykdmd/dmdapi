@@ -2020,7 +2020,7 @@ def getMainResponder():
             task_data["update"].append(theme)
             return task_data
     
-    mind_forge_si = msq.connect_to_database(f'SELECT * FROM mind_forge_si WHERE status = 4 AND active_task = 0;')
+    mind_forge_si = msq.connect_to_database(f'SELECT * FROM mind_forge_si WHERE status = 5 AND active_task = 0;')
     # FB GROUPS STATS   
     for i, item in enumerate(mind_forge_si):
         theme = {
