@@ -3368,7 +3368,7 @@ def handling_responses():
 
             saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict)
             dane_users_dict =saver_ver.open_ver("MINDFORGE", "dane_users_dict")
-            return jsonify({"success": True, "dane_do_realizacji": dane_do_realizacji}), 200
+            return jsonify({"success": True, "procedura_zakonczona": f"System został wyzerowany dla użytkownika {user}, wszystkie zaplanowane procedury zostały zrealizowane."}), 200
     
     # Zwracamy odpowiedź w formacie JSON
     return jsonify({"success": True, "raport_koncowy": raport_koncowy}), 200
