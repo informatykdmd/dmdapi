@@ -2843,7 +2843,7 @@ def get_data():
         return jsonify({"error": "Unauthorized access"}), 401  # Zwrot kodu 401 w przypadku braku autoryzacji
     
 
-@app.route('/api/get-template', methods=['POST'])
+@app.route('/api/get-template/', methods=['POST'])
 def get_template():
     data = request.get_json()
     user = data.get("user")
@@ -2870,7 +2870,7 @@ def get_template():
     return jsonify({"data": system_level_data.get('odpowiedz'), "prompt": system_level_data.get('prompt'), "level": ostatni_level_int}), 200
 
 
-@app.route('/api/handling-responses', methods=['POST'])
+@app.route('/api/handling-responses/', methods=['POST'])
 def handling_responses():
     dane_users_dict = saver_ver.open_ver("MINDFORGE", "dane_users_dict")
     # Pobieramy dane JSON z żądania
