@@ -2956,7 +2956,7 @@ def handling_responses():
                         kolumny = "ID, Tytul"
                         warunki = ""
                         wartosci = ()
-                        prompt_level_1 = "Wybierz ogłoszenie, aktualizując wartość true przy wybranej opcji.\nJeśli odeślesz niezmieniony obiekt, wrócisz do poprzedniej opcji decyzyjnej."
+                        prompt_level_1 = "Wybierz ogłoszenie, aktualizując wartość true przy wybranej opcji.\nJeśli odeślesz dokładnie ten sam obiekt (niezmieniony), anulujesz aktualne zadanie i wrócisz do poprzedniego etapu procesu lub menu."
 
                         ustaw_dane_poziom_1 = {
                             "procedura": current_procedure_name,
@@ -2981,7 +2981,7 @@ def handling_responses():
                         kolumny = generatorKolumn(kolumny_lista)
                         warunki = ""
                         wartosci = ()
-                        prompt_level_1 = "Wybierz ogłoszenie, aktualizując wartość true przy wybranej opcji.\nJeśli odeślesz niezmieniony obiekt, wrócisz do poprzedniej opcji decyzyjnej."
+                        prompt_level_1 = "Wybierz ogłoszenie, aktualizując wartość true przy wybranej opcji.\nJeśli odeślesz dokładnie ten sam obiekt (niezmieniony), anulujesz aktualne zadanie i wrócisz do poprzedniego etapu procesu lub menu."
 
                         ustaw_dane_poziom_1 = {
                             "procedura": current_procedure_name,
@@ -3006,7 +3006,7 @@ def handling_responses():
                         kolumny = generatorKolumn(kolumny_lista)
                         warunki = ""
                         wartosci = ()
-                        prompt_level_1 = "Wybierz osoby do których chcesz napisać wiadomość email, aktualizując wartość true przy wybranej osobie.\nJeśli odeślesz niezmieniony obiekt, wrócisz do poprzedniej opcji decyzyjnej."
+                        prompt_level_1 = "Wybierz osoby do których chcesz napisać wiadomość email, aktualizując wartość true przy wybranej osobie.\nJeśli odeślesz dokładnie ten sam obiekt (niezmieniony), anulujesz aktualne zadanie i wrócisz do poprzedniego etapu procesu lub menu."
 
                         ustaw_dane_poziom_1 = {
                             "procedura": current_procedure_name,
@@ -3139,7 +3139,7 @@ def handling_responses():
                         warunki = "WHERE id = %s"
                         wybrane_id = split_id_current_choice(current_choice)
                         wartosci = (wybrane_id,)
-                        prompt_level_2 = "Przejrzyj szczegóły oferty i dokonaj niezbędnych zmian, aktualizując wartości odpowiednich parametrów. Jeżeli w treści są karaty (^) użyj ich ponieważ są to znaczniki stylowania zastępujące cudzysłowy więc zachowaj obecną strukturę. To ważne!\nJeśli odeślesz niezmieniony obiekt, wrócisz do poprzedniej opcji decyzyjnej."
+                        prompt_level_2 = "Przejrzyj szczegóły oferty i dokonaj niezbędnych zmian, aktualizując wartości odpowiednich parametrów. Jeżeli w treści są karaty (^) użyj ich ponieważ są to znaczniki stylowania zastępujące cudzysłowy więc zachowaj obecną strukturę. To ważne!\nJeśli odeślesz dokładnie ten sam obiekt (niezmieniony), anulujesz aktualne zadanie i wrócisz do poprzedniego etapu procesu lub menu."
 
                         ustaw_dane_poziom_2 = {
                             "procedura": dane_users_dict[user][f"{ostatni_level}"]["dane"]["procedura"],
@@ -3190,7 +3190,7 @@ def handling_responses():
                         warunki = "WHERE id = %s"
                         wybrane_id = split_id_current_choice(current_choice)
                         wartosci = (wybrane_id,)
-                        prompt_level_2 = "Przejrzyj szczegóły oferty i dokonaj niezbędnych zmian, aktualizując wartości odpowiednich parametrów. Jeżeli w treści są karaty (^) użyj ich ponieważ są to znaczniki stylowania zastępujące cudzysłowy więc zachowaj obecną strukturę. To ważne!\nJeśli odeślesz niezmieniony obiekt, wrócisz do poprzedniej opcji decyzyjnej."
+                        prompt_level_2 = "Przejrzyj szczegóły oferty i dokonaj niezbędnych zmian, aktualizując wartości odpowiednich parametrów. Jeżeli w treści są karaty (^) użyj ich ponieważ są to znaczniki stylowania zastępujące cudzysłowy więc zachowaj obecną strukturę. To ważne!\nJeśli odeślesz dokładnie ten sam obiekt (niezmieniony), anulujesz aktualne zadanie i wrócisz do poprzedniego etapu procesu lub menu."
 
                         ustaw_dane_poziom_2 = {
                             "procedura": dane_users_dict[user][f"{ostatni_level}"]["dane"]["procedura"],
@@ -3210,7 +3210,7 @@ def handling_responses():
                     if current_procedure_name == "WYSYLANIE_EMAILI":
                         
                         wybrane_emails = split_emails_picket_choice(picket_choice) # lista emaili
-                        prompt_level_2 = "Sprawdź wybrane emaile i uzupełnij tytuł i treści wiadomości, aktualizując wartości przy danym kluczu.\nJeśli odeślesz niezmieniony obiekt, wrócisz do poprzedniej opcji decyzyjnej."
+                        prompt_level_2 = "Sprawdź wybrane emaile i uzupełnij tytuł i treści wiadomości, aktualizując wartości przy danym kluczu.\nJeśli odeślesz dokładnie ten sam obiekt (niezmieniony), anulujesz aktualne zadanie i wrócisz do poprzedniego etapu procesu lub menu."
 
                         ustaw_dane_poziom_2 = {
                             "procedura": dane_users_dict[user][f"{ostatni_level}"]["dane"]["procedura"],
