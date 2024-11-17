@@ -2942,7 +2942,7 @@ def handling_responses():
                     """
                     picket_procedures = [label[1:] for label in validator_dict.get("rozne_wartosci", {}).keys()]
                     current_procedure_name = picket_procedures[0] if picket_procedures else None
-                    prompt_level_0 = "Wybierz potrzebne narzędzia, aktualizując wartość true przy wybranych opcjach.\nJeśli odeślesz niezmieniony obiekt, model decyzyjny zostanie dezaktywowany."
+                    prompt_level_0 = "Wybierz potrzebne narzędzia, odsyłając obiekt JSON, aktualizując wartość true przy wybranych opcjach.\nJeśli odeślesz niezmieniony obiekt, model decyzyjny zostanie dezaktywowany."
                     ustaw_dane_poziom_0 = {"prompt": prompt_level_0, "poczekalnia_0": picket_procedures}
                     ustaw_dane_poziom_1 = {}
 
