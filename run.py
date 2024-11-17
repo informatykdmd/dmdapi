@@ -3112,18 +3112,14 @@ def handling_responses():
                         tabela = "OfertyNajmu"
                         zapyanie = "SELECT"
                         kolumny_lista = [
-                                            "Opis",
-                                            "Cena",
-                                            "Kaucja",
-                                            "LiczbaPokoi",
-                                            "Metraz",
-                                            "Czynsz",
-                                            "LiczbaPieter",
-                                            "PowierzchniaDzialki",
-                                            "RokBudowy",
-                                            "NumerKW",
-                                            "TelefonKontaktowy",
-                                            "EmailKontaktowy"
+                                    "Opis",
+                                    "Cena",
+                                    "Metraz",
+                                    "Czynsz",
+                                    "RokBudowy",
+                                    "NumerKW",
+                                    "TelefonKontaktowy",
+                                    "EmailKontaktowy"
                             ]
                         
                         kolumny = generatorKolumn(kolumny_lista)
@@ -3155,9 +3151,7 @@ def handling_responses():
                         kolumny_lista = [
                                     "Opis",
                                     "Cena",
-                                    "LiczbaPokoi",
                                     "Metraz",
-                                    "LiczbaPieter",
                                     "RokBudowy",
                                     "NumerKW",
                                     "TelefonKontaktowy",
