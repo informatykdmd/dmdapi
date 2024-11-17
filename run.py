@@ -2926,9 +2926,9 @@ def handling_responses():
         
         user_process_response = json_string_to_dict(user_aswer)
 
-        if user_process_response['error'] is not None:
+        if user_process_response.get('error') is not None and user_process_response.get('json', False):
             return jsonify({"success": False, "error": user_process_response["error"]}), 200
-        user_json = user_process_response['json']
+        user_json = user_process_response.get('json')
 
         validator_dict = validate_response_structure(curent_tempalte, user_json)
 
@@ -2936,10 +2936,10 @@ def handling_responses():
             and not validator_dict.get("error") and not validator_dict.get("success")\
                 and not validator_dict.get("anuluj_zadanie"):
             if validator_dict.get("rozne_wartosci"):
-                """
-                    POZIOM 0                            POZIOM 0                            POZIOM 0
-                """
                 if ostatni_level == "0":
+                    """
+                        POZIOM 0                            POZIOM 0                            POZIOM 0
+                    """
                     picket_procedures = [label[1:] for label in validator_dict.get("rozne_wartosci", {}).keys()]
                     current_procedure_name = picket_procedures[0] if picket_procedures else None
                     prompt_level_0 = "Wybierz potrzebne narzędzia, aktualizując wartość true przy wybranych opcjach.\nJeśli odeślesz niezmieniony obiekt, model decyzyjny zostanie dezaktywowany."
@@ -3081,10 +3081,10 @@ def handling_responses():
                     dane_users_dict =saver_ver.open_ver("MINDFORGE", "dane_users_dict")
                     raport_koncowy += f"Udane przetworzenie poziomu {ostatni_level} dla {current_procedure_name}"
 
-                """
-                    POZIOM 1                            POZIOM 1                            POZIOM 1
-                """
                 if ostatni_level == "1":
+                    """
+                        POZIOM 1                            POZIOM 1                            POZIOM 1
+                    """
                     picket_choice = [label[1:] for label in validator_dict.get("rozne_wartosci", {}).keys()]
                     current_choice = picket_choice[0] if picket_choice else None
 
@@ -3388,7 +3388,7 @@ def handling_responses():
 
                             prompt_level_3 = "Zmiany zostaną wprowadzone po wysłaniu raportu. Wypełnij pole raportu, aby zakończyć proces aktualizacji.\nJeśli odeślesz niezmieniony obiekt, wrócisz do poprzedniej opcji decyzyjnej a zmiany nie zostaną wprowadzone."
                             ustaw_dane_poziomu_3 = {
-                                "procedura": dane_users_dict[user][f"{ostatni_level}"]["dane"]["procedura"],
+                                "procedura": current_procedure_name,
                                 "tabela": tabela,
                                 "zapyanie": zapyanie,
                                 "kolumny_lista": kolumny_lista,
@@ -3412,7 +3412,7 @@ def handling_responses():
                     if current_procedure_name == "WYSYLANIE_EMAILI":
                         if title_message!="" and content_message!="":
                             ustaw_dane_poziomu_3 = {
-                                "procedura": dane_users_dict[user][f"{ostatni_level}"]["dane"]["procedura"],
+                                "procedura": current_procedure_name,
                                 "email_list": final_email_list,
                                 "title": title_message,
                                 "content": content_message
@@ -3422,6 +3422,7 @@ def handling_responses():
                         dane_users_dict = template_managment(dane_users_dict, user, f"3", ustaw_dane_poziomu_3)
 
                     dane_users_dict[user]["2"]["wybor"] = dict_to_json_string(user_json)["json_string"]
+
                     saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict)
                     dane_users_dict =saver_ver.open_ver("MINDFORGE", "dane_users_dict")
                     raport_koncowy += f"Udane przetworzenie poziomu {ostatni_level} dla {current_procedure_name}"
@@ -3456,7 +3457,18 @@ def handling_responses():
                     saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict)
                     dane_users_dict =saver_ver.open_ver("MINDFORGE", "dane_users_dict")
                     raport_koncowy += f"Udane przetworzenie poziomu {ostatni_level} dla {current_procedure_name}"
-
+            else:
+                # Brak różnic w wartościach
+                raport_koncowy += f"Nie przetworzono poziomu {ostatni_level} dla {current_procedure_name}. "
+                raport_koncowy += "Brak wykrytych różnic w danych (rozne_wartosci jest puste).\n"
+        else:
+            # Warunki nie zostały spełnione
+            raport_koncowy += f"Przetwarzanie poziomu {ostatni_level} dla {current_procedure_name} nie powiodło się. "
+            raport_koncowy += f"Warunki wejścia nie zostały spełnione:\n"
+            raport_koncowy += f"zgodnosc_struktury: {validator_dict.get('zgodnosc_struktury')}, "
+            raport_koncowy += f"error: {validator_dict.get('error')}, "
+            raport_koncowy += f"success: {validator_dict.get('success')}, "
+            raport_koncowy += f"anuluj_zadanie: {validator_dict.get('anuluj_zadanie')}\n"
         # ###########################################################################
         #                                                                           #
         #                               Anuluj Zadanie                              #
@@ -3517,10 +3529,6 @@ def handling_responses():
             raport_zgodnosc = validator_dict.get("error")
             return jsonify({"success": False, "raport_zgodnosc": f"Brak elementu na pozycji. To nie ten json! {raport_zgodnosc}"}), 200
 
-
-
-        # import pprint
-        # pprint.pprint(dane_users_dict[user])
     # ###########################################################################
     #                                                                           #
     #   LEVEL 3 - LEVEL WYKONAWCZY, musi istnieć dyrektywa_wykonawcza           #
