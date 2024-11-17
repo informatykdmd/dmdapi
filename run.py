@@ -3073,7 +3073,7 @@ def handling_responses():
                                 export_data = export_data[:-2] + f'''": false,\n'''
 
                             if export_data != "{\n":
-                                export_data += export_data[:-2] + "\n}\n"
+                                export_data = export_data[:-2] + "\n}\n"
                                 dane_users_dict[user]["1"]["szablon"] = export_data
 
                     dane_users_dict[user]["0"]["wybor"] = dict_to_json_string(user_json)["json_string"]
@@ -3186,7 +3186,7 @@ def handling_responses():
                         prompt_level_2 = "Sprawdź wybrane emaile i uzupełnij tytuł i treści wiadomości, aktualizując wartości przy danym kluczu.\nZachowaj obecną strukturę JSON, nie używaj znaków ucieczki (\\) i upewnij się, że format danych jest spójny z szablonem. To ważne!\nJeśli odeślesz dokładnie ten sam obiekt (niezmieniony), anulujesz aktualne zadanie i wrócisz do poprzedniego etapu procesu lub menu.\nPamiętaj, że rozumiem tylko język JSON, odpowiadaj tylko jsonem komunikując się zemną! Zastosuj się do moich instrukcji i odeślij zaktualizowany obiekt json!\n"
 
                         ustaw_dane_poziom_2 = {
-                            "procedura": dane_users_dict[user][f"{ostatni_level}"]["dane"]["procedura"],
+                            "procedura": current_procedure_name,
                             "wybrane_emails": wybrane_emails,
                             "prompt": prompt_level_2
                         }
