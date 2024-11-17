@@ -2043,8 +2043,21 @@ def getMainResponder():
 
     return task_data
 
+def generatorKolumn(list_of_strings, sepa=", "):
+    export_string = ""
+    for string in list_of_strings:
+        if not str(string).count(sepa):
+            export_string += f"{string}{sepa}"
+    
+    if export_string:
+        export_string = export_string[:-2].strip()
+        return export_string
+    else:
+        return None
 
 
+def send_emails(procedur, emails, title_mess, content_mess):
+    return True
 def updateJsonFile(taskID, file_name='responder.json', encodingJson='utf-8'):
     responderFile = getMainResponder(file_name, encodingJson)
     
@@ -2877,7 +2890,7 @@ def handling_responses():
     data = request.get_json()
     # Sprawdzamy, czy dane zostały poprawnie przesłane
     if not data:
-        return jsonify({"error": "Brak danych"}), 400
+        return jsonify({"success": False, "error": "Brak danych"}), 400
     
     user_aswer = data.get("primary_key", None)
     user = data.get("user", None)
@@ -2939,11 +2952,61 @@ def handling_responses():
                     if current_procedure_name == "AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM":
                         tabela = "OfertyNajmu"
                         zapyanie = "SELECT"
-                        kolumny_lista = ["id", "tytul"]
-                        kolumny = "id, tytul"
+                        kolumny_lista = ["ID", "Tytul"]
+                        kolumny = "ID, Tytul"
                         warunki = ""
                         wartosci = ()
                         prompt_level_1 = "Wybierz ogłoszenie, aktualizując wartość true przy wybranej opcji.\nJeśli odeślesz niezmieniony obiekt, wrócisz do poprzedniej opcji decyzyjnej."
+
+                        ustaw_dane_poziom_1 = {
+                            "procedura": current_procedure_name,
+                            "tabela": tabela,
+                            "zapyanie": zapyanie,
+                            "kolumny_lista": kolumny_lista,
+                            "kolumny": kolumny,
+                            "warunki": warunki,
+                            "wartosci": wartosci,
+                            "prompt": prompt_level_1
+                        }
+                        ustaw_dane_poziom_0["procedura"] = current_procedure_name
+                        ustaw_dane_poziom_0["poczekalnia_0"].remove(current_procedure_name)
+                    
+                    # ############################################################################
+                    # AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_SPRZEDAZ
+                    # ############################################################################
+                    if current_procedure_name == "AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_SPRZEDAZ":
+                        tabela = "OfertySprzedazy"
+                        zapyanie = "SELECT"
+                        kolumny_lista = ["ID", "Tytul"]
+                        kolumny = generatorKolumn(kolumny_lista)
+                        warunki = ""
+                        wartosci = ()
+                        prompt_level_1 = "Wybierz ogłoszenie, aktualizując wartość true przy wybranej opcji.\nJeśli odeślesz niezmieniony obiekt, wrócisz do poprzedniej opcji decyzyjnej."
+
+                        ustaw_dane_poziom_1 = {
+                            "procedura": current_procedure_name,
+                            "tabela": tabela,
+                            "zapyanie": zapyanie,
+                            "kolumny_lista": kolumny_lista,
+                            "kolumny": kolumny,
+                            "warunki": warunki,
+                            "wartosci": wartosci,
+                            "prompt": prompt_level_1
+                        }
+                        ustaw_dane_poziom_0["procedura"] = current_procedure_name
+                        ustaw_dane_poziom_0["poczekalnia_0"].remove(current_procedure_name)
+
+                    # ############################################################################
+                    # WYSYLANIE_EMAILI
+                    # ############################################################################
+                    if current_procedure_name == "WYSYLANIE_EMAILI":
+                        tabela = "admins"
+                        zapyanie = "SELECT"
+                        kolumny_lista = ["ID", "ADMIN_NAME", "LOGIN", "EMAIL_ADMIN", "ADMIN_ROLE"]
+                        kolumny = generatorKolumn(kolumny_lista)
+                        warunki = ""
+                        wartosci = ()
+                        prompt_level_1 = "Wybierz osoby do których chcesz napisać wiadomość email, aktualizując wartość true przy wybranej osobie.\nJeśli odeślesz niezmieniony obiekt, wrócisz do poprzedniej opcji decyzyjnej."
 
                         ustaw_dane_poziom_1 = {
                             "procedura": current_procedure_name,
@@ -2969,7 +3032,6 @@ def handling_responses():
                     dane_poziomu_1 = dane_users_dict.get(user, {}).get(f"1", {}).get("dane", {})
                     # print(dane_poziomu)
                     export_data = ""
-                    # if current_procedure == "AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM":
 
                     if dane_poziomu_1:
                         zapyanie_sql = f"""
@@ -2980,17 +3042,39 @@ def handling_responses():
                         """
                         values= dane_poziomu_1.get("wartosci", ())
                         # zapyanie_sql jest pobierane z bazy
-                        pobrane_dane_z_bazy = [(1, 'tytuł pozycji1'), (2, 'tytuł pozycji2'), (3, 'tytuł pozycji3')]
-                        export_data = "{\n"
-                        for row in pobrane_dane_z_bazy:
-                            export_data += f'''"'''
-                            for e in row:
-                                export_data += f'''[{e}]::'''
-                            export_data += f'''[{dane_poziomu_1.get("tabela", "")}]": false,\n'''
-                        export_data = export_data[:-2]
-                        export_data += "\n}\n"
-                        dane_users_dict[user]["1"]["szablon"] = export_data
-                    # print(dane_users_dict)
+                        pobrane_dane_z_bazy = msq.safe_connect_to_database(zapyanie_sql, values)
+                        # pobrane_dane_z_bazy = [(1, 'tytuł pozycji1'), (2, 'tytuł pozycji2'), (3, 'tytuł pozycji3')]
+                        # ############################################################################
+                        # AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM
+                        # AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_SPRZEDAZ
+                        # ############################################################################
+                        if current_procedure_name == "AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM"\
+                            or current_procedure_name == "AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_SPRZEDAZ":
+                            export_data = "{\n"
+                            for row in pobrane_dane_z_bazy:
+                                export_data += f'''"'''
+                                for e in row:
+                                    export_data += f'''[{e}]::'''
+                                export_data += f'''[{dane_poziomu_1.get("tabela", "")}]": false,\n'''
+                            if export_data != "{\n":
+                                export_data = export_data[:-2]
+                                export_data += "\n}\n"
+                                dane_users_dict[user]["1"]["szablon"] = export_data
+
+                        # ############################################################################
+                        # WYSYLANIE_EMAILI
+                        # ############################################################################
+                        if current_procedure_name == "WYSYLANIE_EMAILI":
+                            export_data = "{\n"
+                            for row in pobrane_dane_z_bazy:
+                                export_data += f'''"'''
+                                for e in row:
+                                    export_data += f'''[{e}]::'''
+                                export_data = export_data[:-2] + f'''": false,\n'''
+
+                            if export_data != "{\n":
+                                export_data += export_data[:-2] + "\n}\n"
+                                dane_users_dict[user]["1"]["szablon"] = export_data
 
                     dane_users_dict[user]["0"]["wybor"] = dict_to_json_string(user_json)["json_string"]
                     saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict)
@@ -3003,8 +3087,21 @@ def handling_responses():
                 if ostatni_level == "1":
                     picket_choice = [label[1:] for label in validator_dict.get("rozne_wartosci", {}).keys()]
                     current_choice = picket_choice[0] if picket_choice else None
-                    if current_choice:
-                        splited_id = int(current_choice.split("]::")[0][1:])
+
+                    # splituje id z wybranej pozycji 
+                    def split_id_current_choice(current_choice_string: str):
+                        if current_choice_string and current_choice_string.startswith("["):
+                            splited_id = int(current_choice_string.split("]::")[0][1:])
+                        return splited_id
+
+                    def split_emails_picket_choice(picket_choice_list: list):
+                        emails_list = []
+                        for current_choice_string in picket_choice_list:
+                            if current_choice_string and str(current_choice_string).startswith("["):
+                                email_adr = str(current_choice_string.split("]::")[3][1:])
+                                emails_list.append(email_adr)
+                        return emails_list
+                    
                     ustaw_dane_poziom_2 = {}
                     ustaw_dane_poziomu_1 = dane_users_dict.get(user, {}).get(f"1", {}).get("dane", {})
                     # ############################################################################
@@ -3012,14 +3109,36 @@ def handling_responses():
                     # ############################################################################
                     if current_procedure_name == "AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM":
 
-                        
                         tabela = "OfertyNajmu"
                         zapyanie = "SELECT"
-                        kolumny_lista = ["tytul", "opis", "cena", "metraz"]
-                        kolumny = "tytul, opis, cena, metraz"
+                        kolumny_lista = [
+                                            "Opis",
+                                            "Cena",
+                                            "Kaucja",
+                                            "Lokalizacja",
+                                            "LiczbaPokoi",
+                                            "Metraz",
+                                            "RodzajZabudowy",
+                                            "Czynsz",
+                                            "Umeblowanie",
+                                            "LiczbaPieter",
+                                            "PowierzchniaDzialki",
+                                            "TechBudowy",
+                                            "FormaKuchni",
+                                            "TypDomu",
+                                            "StanWykonczenia",
+                                            "RokBudowy",
+                                            "NumerKW",
+                                            "InformacjeDodatkowe",
+                                            "TelefonKontaktowy",
+                                            "EmailKontaktowy",
+                                            "StatusOferty",
+                            ]
+                        
+                        kolumny = generatorKolumn(kolumny_lista)
                         warunki = "WHERE id = %s"
-                        wybrane_id = splited_id
-                        wartosci = (splited_id,)
+                        wybrane_id = split_id_current_choice(current_choice)
+                        wartosci = (wybrane_id,)
                         prompt_level_2 = "Przejrzyj szczegóły oferty i dokonaj niezbędnych zmian, aktualizując wartości odpowiednich parametrów. Jeżeli w treści są karaty (^) użyj ich ponieważ są to znaczniki stylowania zastępujące cudzysłowy więc zachowaj obecną strukturę. To ważne!\nJeśli odeślesz niezmieniony obiekt, wrócisz do poprzedniej opcji decyzyjnej."
 
                         ustaw_dane_poziom_2 = {
@@ -3033,12 +3152,82 @@ def handling_responses():
                             "wartosci": wartosci,
                             "prompt": prompt_level_2
                         }
+                      
+                    # ############################################################################
+                    # AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_SPRZEDAZ
+                    # ############################################################################
+                    if current_procedure_name == "AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_SPRZEDAZ":
+
+                        tabela = "OfertySprzedazy"
+                        zapyanie = "SELECT"
+                        kolumny_lista = [
+                                    "TypNieruchomosci",
+                                    "Tytul",
+                                    "Rodzaj",
+                                    "Opis",
+                                    "Cena",
+                                    "Lokalizacja",
+                                    "LiczbaPokoi",
+                                    "Metraz",
+                                    'RodzajZabudowy',
+                                    'Rynek',
+                                    'LiczbaPieter',
+                                    'PrzeznaczenieLokalu',
+                                    'Poziom',
+                                    'TechBudowy',
+                                    'FormaKuchni',
+                                    'TypDomu',
+                                    'StanWykonczenia',
+                                    'RokBudowy',
+                                    'NumerKW',
+                                    'InformacjeDodatkowe',
+                                    'TelefonKontaktowy',
+                                    'EmailKontaktowy',
+                                    'StatusOferty'
+                            ]
                         
+                        kolumny = generatorKolumn(kolumny_lista)
+                        warunki = "WHERE id = %s"
+                        wybrane_id = split_id_current_choice(current_choice)
+                        wartosci = (wybrane_id,)
+                        prompt_level_2 = "Przejrzyj szczegóły oferty i dokonaj niezbędnych zmian, aktualizując wartości odpowiednich parametrów. Jeżeli w treści są karaty (^) użyj ich ponieważ są to znaczniki stylowania zastępujące cudzysłowy więc zachowaj obecną strukturę. To ważne!\nJeśli odeślesz niezmieniony obiekt, wrócisz do poprzedniej opcji decyzyjnej."
+
+                        ustaw_dane_poziom_2 = {
+                            "procedura": dane_users_dict[user][f"{ostatni_level}"]["dane"]["procedura"],
+                            "tabela": tabela,
+                            "zapyanie": zapyanie,
+                            "kolumny_lista": kolumny_lista,
+                            "kolumny": kolumny,
+                            "warunki": warunki,
+                            "wybrane_id": wybrane_id,
+                            "wartosci": wartosci,
+                            "prompt": prompt_level_2
+                        } 
                         
+                    # ############################################################################
+                    # WYSYLANIE_EMAILI
+                    # ############################################################################
+                    if current_procedure_name == "WYSYLANIE_EMAILI":
+                        
+                        wybrane_emails = split_emails_picket_choice(picket_choice) # lista emaili
+                        prompt_level_2 = "Sprawdź wybrane emaile i uzupełnij tytuł i treści wiadomości, aktualizując wartości przy danym kluczu.\nJeśli odeślesz niezmieniony obiekt, wrócisz do poprzedniej opcji decyzyjnej."
+
+                        ustaw_dane_poziom_2 = {
+                            "procedura": dane_users_dict[user][f"{ostatni_level}"]["dane"]["procedura"],
+                            "wybrane_emails": wybrane_emails,
+                            "prompt": prompt_level_2
+                        }
+                    
                     if ustaw_dane_poziomu_1:
-                        ustaw_dane_poziomu_1["poczekalnia_1"] = picket_choice
-                        ustaw_dane_poziomu_1["wybrano"] = current_choice
-                        ustaw_dane_poziomu_1["poczekalnia_1"].remove(current_choice)
+                        if current_procedure_name == "AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM"\
+                            or current_procedure_name == "AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_SPRZEDAZ":
+                            ustaw_dane_poziomu_1["poczekalnia_1"] = picket_choice
+                            ustaw_dane_poziomu_1["wybrano"] = current_choice
+                            ustaw_dane_poziomu_1["poczekalnia_1"].remove(current_choice)
+
+                        if current_procedure_name == "WYSYLANIE_EMAILI":
+                            ustaw_dane_poziomu_1["poczekalnia_1"] = []
+
                         dane_users_dict = template_managment(dane_users_dict, user, f"1", ustaw_dane_poziomu_1)
 
                     if ustaw_dane_poziom_2:
@@ -3051,50 +3240,70 @@ def handling_responses():
 
                     dane_poziomu_2 = dane_users_dict.get(user, {}).get(f"2", {}).get("dane", {})
                     if dane_poziomu_2:
-                        zapyanie_sql = f"""
-                            {dane_poziomu_2.get("zapyanie", "")} 
-                                {dane_poziomu_2.get("kolumny", "")} 
-                            FROM {dane_poziomu_2.get("tabela", "")} 
-                            {dane_poziomu_2.get("warunki", "")};
-                        """
-                        values= dane_poziomu_2.get("wartosci", ())
-                        # zapyanie_sql jest pobierane z bazy
-                        [{"p":"paragraf"}, {"li":["dynamiczny", "stylowalny"]}]
-                        # pobrane_dane_z_bazy = [("tytuł", 'opis', 651450, 89),][0]
-                        pobrane_dane_z_bazy = [("tytuł", '[{"p":"paragraf 1"}, {"li":["dynamiczny 1", "stylowalny 1"]}]', 651450, 89)][0]
-                        def is_json_like_string(text):
-                            """Sprawdza, czy string wygląda na strukturę JSON po usunięciu znaku ^."""
+                        if current_procedure_name == "AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM"\
+                            or current_procedure_name == "AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_SPRZEDAZ":
+                            zapyanie_sql = f"""
+                                {dane_poziomu_2.get("zapyanie", "")} 
+                                    {dane_poziomu_2.get("kolumny", "")} 
+                                FROM {dane_poziomu_2.get("tabela", "")} 
+                                {dane_poziomu_2.get("warunki", "")};
+                            """
+                            values= dane_poziomu_2.get("wartosci", ())
+                            # zapyanie_sql jest pobierane z bazy
+                            [{"p":"paragraf"}, {"li":["dynamiczny", "stylowalny"]}]
+                            # pobrane_dane_z_bazy = [("tytuł", 'opis', 651450, 89),][0]
                             
-                            # Usuwamy wszystkie wystąpienia ^ z tekstu
-                            text = text.replace('^', '')
+                            try: pobrane_dane_z_bazy = msq.safe_connect_to_database(zapyanie_sql, values)[0]
+                            except IndexError: return jsonify({"success": False, "error": f"Błąd poziomu {ostatni_level} dla {current_procedure_name}"}), 400
+                            [("tytuł", '[{"p":"paragraf 1"}, {"li":["dynamiczny 1", "stylowalny 1"]}]', 651450, 89)][0]
+                            def is_json_like_string(text):
+                                """Sprawdza, czy string wygląda na strukturę JSON po usunięciu znaku ^."""
+                                
+                                # Usuwamy wszystkie wystąpienia ^ z tekstu
+                                text = text.replace('^', '')
 
-                            # Sprawdzamy, czy tekst zawiera kluczowe znaki JSON
-                            json_chars = ['{', '[', ']', ':', '"']
-                            contains_json_structure = any(char in text for char in json_chars)
-                            
-                            # Zwraca True, tylko jeśli są kluczowe znaki JSON po usunięciu ^
-                            return contains_json_structure
+                                # Sprawdzamy, czy tekst zawiera kluczowe znaki JSON
+                                json_chars = ['{', '[', ']', ':', '"']
+                                contains_json_structure = any(char in text for char in json_chars)
+                                
+                                # Zwraca True, tylko jeśli są kluczowe znaki JSON po usunięciu ^
+                                return contains_json_structure
 
-                        # Zastosowanie warunku do listy pobrane_dane_z_bazy
-                        pobrane_dane_z_bazy_escaped = [
-                            poz.replace('^', "").replace('"', "^") if isinstance(poz, str) and is_json_like_string(poz) else poz 
-                            for poz in pobrane_dane_z_bazy
-                        ]
-                        export_data = "{\n"
-                        try: nazwy_zip= zip(pobrane_dane_z_bazy_escaped, dane_poziomu_2.get("kolumny_lista", []))
-                        except: 
-                            nazwy_zip= []
-                            export_data = None
-                        for data, name_kol in nazwy_zip:
-                            if isinstance(data, str):
-                                export_data += f'"{name_kol}": "{data}",\n'
-                            else:
-                                export_data += f'"{name_kol}": {data},\n'
-                        if export_data:
+                            # Zastosowanie warunku do listy pobrane_dane_z_bazy
+                            pobrane_dane_z_bazy_escaped = [
+                                poz.replace('^', "").replace('"', "^") if isinstance(poz, str) and is_json_like_string(poz) else poz 
+                                for poz in pobrane_dane_z_bazy
+                            ]
+                            export_data = "{\n"
+                            try: nazwy_zip= zip(pobrane_dane_z_bazy_escaped, dane_poziomu_2.get("kolumny_lista", []))
+                            except: 
+                                nazwy_zip= []
+                                export_data = None
+                            for data, name_kol in nazwy_zip:
+                                if isinstance(data, str):
+                                    export_data += f'"{name_kol}": "{data}",\n'
+                                else:
+                                    export_data += f'"{name_kol}": {data},\n'
+                            if export_data!="{\n":
+                                export_data = export_data[:-2]
+                                export_data += "\n}\n"
+                                dane_users_dict[user]["2"]["szablon"] = export_data
+                            del export_data
+
+                        if current_procedure_name == "WYSYLANIE_EMAILI":
+                            export_data = '''{\n"WYBRANE": ['''
+                            for email in dane_poziomu_2.get("wybrane_emails", []):
+                                if str(email).count("@") == 1 and str(email).count("."):
+                                    export_data += f'"{email}",\n'
+                            if export_data!='''{\n"WYBRANE": [''':
+                                export_data = export_data[:-2]
+                                export_data += "],\n"
+                            else: return jsonify({"success": False, "error": f"Błąd poziomu {ostatni_level} dla {current_procedure_name}"}), 400
+                            export_data = '''"TYTUL": "",\n'''
+                            export_data = '''"WIADOMOSC": "",\n'''
                             export_data = export_data[:-2]
                             export_data += "\n}\n"
                             dane_users_dict[user]["2"]["szablon"] = export_data
-                        del export_data
 
                         saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict)
                         dane_users_dict =saver_ver.open_ver("MINDFORGE", "dane_users_dict")
@@ -3105,32 +3314,48 @@ def handling_responses():
                 if ostatni_level == "2":
                     ostatni_level_int = int(ostatni_level)
                     vanles_changes = []
-                    kolumny_lista = []
-                    kolumny_generator = "("
-                    values_list = []
-                    for label, changes in validator_dict.get("rozne_wartosci", {}).items():
-                        # print(label)
-                        if label[1:] in dane_users_dict.get(user, {}).get(f"2", {}).get("dane", {}).get("kolumny_lista", []):
-                            preared_data = (label[1:], resumeJson_structure(changes))
-                            vanles_changes.append(preared_data)
-                            kolumny_lista.append(label[1:])
-                            kolumny_generator += f"{label[1:]}=%s, "
-                            values_list.append(resumeJson_structure(changes))
-                    if kolumny_generator: kolumny_generator = kolumny_generator[:-2] + ")"
-                    # print(vanles_changes)
-                    if vanles_changes:
-                        ustaw_dane_poziomu_3 = {}
+                    if current_procedure_name == "AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM"\
+                        or current_procedure_name == "AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_SPRZEDAZ":
+                        kolumny_lista = []
+                        kolumny_generator = "("
+                        values_list = []
+                        for label, changes in validator_dict.get("rozne_wartosci", {}).items():
+                            # print(label)
+                            if label[1:] in dane_users_dict.get(user, {}).get(f"2", {}).get("dane", {}).get("kolumny_lista", []):
+                                preared_data = (label[1:], resumeJson_structure(changes))
+                                vanles_changes.append(preared_data)
+                                kolumny_lista.append(label[1:])
+                                kolumny_generator += f"{label[1:]}=%s, "
+                                values_list.append(resumeJson_structure(changes))
+                        if kolumny_generator!="(": kolumny_generator = kolumny_generator[:-2] + ")"
 
-                        # ############################################################################
-                        # AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM
-                        # ############################################################################
-                        if current_procedure_name == "AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM":
+                    if current_procedure_name == "WYSYLANIE_EMAILI":
+                        final_email_list = []
+                        title_message = ""
+                        content_message = ""
 
+                        for label, changes in validator_dict.get("rozne_wartosci", {}).items():
+                            # print(label)
+                            if label[1:] == "WYBRANE":
+                                final_email_list = changes
+                            if label[1:] == "TYTUL":
+                                title_message = changes
+                            if label[1:] == "WIADOMOSC":
+                                content_message = changes
+                        
+                                
+
+                    ustaw_dane_poziomu_3 = {}
+                    # ############################################################################
+                    # AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM
+                    # ############################################################################
+                    if current_procedure_name == "AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM":
+                        if vanles_changes:
                             tabela = "OfertyNajmu"
-                            zapyanie = "UPDATE SET"
+                            zapyanie = f"UPDATE {tabela} SET"
                             warunki = "WHERE id = %s"
                             wybrane_id = dane_users_dict[user][f"{ostatni_level}"]["dane"]["wybrane_id"]
-                            wartosci = tuple(values_list)
+                            wartosci = tuple(values_list + [wybrane_id])
 
                             prompt_level_3 = "Zmiany zostaną wprowadzone po wysłaniu raportu. Wypełnij pole raportu, aby zakończyć proces aktualizacji.\nJeśli odeślesz niezmieniony obiekt, wrócisz do poprzedniej opcji decyzyjnej a zmiany nie zostaną wprowadzone."
                             ustaw_dane_poziomu_3 = {
@@ -3143,16 +3368,65 @@ def handling_responses():
                                 "wybrane_id": wybrane_id,
                                 "wartosci": wartosci,
                                 "aktualizacja": vanles_changes,
-                                "prompt": prompt_level_3
+                                "prompt": prompt_level_3,
+                                "zapytanie_sql": f"""
+                                    {zapyanie}
+                                    {kolumny_generator}
+                                    {warunki};
+                                            """
 
                             }
-                        if ustaw_dane_poziomu_3:
-                            dane_users_dict = template_managment(dane_users_dict, user, f"3", ustaw_dane_poziomu_3)
+                                            
+                    # ############################################################################
+                    # AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_SPRZEDAZ
+                    # ############################################################################
+                    if current_procedure_name == "AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_SPRZEDAZ":
+                        if vanles_changes:
+                            tabela = "OfertySprzedazy"
+                            zapyanie = f"UPDATE {tabela} SET"
+                            warunki = "WHERE id = %s"
+                            wybrane_id = dane_users_dict[user][f"{ostatni_level}"]["dane"]["wybrane_id"]
+                            wartosci = tuple(values_list + [wybrane_id])
 
-                        dane_users_dict[user]["2"]["wybor"] = dict_to_json_string(user_json)["json_string"]
-                        saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict)
-                        dane_users_dict =saver_ver.open_ver("MINDFORGE", "dane_users_dict")
-                        raport_koncowy += f"Udane przetworzenie poziomu {ostatni_level} dla {current_procedure_name}"
+                            prompt_level_3 = "Zmiany zostaną wprowadzone po wysłaniu raportu. Wypełnij pole raportu, aby zakończyć proces aktualizacji.\nJeśli odeślesz niezmieniony obiekt, wrócisz do poprzedniej opcji decyzyjnej a zmiany nie zostaną wprowadzone."
+                            ustaw_dane_poziomu_3 = {
+                                "procedura": dane_users_dict[user][f"{ostatni_level}"]["dane"]["procedura"],
+                                "tabela": tabela,
+                                "zapyanie": zapyanie,
+                                "kolumny_lista": kolumny_lista,
+                                "kolumny": kolumny_generator,
+                                "warunki": warunki,
+                                "wybrane_id": wybrane_id,
+                                "wartosci": wartosci,
+                                "aktualizacja": vanles_changes,
+                                "prompt": prompt_level_3,
+                                "zapytanie_sql": f"""
+                                    {zapyanie}
+                                    {kolumny_generator}
+                                    {warunki};
+                                            """
+
+                            }
+
+                    # ############################################################################
+                    # WYSYLANIE_EMAILI
+                    # ############################################################################
+                    if current_procedure_name == "WYSYLANIE_EMAILI":
+                        if title_message!="" and content_message!="":
+                            ustaw_dane_poziomu_3 = {
+                                "procedura": dane_users_dict[user][f"{ostatni_level}"]["dane"]["procedura"],
+                                "email_list": final_email_list,
+                                "title": title_message,
+                                "content": content_message
+                            }
+
+                    if ustaw_dane_poziomu_3:
+                        dane_users_dict = template_managment(dane_users_dict, user, f"3", ustaw_dane_poziomu_3)
+
+                    dane_users_dict[user]["2"]["wybor"] = dict_to_json_string(user_json)["json_string"]
+                    saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict)
+                    dane_users_dict =saver_ver.open_ver("MINDFORGE", "dane_users_dict")
+                    raport_koncowy += f"Udane przetworzenie poziomu {ostatni_level} dla {current_procedure_name}"
                 """
                     POZIOM 3                            POZIOM 3                            POZIOM 3
                 """
@@ -3164,6 +3438,19 @@ def handling_responses():
                     if raport_data:
                         dane_poziomu_3 = dane_users_dict.get(user, {}).get(f"3", {}).get("dane", {})
                         dane_poziomu_3["raport"] = raport_data
+
+                    # ############################################################################
+                    # AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_SPRZEDAZ . . . NA_WYNAJEM
+                    # to jest kluczowa flaga uruchamiająca procedurę realizacji
+                    # ustawienie flagi dyrektywy update_db
+                    # ############################################################################
+                    if current_procedure_name == "AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM"\
+                        or current_procedure_name == "AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_SPRZEDAZ":
+                        dane_poziomu_3["dyrektywa_wykonawcza"] = "update_db"
+                        dane_users_dict = template_managment(dane_users_dict, user, f"3", dane_poziomu_3)
+
+                    if current_procedure_name == "WYSYLANIE_EMAILI":
+                        dane_poziomu_3["dyrektywa_wykonawcza"] = "run_function"
                         dane_users_dict = template_managment(dane_users_dict, user, f"3", dane_poziomu_3)
 
                     dane_users_dict[user]["3"]["wybor"] = dict_to_json_string(user_json)["json_string"]
@@ -3238,18 +3525,56 @@ def handling_responses():
         # pprint.pprint(dane_users_dict[user])
     # ###########################################################################
     #                                                                           #
-    #   LEVEL 3 - LEVEL WYKONAWCZY, musi istnieć decyzja drugiego poziomu       #
+    #   LEVEL 3 - LEVEL WYKONAWCZY, musi istnieć dyrektywa_wykonawcza           #
     #                                                                           #
     # ###########################################################################
     """
         POZIOM 3                            POZIOM 3                            POZIOM 3
     """
-    if ostatni_level == "3" and dane_users_dict.get(user, {}).get(f"{ostatni_level_int}", {}).get("wybor", ""):
+    if ostatni_level == "3" and dane_users_dict.get(user, {}).get(f"{ostatni_level_int}", {}).get("wybor", "")\
+        and dane_users_dict.get(user, {}).get(f"{ostatni_level_int}", {}).get("dane", {}).get("dyrektywa_wykonawcza", None):
         dane_do_realizacji = dane_users_dict.get(user, {}).get(f"{ostatni_level}", {}).get("dane", {})
-        # Realizacja zadania
-        if current_procedure_name == "AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM":
-            dane_do_realizacji
+        dyrektywa_wykonawcza = dane_do_realizacji.get("dyrektywa_wykonawcza", None)
 
+        # ############################################################################
+        # dyrektywa_wykonawcza update_db zapytanie_sql wartosci raport
+        # ############################################################################
+        if dyrektywa_wykonawcza == "update_db":
+        # Realizacja zadania
+            
+            # główna aktualizacja
+            zapyanie_sql = dane_do_realizacji.get("zapytanie_sql", "")
+            values = dane_do_realizacji.get("wartosci", "")
+
+            msq.insert_to_database(zapyanie_sql, values)
+
+            # dodanie raportu
+            raport = dane_do_realizacji.get("raport", "")
+            current_procedure_name = dane_do_realizacji.get("procedura", "")
+            # Zapytanie SQL do wstawienia raportu
+            zapytanie_sql_raport = """
+                INSERT INTO mind_forge_register (user_name, procedure_name, raport)
+                VALUES (%s, %s, %s)
+            """
+
+            # Przygotowanie wartości do zapytania
+            values_raport = (user, current_procedure_name, raport)
+
+            # Wstawienie danych do bazy
+            msq.insert_to_database(zapytanie_sql_raport, values_raport)
+        
+        # ############################################################################
+        # dyrektywa_wykonawcza run_function ... .... raport
+        # ############################################################################
+        if dyrektywa_wykonawcza == "run_function":
+            # Realizacja zadania
+            if current_procedure_name == "WYSYLANIE_EMAILI":
+                procedura = dane_do_realizacji.get("procedura")
+                email_list = dane_do_realizacji.get("email_list", [])
+                title = dane_do_realizacji.get("title", "")
+                content = dane_do_realizacji.get("content", "")
+                send_emails(procedura, email_list, title, content)
+            
         # procedury przygotowania do kolejnych zadań
         dane_poziomu_0 = dane_users_dict.get(user, {}).get(f"0", {}).get("dane", {})
         dane_poziomu_1 = dane_users_dict.get(user, {}).get(f"1", {}).get("dane", {})

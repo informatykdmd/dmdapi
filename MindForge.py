@@ -213,7 +213,9 @@ def dict_to_json_string(data):
         return {"success": False, "error": f"Błąd konwersji: {e}"}
 
 def get_main_template():
-    mainTemplate = """{\n"AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM": false,\n"AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_SPRZEDAZ": false,\n"AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_SPRZEDAZ_I_NA_WYNAJEM": false,\n"ZARZADZANIE_KAMPANIAMI_NIERUCHOMOSCI": false,\n"KAMPANIE_FB": false,\n"ZARZADZANIE_SEKCJA_KARIERA": false,\n"KAMPANIE_ANONIMOWE_FB": false,\n"WYSYLANIE_EMAIL": false,\n"ZARZADZANIE_PRACOWNIKAMI": false,\n"ZARZADZANIE_BLOGIEM": false\n}\n"""
+    """Zwraca główny szablon JSON STRING."""
+    """{\n"AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM": false,\n"AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_SPRZEDAZ": false,\n"ZARZADZANIE_KAMPANIAMI_NIERUCHOMOSCI": false,\n"KAMPANIE_FB": false,\n"ZARZADZANIE_SEKCJA_KARIERA": false,\n"KAMPANIE_ANONIMOWE_FB": false,\n"WYSYLANIE_EMAILI": false,\n"ZARZADZANIE_PRACOWNIKAMI": false,\n"ZARZADZANIE_BLOGIEM": false\n}\n"""
+    mainTemplate = """{\n"AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM": false,\n"AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_SPRZEDAZ": false,\n"WYSYLANIE_EMAILI": false\n}\n"""
     return mainTemplate
 
 def addNewUser(dane_users_dict, user_name: str, prompt_level_0=None):
