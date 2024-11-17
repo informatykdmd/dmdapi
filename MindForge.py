@@ -223,7 +223,7 @@ def addNewUser(dane_users_dict, user_name: str, prompt_level_0=None):
     # dane_users_dict = saver_ver.open_ver("MINDFORGE", "dane_users_dict")
 
     if prompt_level_0 is None:
-        prompt_level_0 = "Wybierz potrzebne narzędzia, odsyłając obiekt JSON, aktualizując wartość true przy wybranych opcjach.\nJeśli odeślesz niezmieniony obiekt, model decyzyjny zostanie dezaktywowany."
+        prompt_level_0 = "Wybierz potrzebne narzędzia, odsyłając obiekt JSON, aktualizując wartość true przy wybranych opcjach.\nJeśli odeślesz niezmieniony obiekt, model decyzyjny zostanie dezaktywowany.\nPamiętaj, że rozumiem tylko język JSON, odpowiadaj tylko jsonem komunikując się zemną! Zastosuj się do moich instrukcji i odeślij zaktualizowany obiekt json!\n"
 
     if user_name not in dane_users_dict:
         dane_users_dict[user_name] = {
