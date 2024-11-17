@@ -3098,7 +3098,7 @@ def handling_responses():
                         emails_list = []
                         for current_choice_string in picket_choice_list:
                             if current_choice_string and str(current_choice_string).startswith("["):
-                                email_adr = str(current_choice_string.split("]::")[3][1:])
+                                email_adr = str(current_choice_string.split("]::")[3][1:-3])
                                 emails_list.append(email_adr)
                         return emails_list
                     
@@ -3183,7 +3183,7 @@ def handling_responses():
                     if current_procedure_name == "WYSYLANIE_EMAILI":
                         
                         wybrane_emails = split_emails_picket_choice(picket_choice) # lista emaili
-                        prompt_level_2 = "Sprawdź wybrane emaile i uzupełnij tytuł i treści wiadomości, aktualizując wartości przy danym kluczu.\nJeśli odeślesz dokładnie ten sam obiekt (niezmieniony), anulujesz aktualne zadanie i wrócisz do poprzedniego etapu procesu lub menu."
+                        prompt_level_2 = "Sprawdź wybrane emaile i uzupełnij tytuł i treści wiadomości, aktualizując wartości przy danym kluczu.\nZachowaj obecną strukturę JSON, nie używaj znaków ucieczki (\\) i upewnij się, że format danych jest spójny z szablonem. To ważne!\nJeśli odeślesz dokładnie ten sam obiekt (niezmieniony), anulujesz aktualne zadanie i wrócisz do poprzedniego etapu procesu lub menu.\nPamiętaj, że rozumiem tylko język JSON, odpowiadaj tylko jsonem komunikując się zemną! Zastosuj się do moich instrukcji i odeślij zaktualizowany obiekt json!\n"
 
                         ustaw_dane_poziom_2 = {
                             "procedura": dane_users_dict[user][f"{ostatni_level}"]["dane"]["procedura"],
