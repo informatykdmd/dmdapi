@@ -2954,7 +2954,7 @@ def handling_responses():
                         zapyanie = "SELECT"
                         kolumny_lista = ["ID", "Tytul"]
                         kolumny = "ID, Tytul"
-                        warunki = ""
+                        warunki = "WHERE StatusOferty=1"
                         wartosci = ()
                         prompt_level_1 = "Wybierz ogłoszenie, aktualizując wartość true przy wybranej opcji.\nJeśli odeślesz dokładnie ten sam obiekt (niezmieniony), anulujesz aktualne zadanie i wrócisz do poprzedniego etapu procesu lub menu."
 
@@ -2979,7 +2979,7 @@ def handling_responses():
                         zapyanie = "SELECT"
                         kolumny_lista = ["ID", "Tytul"]
                         kolumny = generatorKolumn(kolumny_lista)
-                        warunki = ""
+                        warunki = "WHERE StatusOferty=1"
                         wartosci = ()
                         prompt_level_1 = "Wybierz ogłoszenie, aktualizując wartość true przy wybranej opcji.\nJeśli odeślesz dokładnie ten sam obiekt (niezmieniony), anulujesz aktualne zadanie i wrócisz do poprzedniego etapu procesu lub menu."
 
@@ -3131,8 +3131,7 @@ def handling_responses():
                                             "NumerKW",
                                             "InformacjeDodatkowe",
                                             "TelefonKontaktowy",
-                                            "EmailKontaktowy",
-                                            "StatusOferty",
+                                            "EmailKontaktowy"
                             ]
                         
                         kolumny = generatorKolumn(kolumny_lista)
@@ -3182,8 +3181,7 @@ def handling_responses():
                                     'NumerKW',
                                     'InformacjeDodatkowe',
                                     'TelefonKontaktowy',
-                                    'EmailKontaktowy',
-                                    'StatusOferty'
+                                    'EmailKontaktowy'
                             ]
                         
                         kolumny = generatorKolumn(kolumny_lista)
