@@ -3138,7 +3138,8 @@ def handling_responses():
                         warunki = "WHERE id = %s"
                         wybrane_id = split_id_current_choice(current_choice)
                         wartosci = (wybrane_id,)
-                        prompt_level_2 = """Przejrzyj szczegóły oferty i dokonaj niezbędnych zmian, aktualizując wartości odpowiednich parametrów.\nPamiętaj, że w polach takich jak 'Opis' karaty (^) zastępują cudzysłowy ("). Są one znacznikami stylowania i muszą być używane zamiast cudzysłowów. Zachowaj obecną strukturę JSON, nie używaj znaków ucieczki (\) i upewnij się, że format danych jest spójny z szablonem. To ważne!\nJeśli odeślesz dokładnie ten sam obiekt (niezmieniony), anulujesz aktualne zadanie i wrócisz do poprzedniego etapu procesu lub menu.\n"""
+                        prompt_level_2 = """Przejrzyj szczegóły oferty i dokonaj niezbędnych zmian, aktualizując wartości odpowiednich parametrów.\nPamiętaj, że w polach takich jak 'Opis' karaty (^) zastępują cudzysłowy ("). Są one znacznikami stylowania i muszą być używane zamiast cudzysłowów.\nDodatkowo, w polu 'Opis' wartość musi reprezentować strukturę JSON typu lista słowników (np. [{^klucz^: ^wartość^}]), nawet jeśli zawiera tylko jeden element.\nZachowaj strukturę listy, nawet gdy dane opisowe są proste, ponieważ jest to wymagane do poprawnej walidacji.\nZachowaj obecną strukturę JSON, nie używaj znaków ucieczki (\\) i upewnij się, że format danych jest spójny z szablonem. To ważne!\nJeśli odeślesz dokładnie ten sam obiekt (niezmieniony), anulujesz aktualne zadanie i wrócisz do poprzedniego etapu procesu lub menu.\n"""
+
 
                         ustaw_dane_poziom_2 = {
                             "procedura": dane_users_dict[user][f"{ostatni_level}"]["dane"]["procedura"],
@@ -3188,7 +3189,8 @@ def handling_responses():
                         warunki = "WHERE id = %s"
                         wybrane_id = split_id_current_choice(current_choice)
                         wartosci = (wybrane_id,)
-                        prompt_level_2 = """Przejrzyj szczegóły oferty i dokonaj niezbędnych zmian, aktualizując wartości odpowiednich parametrów.\nPamiętaj, że w polach takich jak 'Opis' karaty (^) zastępują cudzysłowy ("). Są one znacznikami stylowania i muszą być używane zamiast cudzysłowów. Zachowaj obecną strukturę JSON, nie używaj znaków ucieczki (\) i upewnij się, że format danych jest spójny z szablonem. To ważne!\nJeśli odeślesz dokładnie ten sam obiekt (niezmieniony), anulujesz aktualne zadanie i wrócisz do poprzedniego etapu procesu lub menu.\n"""
+                        
+                        prompt_level_2 = """Przejrzyj szczegóły oferty i dokonaj niezbędnych zmian, aktualizując wartości odpowiednich parametrów.\nPamiętaj, że w polach takich jak 'Opis' karaty (^) zastępują cudzysłowy ("). Są one znacznikami stylowania i muszą być używane zamiast cudzysłowów.\nDodatkowo, w polu 'Opis' wartość musi reprezentować strukturę JSON typu lista słowników (np. [{^klucz^: ^wartość^}]), nawet jeśli zawiera tylko jeden element.\nZachowaj strukturę listy, nawet gdy dane opisowe są proste, ponieważ jest to wymagane do poprawnej walidacji.\nZachowaj obecną strukturę JSON, nie używaj znaków ucieczki (\\) i upewnij się, że format danych jest spójny z szablonem. To ważne!\nJeśli odeślesz dokładnie ten sam obiekt (niezmieniony), anulujesz aktualne zadanie i wrócisz do poprzedniego etapu procesu lub menu.\n"""
 
                         ustaw_dane_poziom_2 = {
                             "procedura": dane_users_dict[user][f"{ostatni_level}"]["dane"]["procedura"],
