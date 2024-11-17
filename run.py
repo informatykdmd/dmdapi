@@ -3115,21 +3115,13 @@ def handling_responses():
                                             "Opis",
                                             "Cena",
                                             "Kaucja",
-                                            "Lokalizacja",
                                             "LiczbaPokoi",
                                             "Metraz",
-                                            "RodzajZabudowy",
                                             "Czynsz",
-                                            "Umeblowanie",
                                             "LiczbaPieter",
                                             "PowierzchniaDzialki",
-                                            "TechBudowy",
-                                            "FormaKuchni",
-                                            "TypDomu",
-                                            "StanWykonczenia",
                                             "RokBudowy",
                                             "NumerKW",
-                                            "InformacjeDodatkowe",
                                             "TelefonKontaktowy",
                                             "EmailKontaktowy"
                             ]
@@ -3161,28 +3153,15 @@ def handling_responses():
                         tabela = "OfertySprzedazy"
                         zapyanie = "SELECT"
                         kolumny_lista = [
-                                    "TypNieruchomosci",
-                                    "Tytul",
-                                    "Rodzaj",
                                     "Opis",
                                     "Cena",
-                                    "Lokalizacja",
                                     "LiczbaPokoi",
                                     "Metraz",
-                                    'RodzajZabudowy',
-                                    'Rynek',
-                                    'LiczbaPieter',
-                                    'PrzeznaczenieLokalu',
-                                    'Poziom',
-                                    'TechBudowy',
-                                    'FormaKuchni',
-                                    'TypDomu',
-                                    'StanWykonczenia',
-                                    'RokBudowy',
-                                    'NumerKW',
-                                    'InformacjeDodatkowe',
-                                    'TelefonKontaktowy',
-                                    'EmailKontaktowy'
+                                    "LiczbaPieter",
+                                    "RokBudowy",
+                                    "NumerKW",
+                                    "TelefonKontaktowy",
+                                    "EmailKontaktowy"
                             ]
                         
                         kolumny = generatorKolumn(kolumny_lista)
