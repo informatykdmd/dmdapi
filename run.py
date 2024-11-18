@@ -3098,7 +3098,7 @@ def handling_responses():
                         emails_list = []
                         for current_choice_string in picket_choice_list:
                             if current_choice_string and str(current_choice_string).startswith("["):
-                                email_adr = str(current_choice_string.split("]::")[3][1:-3])
+                                email_adr = str(current_choice_string.split("]::")[3][1:])
                                 emails_list.append(email_adr)
                         return emails_list
                     
