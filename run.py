@@ -3306,14 +3306,14 @@ def handling_responses():
                         if kolumny_generator!="(": kolumny_generator = kolumny_generator[:-2] + ")"
 
                     if current_procedure_name == "WYSYLANIE_EMAILI":
-                        final_email_list = []
+                        # final_email_list = []
                         title_message = ""
                         content_message = ""
 
                         for label, changes in validator_dict.get("rozne_wartosci", {}).items():
                             # print(label)
-                            if label[1:] == "WYBRANE":
-                                final_email_list = changes
+                            # if label[1:] == "WYBRANE":
+                            #     final_email_list = changes
                             if label[1:] == "TYTUL":
                                 title_message = changes
                             if label[1:] == "WIADOMOSC":
@@ -3330,12 +3330,12 @@ def handling_responses():
                             tabela = "OfertyNajmu"
                             zapyanie = f"UPDATE {tabela} SET"
                             warunki = "WHERE id = %s"
-                            wybrane_id = dane_users_dict[user][f"{ostatni_level}"]["dane"]["wybrane_id"]
+                            wybrane_id = dane_users_dict.get(user, {}).get(f"{ostatni_level}", {}).get("dane", {}).get("wybrane_id", None)
                             wartosci = tuple(values_list + [wybrane_id])
 
                             prompt_level_3 = "Zmiany zostaną wprowadzone po wysłaniu raportu. Wypełnij pole raportu, aby zakończyć proces aktualizacji.\nJeśli odeślesz niezmieniony obiekt, wrócisz do poprzedniej opcji decyzyjnej a zmiany nie zostaną wprowadzone.\nPamiętaj, że rozumiem tylko język JSON, odpowiadaj tylko jsonem komunikując się zemną! Zastosuj się do moich instrukcji i odeślij zaktualizowany obiekt json!\n"
                             ustaw_dane_poziomu_3 = {
-                                "procedura": dane_users_dict[user][f"{ostatni_level}"]["dane"]["procedura"],
+                                "procedura": current_procedure_name,
                                 "tabela": tabela,
                                 "zapyanie": zapyanie,
                                 "kolumny_lista": kolumny_lista,
@@ -3361,7 +3361,7 @@ def handling_responses():
                             tabela = "OfertySprzedazy"
                             zapyanie = f"UPDATE {tabela} SET"
                             warunki = "WHERE id = %s"
-                            wybrane_id = dane_users_dict[user][f"{ostatni_level}"]["dane"]["wybrane_id"]
+                            wybrane_id = dane_users_dict.get(user, {}).get(f"{ostatni_level}", {}).get("dane", {}).get("wybrane_id", None)
                             wartosci = tuple(values_list + [wybrane_id])
 
                             prompt_level_3 = "Zmiany zostaną wprowadzone po wysłaniu raportu. Wypełnij pole raportu, aby zakończyć proces aktualizacji.\nJeśli odeślesz niezmieniony obiekt, wrócisz do poprzedniej opcji decyzyjnej a zmiany nie zostaną wprowadzone."
@@ -3391,7 +3391,7 @@ def handling_responses():
                         if title_message!="" and content_message!="":
                             ustaw_dane_poziomu_3 = {
                                 "procedura": current_procedure_name,
-                                "email_list": final_email_list,
+                                "email_list": dane_users_dict.get(user, {}).get(f"{ostatni_level}", {}).get("dane", {}).get("wybrane_emails", []),
                                 "title": title_message,
                                 "content": content_message
                             }
