@@ -2956,7 +2956,7 @@ def handling_responses():
                         kolumny = "ID, Tytul"
                         warunki = "WHERE StatusOferty=1"
                         wartosci = ()
-                        prompt_level_1 = "Wybierz ogłoszenie, aktualizując wartość true przy wybranej opcji.\nJeśli odeślesz dokładnie ten sam obiekt (niezmieniony), anulujesz aktualne zadanie i wrócisz do poprzedniego etapu procesu lub menu.\nPamiętaj, że rozumiem tylko język JSON, odpowiadaj tylko jsonem komunikując się zemną! Zastosuj się do moich instrukcji i odeślij zaktualizowany obiekt json!\n"
+                        prompt_level_1 = "Wybierz ogłoszenie, aktualizując wartość true przy wybranej opcji.\nIlość kluczy i ich nazwy muszą zostać niezmienione, aktualizujesz tylko wartości!\nJeśli odeślesz dokładnie ten sam obiekt (niezmieniony), anulujesz aktualne zadanie i wrócisz do poprzedniego etapu procesu lub menu.\nPamiętaj, że rozumiem tylko język JSON, odpowiadaj tylko jsonem komunikując się zemną! Zastosuj się do moich instrukcji i odeślij zaktualizowany obiekt json!\n"
 
                         ustaw_dane_poziom_1 = {
                             "procedura": current_procedure_name,
@@ -2981,7 +2981,7 @@ def handling_responses():
                         kolumny = generatorKolumn(kolumny_lista)
                         warunki = "WHERE StatusOferty=1"
                         wartosci = ()
-                        prompt_level_1 = "Wybierz ogłoszenie, aktualizując wartość true przy wybranej opcji.\nJeśli odeślesz dokładnie ten sam obiekt (niezmieniony), anulujesz aktualne zadanie i wrócisz do poprzedniego etapu procesu lub menu.\nPamiętaj, że rozumiem tylko język JSON, odpowiadaj tylko jsonem komunikując się zemną! Zastosuj się do moich instrukcji i odeślij zaktualizowany obiekt json!\n"
+                        prompt_level_1 = "Wybierz ogłoszenie, aktualizując wartość true przy wybranej opcji.\nIlość kluczy i ich nazwy muszą zostać niezmienione, aktualizujesz tylko wartości!\nJeśli odeślesz dokładnie ten sam obiekt (niezmieniony), anulujesz aktualne zadanie i wrócisz do poprzedniego etapu procesu lub menu.\nPamiętaj, że rozumiem tylko język JSON, odpowiadaj tylko jsonem komunikując się zemną! Zastosuj się do moich instrukcji i odeślij zaktualizowany obiekt json!\n"
 
                         ustaw_dane_poziom_1 = {
                             "procedura": current_procedure_name,
@@ -3006,7 +3006,7 @@ def handling_responses():
                         kolumny = generatorKolumn(kolumny_lista)
                         warunki = ""
                         wartosci = ()
-                        prompt_level_1 = "Wybierz osoby do których chcesz napisać wiadomość email, aktualizując wartość true przy wybranej osobie.\nJeśli odeślesz dokładnie ten sam obiekt (niezmieniony), anulujesz aktualne zadanie i wrócisz do poprzedniego etapu procesu lub menu.\nPamiętaj, że rozumiem tylko język JSON, odpowiadaj tylko jsonem komunikując się zemną! Zastosuj się do moich instrukcji i odeślij zaktualizowany obiekt json!\n"
+                        prompt_level_1 = "Wybierz osoby do których chcesz napisać wiadomość email, aktualizując wartość true przy wybranej osobie.\nIlość kluczy i ich nazwy muszą zostać niezmienione, aktualizujesz tylko wartości!\nJeśli odeślesz dokładnie ten sam obiekt (niezmieniony), anulujesz aktualne zadanie i wrócisz do poprzedniego etapu procesu lub menu.\nPamiętaj, że rozumiem tylko język JSON, odpowiadaj tylko jsonem komunikując się zemną! Zastosuj się do moich instrukcji i odeślij zaktualizowany obiekt json!\n"
 
                         ustaw_dane_poziom_1 = {
                             "procedura": current_procedure_name,
@@ -3127,7 +3127,7 @@ def handling_responses():
                         warunki = "WHERE id = %s"
                         wybrane_id = split_id_current_choice(current_choice)
                         wartosci = (wybrane_id,)
-                        prompt_level_2 = """Przejrzyj szczegóły oferty i dokonaj niezbędnych zmian, aktualizując wartości odpowiednich parametrów.\nPamiętaj, że w polach takich jak 'Opis' karaty (^) zastępują cudzysłowy ("). Są one znacznikami stylowania i muszą być używane zamiast cudzysłowów.\nDodatkowo, w polu 'Opis' wartość musi reprezentować strukturę JSON typu lista słowników (np. [{^p^: ^wartość^}, {^strong^: ^wartość^}, {^h1^: ^wartość^}]) - klucze tych słowników muszą pozostać bez zmian, mimo obecnej postaci typu danych (czyli string), nawet jeśli zawiera tylko jeden element.\nZachowaj strukturę listy, nawet gdy dane opisowe są proste, ponieważ jest to wymagane do poprawnej walidacji.\nZachowaj obecną strukturę JSON, nie używaj znaków ucieczki (\\) i upewnij się, że format danych jest spójny z szablonem. To ważne!, bo opis będzie sprawdzany znak po znaku!\nJeśli odeślesz dokładnie ten sam obiekt (niezmieniony), anulujesz aktualne zadanie i wrócisz do poprzedniego etapu procesu lub menu.\nPamiętaj, że rozumiem tylko język JSON, odpowiadaj tylko jsonem komunikując się zemną! Zastosuj się do moich instrukcji i odeślij zaktualizowany obiekt json!\n"""
+                        prompt_level_2 = """Przejrzyj szczegóły oferty i dokonaj niezbędnych zmian, aktualizując wartości odpowiednich parametrów.\nPamiętaj, że w polach takich jak 'Opis' karaty (^) zastępują cudzysłowy ("). Są one znacznikami stylowania i muszą być używane zamiast cudzysłowów.\nDodatkowo, w polu 'Opis' wartość musi reprezentować strukturę JSON typu lista słowników (np. [{^p^: ^wartość^}, {^strong^: ^wartość^}, {^h1^: ^wartość^}]) - klucze tych słowników muszą pozostać bez zmian, mimo obecnej postaci typu danych (czyli string), nawet jeśli zawiera tylko jeden element.\nZachowaj strukturę listy, nawet gdy dane opisowe są proste, ponieważ jest to wymagane do poprawnej walidacji.\nZachowaj obecną strukturę JSON, nie używaj znaków ucieczki (\\) i upewnij się, że format danych jest spójny z szablonem. To ważne!, bo opis będzie sprawdzany znak po znaku!\nIlość kluczy i ich nazwy muszą zostać niezmienione, aktualizujesz tylko wartości!\nJeśli odeślesz dokładnie ten sam obiekt (niezmieniony), anulujesz aktualne zadanie i wrócisz do poprzedniego etapu procesu lub menu.\nPamiętaj, że rozumiem tylko język JSON, odpowiadaj tylko jsonem komunikując się zemną! Zastosuj się do moich instrukcji i odeślij zaktualizowany obiekt json!\n"""
 
 
                         ustaw_dane_poziom_2 = {
@@ -3164,7 +3164,7 @@ def handling_responses():
                         wybrane_id = split_id_current_choice(current_choice)
                         wartosci = (wybrane_id,)
                         
-                        prompt_level_2 = """Przejrzyj szczegóły oferty i dokonaj niezbędnych zmian, aktualizując wartości odpowiednich parametrów.\nPamiętaj, że w polach takich jak 'Opis' karaty (^) zastępują cudzysłowy ("). Są one znacznikami stylowania i muszą być używane zamiast cudzysłowów.\nDodatkowo, w polu 'Opis' wartość musi reprezentować strukturę JSON typu lista słowników (np. [{^p^: ^wartość^}, {^strong^: ^wartość^}, {^h1^: ^wartość^}]) - klucze tych słowników muszą pozostać bez zmian, mimo obecnej postaci typu danych (czyli string), nawet jeśli zawiera tylko jeden element.\nZachowaj strukturę listy, nawet gdy dane opisowe są proste, ponieważ jest to wymagane do poprawnej walidacji.\nZachowaj obecną strukturę JSON, nie używaj znaków ucieczki (\\) i upewnij się, że format danych jest spójny z szablonem. To ważne!, bo opis będzie sprawdzany znak po znaku!\nJeśli odeślesz dokładnie ten sam obiekt (niezmieniony), anulujesz aktualne zadanie i wrócisz do poprzedniego etapu procesu lub menu.\nPamiętaj, że rozumiem tylko język JSON, odpowiadaj tylko jsonem komunikując się zemną! Zastosuj się do moich instrukcji i odeślij zaktualizowany obiekt json!\n"""
+                        prompt_level_2 = """Przejrzyj szczegóły oferty i dokonaj niezbędnych zmian, aktualizując wartości odpowiednich parametrów.\nPamiętaj, że w polach takich jak 'Opis' karaty (^) zastępują cudzysłowy ("). Są one znacznikami stylowania i muszą być używane zamiast cudzysłowów.\nDodatkowo, w polu 'Opis' wartość musi reprezentować strukturę JSON typu lista słowników (np. [{^p^: ^wartość^}, {^strong^: ^wartość^}, {^h1^: ^wartość^}]) - klucze tych słowników muszą pozostać bez zmian, mimo obecnej postaci typu danych (czyli string), nawet jeśli zawiera tylko jeden element.\nZachowaj strukturę listy, nawet gdy dane opisowe są proste, ponieważ jest to wymagane do poprawnej walidacji.\nZachowaj obecną strukturę JSON, nie używaj znaków ucieczki (\\) i upewnij się, że format danych jest spójny z szablonem. To ważne!, bo opis będzie sprawdzany znak po znaku!\nIlość kluczy i ich nazwy muszą zostać niezmienione, aktualizujesz tylko wartości!\nJeśli odeślesz dokładnie ten sam obiekt (niezmieniony), anulujesz aktualne zadanie i wrócisz do poprzedniego etapu procesu lub menu.\nPamiętaj, że rozumiem tylko język JSON, odpowiadaj tylko jsonem komunikując się zemną! Zastosuj się do moich instrukcji i odeślij zaktualizowany obiekt json!\n"""
 
                         ustaw_dane_poziom_2 = {
                             "procedura": current_procedure_name,
@@ -3184,7 +3184,7 @@ def handling_responses():
                     if current_procedure_name == "WYSYLANIE_EMAILI":
                         
                         wybrane_emails = split_emails_picket_choice(picket_choice) # lista emaili
-                        prompt_level_2 = "Sprawdź wybrane emaile i uzupełnij tytuł i treści wiadomości, aktualizując wartości przy danym kluczu.\nZachowaj obecną strukturę JSON, nie używaj znaków ucieczki (\\) i upewnij się, że format danych jest spójny z szablonem. To ważne!\nJeśli odeślesz dokładnie ten sam obiekt (niezmieniony), anulujesz aktualne zadanie i wrócisz do poprzedniego etapu procesu lub menu.\nPamiętaj, że rozumiem tylko język JSON, odpowiadaj tylko jsonem komunikując się zemną! Zastosuj się do moich instrukcji i odeślij zaktualizowany obiekt json!\n"
+                        prompt_level_2 = "Sprawdź wybrane emaile i uzupełnij tytuł i treści wiadomości, aktualizując wartości przy danym kluczu.\nZachowaj obecną strukturę JSON, nie używaj znaków ucieczki (\\) i upewnij się, że format danych jest spójny z szablonem. To ważne!\nIlość kluczy i ich nazwy muszą zostać niezmienione, aktualizujesz tylko wartości!\nJeśli odeślesz dokładnie ten sam obiekt (niezmieniony), anulujesz aktualne zadanie i wrócisz do poprzedniego etapu procesu lub menu.\nPamiętaj, że rozumiem tylko język JSON, odpowiadaj tylko jsonem komunikując się zemną! Zastosuj się do moich instrukcji i odeślij zaktualizowany obiekt json!\n"
 
                         ustaw_dane_poziom_2 = {
                             "procedura": current_procedure_name,
