@@ -3104,7 +3104,7 @@ def handling_responses():
                         return emails_list
                     
                     ustaw_dane_poziom_2 = {}
-                    ustaw_dane_poziomu_1 = dane_users_dict.get(user, {}).get(f"1", {}).get("dane", {})
+                    dane_poziomu_1 = dane_users_dict.get(user, {}).get(f"1", {}).get("dane", {})
                     # ############################################################################
                     # AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM
                     # ############################################################################
@@ -3192,7 +3192,9 @@ def handling_responses():
                             "prompt": prompt_level_2
                         }
                     
-                    if ustaw_dane_poziomu_1:
+                    if dane_poziomu_1:
+                        ustaw_dane_poziomu_1 = dane_poziomu_1
+
                         if current_procedure_name == "AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM"\
                             or current_procedure_name == "AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_SPRZEDAZ":
                             ustaw_dane_poziomu_1["poczekalnia_1"] = picket_choice
@@ -3200,6 +3202,7 @@ def handling_responses():
                             ustaw_dane_poziomu_1["poczekalnia_1"].remove(current_choice)
 
                         if current_procedure_name == "WYSYLANIE_EMAILI":
+                            
                             ustaw_dane_poziomu_1["poczekalnia_1"] = []
 
                         dane_users_dict = template_managment(dane_users_dict, user, f"1", ustaw_dane_poziomu_1)
@@ -3296,7 +3299,7 @@ def handling_responses():
                     if current_procedure_name == "AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM"\
                         or current_procedure_name == "AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_SPRZEDAZ":
                         kolumny_lista = []
-                        kolumny_generator = "("
+                        kolumny_generator = ""
                         values_list = []
                         for label, changes in validator_dict.get("rozne_wartosci", {}).items():
                             # print(label)
@@ -3306,7 +3309,7 @@ def handling_responses():
                                 kolumny_lista.append(label[1:])
                                 kolumny_generator += f"{label[1:]}=%s, "
                                 values_list.append(resumeJson_structure(changes))
-                        if kolumny_generator!="(": kolumny_generator = kolumny_generator[:-2] + ")"
+                        if kolumny_generator!="": kolumny_generator = kolumny_generator[:-2]
 
                     if current_procedure_name == "WYSYLANIE_EMAILI":
                         title_message = ""
@@ -3397,7 +3400,7 @@ def handling_responses():
 
                     if ustaw_dane_poziomu_3:
                         dane_users_dict = template_managment(dane_users_dict, user, f"3", ustaw_dane_poziomu_3)
-                        
+
                     print(ustaw_dane_poziomu_3)
 
                     dane_users_dict[user]["2"]["wybor"] = dict_to_json_string(user_json)["json_string"]
@@ -3455,7 +3458,6 @@ def handling_responses():
         # ###########################################################################
 
         if user_json and validator_dict.get("anuluj_zadanie") and ostatni_level_int:
-            # print("anuluj_zadanie")
             raport_cancel = ""
             if "wybor" in dane_users_dict[user][f"{ostatni_level_int -1}"]:
                 raport_cancel +=f'usunięto: wybor dla poziomu: {ostatni_level_int -1} | '
