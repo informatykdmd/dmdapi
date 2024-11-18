@@ -3534,20 +3534,6 @@ def handling_responses():
 
             msq.insert_to_database(zapyanie_sql, values)
 
-            # dodanie raportu
-            raport = dane_do_realizacji.get("raport", "")
-            current_procedure_name = dane_do_realizacji.get("procedura", "")
-            # Zapytanie SQL do wstawienia raportu
-            zapytanie_sql_raport = """
-                INSERT INTO mind_forge_register (user_name, procedure_name, raport)
-                VALUES (%s, %s, %s)
-            """
-
-            # Przygotowanie wartości do zapytania
-            values_raport = (user, current_procedure_name, raport)
-
-            # Wstawienie danych do bazy
-            msq.insert_to_database(zapytanie_sql_raport, values_raport)
         
         # ############################################################################
         # dyrektywa_wykonawcza run_function ... .... raport
@@ -3561,6 +3547,21 @@ def handling_responses():
                 content = dane_do_realizacji.get("content", "")
                 send_emails(procedura, email_list, title, content)
             
+        # dodanie raportu
+        raport = dane_do_realizacji.get("raport", "")
+        current_procedure_name = dane_do_realizacji.get("procedura", "")
+        # Zapytanie SQL do wstawienia raportu
+        zapytanie_sql_raport = """
+            INSERT INTO mind_forge_register (user_name, procedure_name, raport)
+            VALUES (%s, %s, %s)
+        """
+
+        # Przygotowanie wartości do zapytania
+        values_raport = (user, current_procedure_name, raport)
+
+        # Wstawienie danych do bazy
+        msq.insert_to_database(zapytanie_sql_raport, values_raport)
+        
         # procedury przygotowania do kolejnych zadań
         dane_poziomu_0 = dane_users_dict.get(user, {}).get(f"0", {}).get("dane", {})
         dane_poziomu_1 = dane_users_dict.get(user, {}).get(f"1", {}).get("dane", {})
