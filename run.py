@@ -2873,6 +2873,7 @@ def get_template():
         if not addNewUser(dane_users_dict, user):
             return jsonify({"data": None, "prompt": None, "level": None, "error": "Nieudana rejestracja nowego użytkownika!"})
         saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict)
+        time.sleep(0.3)
         dane_users_dict = saver_ver.open_ver("MINDFORGE", "dane_users_dict")
 
     system_level_data = get_next_template(dane_users_dict[user])
@@ -2907,6 +2908,7 @@ def handling_responses():
     if user not in dane_users_dict:
         dane_users_dict = addNewUser(dane_users_dict, user)
         saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict)
+        time.sleep(0.3)
         dane_users_dict = saver_ver.open_ver("MINDFORGE", "dane_users_dict")
 
     ostatni_level = get_next_template(dane_users_dict[user])['ostatni_level']
@@ -3027,6 +3029,7 @@ def handling_responses():
                         dane_users_dict = template_managment(dane_users_dict, user, f"1", ustaw_dane_poziom_1)
 
                     saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict)
+                    time.sleep(0.3)
                     dane_users_dict = saver_ver.open_ver("MINDFORGE", "dane_users_dict")
 
                     dane_poziomu_1 = dane_users_dict.get(user, {}).get(f"1", {}).get("dane", {})
@@ -3079,6 +3082,7 @@ def handling_responses():
 
                     dane_users_dict[user]["0"]["wybor"] = dict_to_json_string(user_json)["json_string"]
                     saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict)
+                    time.sleep(0.3)
                     dane_users_dict =saver_ver.open_ver("MINDFORGE", "dane_users_dict")
                     raport_koncowy += f"Udane przetworzenie poziomu {ostatni_level} dla {current_procedure_name}"
 
@@ -3213,6 +3217,7 @@ def handling_responses():
                     dane_users_dict[user]["1"]["wybor"] = dict_to_json_string(user_json)["json_string"]
 
                     saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict)
+                    time.sleep(0.3)
                     dane_users_dict =saver_ver.open_ver("MINDFORGE", "dane_users_dict")
 
                     dane_poziomu_2 = dane_users_dict.get(user, {}).get(f"2", {}).get("dane", {})
@@ -3288,6 +3293,7 @@ def handling_responses():
                             dane_users_dict[user]["2"]["szablon"] = export_data
 
                         saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict)
+                        time.sleep(0.3)
                         dane_users_dict =saver_ver.open_ver("MINDFORGE", "dane_users_dict")
                         raport_koncowy += f"Udane przetworzenie poziomu {ostatni_level} dla {current_procedure_name}"
                 """
@@ -3404,8 +3410,9 @@ def handling_responses():
                     print("ustaw_dane_poziomu_3", ustaw_dane_poziomu_3)
 
                     dane_users_dict[user]["2"]["wybor"] = dict_to_json_string(user_json)["json_string"]
-                    dane_poziomu_1
+
                     saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict)
+                    time.sleep(0.3)
                     dane_users_dict =saver_ver.open_ver("MINDFORGE", "dane_users_dict")
                     raport_koncowy += f"Udane przetworzenie poziomu {ostatni_level} dla {current_procedure_name}"
                 """
@@ -3437,6 +3444,7 @@ def handling_responses():
                     dane_users_dict[user]["3"]["wybor"] = dict_to_json_string(user_json)["json_string"]
 
                     saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict)
+                    time.sleep(0.3)                    
                     dane_users_dict =saver_ver.open_ver("MINDFORGE", "dane_users_dict")
                     raport_koncowy += f"Udane przetworzenie poziomu {ostatni_level} dla {current_procedure_name}"
             else:
@@ -3484,6 +3492,7 @@ def handling_responses():
                         dane_users_dict[user][f"{lvels_up}"]["dane"] = {}
 
             saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict)
+            time.sleep(0.3)
             dane_users_dict =saver_ver.open_ver("MINDFORGE", "dane_users_dict")
 
             return jsonify({"success": True, "anuluj_zadanie": raport_cancel}), 200
@@ -3498,6 +3507,7 @@ def handling_responses():
             del dane_users_dict[user]
 
             saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict)
+            time.sleep(0.3)
             dane_users_dict =saver_ver.open_ver("MINDFORGE", "dane_users_dict")
 
             return jsonify({"success": True, "zakoncz": "Moduł decyzyjny został porawnie zakończony, wszystkie decyzje zostały anulowane."}), 200
@@ -3603,6 +3613,7 @@ def handling_responses():
             
             
             saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict)
+            time.sleep(0.3)
             dane_users_dict =saver_ver.open_ver("MINDFORGE", "dane_users_dict")
 
             payload_1 = {
@@ -3651,6 +3662,7 @@ def handling_responses():
                     dane_users_dict[user][f"{lvels_up}"]["dane"] = {}
 
             saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict)
+            time.sleep(0.3)
             dane_users_dict =saver_ver.open_ver("MINDFORGE", "dane_users_dict")
 
             # przekazać do realizacji string json tak aby procedura zaczęła się od poziomu 0 dla kolejnej procedury z listy poczekalnia_0
@@ -3685,6 +3697,7 @@ def handling_responses():
                     dane_users_dict[user][f"{lvels_up}"]["dane"] = {}
 
             saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict)
+            time.sleep(0.3)
             dane_users_dict =saver_ver.open_ver("MINDFORGE", "dane_users_dict")
             return jsonify({"success": True, "procedura_zakonczona": f"System został wyzerowany dla użytkownika {user}, wszystkie zaplanowane procedury zostały zrealizowane."}), 200
     
