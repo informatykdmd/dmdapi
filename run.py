@@ -3389,6 +3389,7 @@ def handling_responses():
                     # ############################################################################
                     if current_procedure_name == "WYSYLANIE_EMAILI":
                         if title_message!="" and content_message!="":
+                            prompt_level_3 = "Wiadomości zostaną wysłane po wypełnieniu raportu. Wypełnij pole raportu, aby zakończyć proces wysyłania wiadomości.\nJeśli odeślesz niezmieniony obiekt, wrócisz do poprzedniej opcji decyzyjnej a zmiany nie zostaną wprowadzone."
                             ustaw_dane_poziomu_3 = {
                                 "procedura": current_procedure_name,
                                 "email_list": dane_users_dict.get(user, {}).get(f"{ostatni_level}", {}).get("dane", {}).get("wybrane_emails", []),
