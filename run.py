@@ -3401,7 +3401,7 @@ def handling_responses():
                     if ustaw_dane_poziomu_3:
                         dane_users_dict = template_managment(dane_users_dict, user, f"3", ustaw_dane_poziomu_3)
 
-                    print(ustaw_dane_poziomu_3)
+                    print("ustaw_dane_poziomu_3", ustaw_dane_poziomu_3)
 
                     dane_users_dict[user]["2"]["wybor"] = dict_to_json_string(user_json)["json_string"]
                     dane_poziomu_1
@@ -3608,7 +3608,7 @@ def handling_responses():
             }
             # przekazać do realizacji string json tak aby procedura zaczęła się od poziomu 1 dla kolejnego wyboru z listy poczekalnia_1
             try:
-                response = requests.post(api_url, json=payload_1)
+                response = requests.post(api_url, json=payload_1, timeout=10)
                 response.raise_for_status()  # Upewnia się, że nie ma błędów
             except requests.exceptions.RequestException as e:
                 return jsonify({"success": False, "error": str(e)}), 500
@@ -3656,7 +3656,7 @@ def handling_responses():
                 "api_url": api_url
             }
             try:
-                response = requests.post(api_url, json=payload_0)
+                response = requests.post(api_url, json=payload_0, timeout=10)
                 response.raise_for_status()  # Upewnia się, że nie ma błędów
             except requests.exceptions.RequestException as e:
                 return jsonify({"success": False, "error": str(e)}), 500
