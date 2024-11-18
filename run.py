@@ -3030,7 +3030,8 @@ def handling_responses():
                     dane_users_dict = saver_ver.open_ver("MINDFORGE", "dane_users_dict")
 
                     dane_poziomu_1 = dane_users_dict.get(user, {}).get(f"1", {}).get("dane", {})
-                    # print(dane_poziomu)
+                    print("dane_poziomu_1:", dane_poziomu_1)
+
                     export_data = ""
 
                     if dane_poziomu_1:
@@ -3130,7 +3131,7 @@ def handling_responses():
 
 
                         ustaw_dane_poziom_2 = {
-                            "procedura": dane_users_dict[user][f"{ostatni_level}"]["dane"]["procedura"],
+                            "procedura": current_procedure_name,
                             "tabela": tabela,
                             "zapyanie": zapyanie,
                             "kolumny_lista": kolumny_lista,
@@ -3166,7 +3167,7 @@ def handling_responses():
                         prompt_level_2 = """Przejrzyj szczegóły oferty i dokonaj niezbędnych zmian, aktualizując wartości odpowiednich parametrów.\nPamiętaj, że w polach takich jak 'Opis' karaty (^) zastępują cudzysłowy ("). Są one znacznikami stylowania i muszą być używane zamiast cudzysłowów.\nDodatkowo, w polu 'Opis' wartość musi reprezentować strukturę JSON typu lista słowników (np. [{^klucz^: ^wartość^}]), nawet jeśli zawiera tylko jeden element.\nZachowaj strukturę listy, nawet gdy dane opisowe są proste, ponieważ jest to wymagane do poprawnej walidacji.\nZachowaj obecną strukturę JSON, nie używaj znaków ucieczki (\\) i upewnij się, że format danych jest spójny z szablonem. To ważne!\nJeśli odeślesz dokładnie ten sam obiekt (niezmieniony), anulujesz aktualne zadanie i wrócisz do poprzedniego etapu procesu lub menu.\nPamiętaj, że rozumiem tylko język JSON, odpowiadaj tylko jsonem komunikując się zemną! Zastosuj się do moich instrukcji i odeślij zaktualizowany obiekt json!\n"""
 
                         ustaw_dane_poziom_2 = {
-                            "procedura": dane_users_dict[user][f"{ostatni_level}"]["dane"]["procedura"],
+                            "procedura": current_procedure_name,
                             "tabela": tabela,
                             "zapyanie": zapyanie,
                             "kolumny_lista": kolumny_lista,
@@ -3212,6 +3213,8 @@ def handling_responses():
                     dane_users_dict =saver_ver.open_ver("MINDFORGE", "dane_users_dict")
 
                     dane_poziomu_2 = dane_users_dict.get(user, {}).get(f"2", {}).get("dane", {})
+                    print("dane_poziomu_2:", dane_poziomu_2)
+
                     if dane_poziomu_2:
                         if current_procedure_name == "AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM"\
                             or current_procedure_name == "AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_SPRZEDAZ":
@@ -3306,20 +3309,14 @@ def handling_responses():
                         if kolumny_generator!="(": kolumny_generator = kolumny_generator[:-2] + ")"
 
                     if current_procedure_name == "WYSYLANIE_EMAILI":
-                        # final_email_list = []
                         title_message = ""
                         content_message = ""
 
                         for label, changes in validator_dict.get("rozne_wartosci", {}).items():
-                            # print(label)
-                            # if label[1:] == "WYBRANE":
-                            #     final_email_list = changes
                             if label[1:] == "TYTUL":
                                 title_message = changes
                             if label[1:] == "WIADOMOSC":
                                 content_message = changes
-                        
-                                
 
                     ustaw_dane_poziomu_3 = {}
                     # ############################################################################
@@ -3400,9 +3397,11 @@ def handling_responses():
 
                     if ustaw_dane_poziomu_3:
                         dane_users_dict = template_managment(dane_users_dict, user, f"3", ustaw_dane_poziomu_3)
+                        
+                    print(ustaw_dane_poziomu_3)
 
                     dane_users_dict[user]["2"]["wybor"] = dict_to_json_string(user_json)["json_string"]
-
+                    dane_poziomu_1
                     saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict)
                     dane_users_dict =saver_ver.open_ver("MINDFORGE", "dane_users_dict")
                     raport_koncowy += f"Udane przetworzenie poziomu {ostatni_level} dla {current_procedure_name}"
@@ -3561,7 +3560,7 @@ def handling_responses():
 
         # Wstawienie danych do bazy
         msq.insert_to_database(zapytanie_sql_raport, values_raport)
-        
+
         # procedury przygotowania do kolejnych zadań
         dane_poziomu_0 = dane_users_dict.get(user, {}).get(f"0", {}).get("dane", {})
         dane_poziomu_1 = dane_users_dict.get(user, {}).get(f"1", {}).get("dane", {})
