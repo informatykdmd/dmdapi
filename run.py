@@ -3466,17 +3466,21 @@ def handling_responses():
             if "wybor" in dane_users_dict[user][f"{ostatni_level_int}"]:
                 raport_cancel +=f'usunięto: wybor dla poziomu: {ostatni_level_int} | '
                 del dane_users_dict[user][f"{ostatni_level_int}"]["wybor"]
-            for lvels_up in range(ostatni_level_int -1, 4):
+            for lvels_up in range(ostatni_level_int-1, 4):
                 if lvels_up == 0:
                     raport_cancel +=f'wyzerowano: dane dla poziomu: {lvels_up} | '
-                    if dane_users_dict.get(user, {}).get(f"{lvels_up}", {}).get("dane", {}).get("poczekalnia_0", True):
+                    if dane_users_dict.get(user, {}).get(f"{lvels_up}", {}).get("dane", {}).get("poczekalnia_0", False):
                         del dane_users_dict[user][f"{lvels_up}"]["dane"]["poczekalnia_0"]
-                    if dane_users_dict.get(user, {}).get(f"{lvels_up}", {}).get("dane", {}).get("procedura", True):
+                    if dane_users_dict.get(user, {}).get(f"{lvels_up}", {}).get("dane", {}).get("procedura", False):
                         del dane_users_dict[user][f"{lvels_up}"]["dane"]["procedura"]
                     
                 else:
                     raport_cancel +=f'wyzerowano: dane dla poziomu: {lvels_up} | '
-                    dane_users_dict[user][f"{lvels_up}"]["dane"] = {}
+                    prompt_existing = dane_users_dict.get(user, {}).get(f"{lvels_up}", {}).get("dane", {}).get("prompt", "")
+                    if prompt_existing:
+                        dane_users_dict[user][f"{lvels_up}"]["dane"] = {"prompt": prompt_existing}
+                    else:
+                        dane_users_dict[user][f"{lvels_up}"]["dane"] = {}
 
             saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict)
             dane_users_dict =saver_ver.open_ver("MINDFORGE", "dane_users_dict")
