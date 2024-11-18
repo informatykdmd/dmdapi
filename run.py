@@ -3477,8 +3477,9 @@ def handling_responses():
                 else:
                     raport_cancel +=f'wyzerowano: dane dla poziomu: {lvels_up} | '
                     prompt_existing = dane_users_dict.get(user, {}).get(f"{lvels_up}", {}).get("dane", {}).get("prompt", "")
-                    if prompt_existing:
-                        dane_users_dict[user][f"{lvels_up}"]["dane"] = {"prompt": prompt_existing}
+                    procedure_existing = dane_users_dict.get(user, {}).get(f"{lvels_up}", {}).get("dane", {}).get("procedura", "")
+                    if prompt_existing and procedure_existing:
+                        dane_users_dict[user][f"{lvels_up}"]["dane"] = {"prompt": prompt_existing, "procedura": procedure_existing}
                     else:
                         dane_users_dict[user][f"{lvels_up}"]["dane"] = {}
 
