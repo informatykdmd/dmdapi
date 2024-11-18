@@ -3268,14 +3268,17 @@ def handling_responses():
                             for email in dane_poziomu_2.get("wybrane_emails", []):
                                 if str(email).count("@") == 1 and str(email).count("."):
                                     export_data += f'"{email}",\n'
-                            if export_data!='''{\n"WYBRANE": [''':
-                                export_data = export_data[:-2]
+                            if export_data != '''{\n"WYBRANE": [''':
+                                export_data = export_data[:-2]  # Usunięcie ostatniego przecinka i nowej linii
                                 export_data += "],\n"
-                            else: return jsonify({"success": False, "error": f"Błąd poziomu {ostatni_level} dla {current_procedure_name}"}), 400
-                            export_data = '''"TYTUL": "",\n'''
-                            export_data = '''"WIADOMOSC": "",\n'''
-                            export_data = export_data[:-2]
-                            export_data += "\n}\n"
+                            else:
+                                return jsonify({"success": False, "error": f"Błąd poziomu {ostatni_level} dla {current_procedure_name}"}), 400
+
+                            # Dodawanie kolejnych elementów
+                            export_data += '''"TYTUL": "",\n'''
+                            export_data += '''"WIADOMOSC": ""\n'''
+                            export_data += "}\n"
+
                             dane_users_dict[user]["2"]["szablon"] = export_data
 
                         saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict)
