@@ -9,6 +9,7 @@ from MindForge import addNewUser, get_next_template,\
     json_string_to_dict, validate_response_structure,\
         template_managment, dict_to_json_string,\
             resumeJson_structure, get_prompt_by_level_task
+import sendEmailBySmtp
 import saver_ver
 import requests
 
@@ -2056,8 +2057,18 @@ def generatorKolumn(list_of_strings, sepa=", "):
         return None
 
 
-def send_emails(procedur, emails, title_mess, content_mess):
+def send_emails(user_commnder, emails_list, title_mess, content_mess):
+    for EMAIL_COMPANY in emails_list:
+        TITLE_MESSAGE = title_mess
+        message = content_mess
+
+        effect = sendEmailBySmtp.send_html_email(TITLE_MESSAGE, message, EMAIL_COMPANY)
+        if effect == "success":
+            addDataLogs(f'Wysłano wiadmość do {EMAIL_COMPANY} w temacie: "{TITLE_MESSAGE}" od @{user_commnder}.', effect)
+        else:
+            addDataLogs(f'Nie wysłano wiadmość do {EMAIL_COMPANY} w temacie: "{TITLE_MESSAGE}" od @{user_commnder} z powodu błędu: {effect}', 'danger')
     return True
+
 def updateJsonFile(taskID, file_name='responder.json', encodingJson='utf-8'):
     responderFile = getMainResponder(file_name, encodingJson)
     
@@ -3460,22 +3471,22 @@ def handling_responses():
         if user_json and validator_dict.get("anuluj_zadanie") and ostatni_level_int:
             raport_cancel = ""
             if "wybor" in dane_users_dict[user][f"{ostatni_level_int -1}"]:
-                raport_cancel +=f'usunięto: wybor dla poziomu: {ostatni_level_int -1} | '
+                raport_cancel +=f'usunięto: wybor dla poziomu: {ostatni_level_int -1}\n'
                 del dane_users_dict[user][f"{ostatni_level_int -1}"]["wybor"]
             
             if "wybor" in dane_users_dict[user][f"{ostatni_level_int}"]:
-                raport_cancel +=f'usunięto: wybor dla poziomu: {ostatni_level_int} | '
+                raport_cancel +=f'usunięto: wybor dla poziomu: {ostatni_level_int}\n'
                 del dane_users_dict[user][f"{ostatni_level_int}"]["wybor"]
             for lvels_up in range(ostatni_level_int-1, 4):
                 if lvels_up == 0:
-                    raport_cancel +=f'wyzerowano: dane dla poziomu: {lvels_up} | '
+                    raport_cancel +=f'wyzerowano: dane dla poziomu: {lvels_up}\n'
                     if dane_users_dict.get(user, {}).get(f"{lvels_up}", {}).get("dane", {}).get("poczekalnia_0", False):
                         del dane_users_dict[user][f"{lvels_up}"]["dane"]["poczekalnia_0"]
                     if dane_users_dict.get(user, {}).get(f"{lvels_up}", {}).get("dane", {}).get("procedura", False):
                         del dane_users_dict[user][f"{lvels_up}"]["dane"]["procedura"]
                     
                 else:
-                    raport_cancel +=f'wyzerowano: dane dla poziomu: {lvels_up} | '
+                    raport_cancel +=f'wyzerowano: dane dla poziomu: {lvels_up}\n'
                     prompt_existing = dane_users_dict.get(user, {}).get(f"{lvels_up}", {}).get("dane", {}).get("prompt", "")
                     procedure_existing = dane_users_dict.get(user, {}).get(f"{lvels_up}", {}).get("dane", {}).get("procedura", "")
                     if prompt_existing and procedure_existing:
@@ -3528,6 +3539,7 @@ def handling_responses():
         dane_do_realizacji = dane_users_dict.get(user, {}).get(f"{ostatni_level}", {}).get("dane", {})
         dyrektywa_wykonawcza = dane_do_realizacji.get("dyrektywa_wykonawcza", None)
 
+        raport_cancel = ""
         # ############################################################################
         # dyrektywa_wykonawcza update_db zapytanie_sql wartosci raport
         # ############################################################################
@@ -3547,11 +3559,11 @@ def handling_responses():
         if dyrektywa_wykonawcza == "run_function":
             # Realizacja zadania
             if current_procedure_name == "WYSYLANIE_EMAILI":
-                procedura = dane_do_realizacji.get("procedura")
                 email_list = dane_do_realizacji.get("email_list", [])
                 title = dane_do_realizacji.get("title", "")
                 content = dane_do_realizacji.get("content", "")
-                send_emails(procedura, email_list, title, content)
+                if send_emails(user, email_list, title, content):
+                    raport_zgodnosc += "Wysłano wiadomości według planu!\n"
             
         # dodanie raportu
         raport = dane_do_realizacji.get("raport", "")
@@ -3572,7 +3584,6 @@ def handling_responses():
         dane_poziomu_0 = dane_users_dict.get(user, {}).get(f"0", {}).get("dane", {})
         dane_poziomu_1 = dane_users_dict.get(user, {}).get(f"1", {}).get("dane", {})
 
-        raport_cancel = ""
         if dane_poziomu_1.get("poczekalnia_1", []):
             # ############################################################################
             # WYSTARTUJ NASTĘPNY WYBÓR Z LISTY ("poczekalnia_1", []) poziomu 1
@@ -3590,15 +3601,15 @@ def handling_responses():
                 gotowy_wybor_poziom_1 = str(wybor_1).replace(stara_pozycja_w_wybor_poziom_1, nowa_pozycja_w_wybor_poziom_1)
             
             # usunąć niepotrzebne dane i wybory z poziomów 3, 2 oraz wybór z poziomu 1
-            raport_cancel +=f'Wykasowano szablon dla poziomu: 2 | '
+            raport_cancel +=f'Wykasowano szablon dla poziomu: 2\n'
             del dane_users_dict[user][f"2"]["szablon"]
-            raport_cancel +=f'Wykasowano wybór dla poziomu: 1 | '
+            raport_cancel +=f'Wykasowano wybór dla poziomu: 1\n'
             del dane_users_dict[user][f"1"]["wybor"]
             for lvels_up in range(2, 4):
                 if "wybor" in dane_users_dict[user][f"{lvels_up}"]:
-                    raport_cancel +=f'Wykasowano wybór dla poziomu: {lvels_up} | '
+                    raport_cancel +=f'Wykasowano wybór dla poziomu: {lvels_up}\n'
                     del dane_users_dict[user][f"{lvels_up}"]["wybor"]
-                    raport_cancel +=f'wyzerowano: dane dla poziomu: {lvels_up} | '
+                    raport_cancel +=f'wyzerowano: dane dla poziomu: {lvels_up}\n'
                     dane_users_dict[user][f"{lvels_up}"]["dane"] = {}
             
             
@@ -3618,7 +3629,7 @@ def handling_responses():
             except requests.exceptions.RequestException as e:
                 return jsonify({"success": False, "error": str(e)}), 500
 
-            return jsonify({"success": True, "procedura_zakonczona": f"System został ustawiony dla użytkownika {user} do realizacji zaplanowanych wyborów z poziomu 1"}), 200
+            return jsonify({"success": True, "procedura_zakonczona": f"System został ustawiony dla użytkownika {user} do realizacji zaplanowanych wyborów z poziomu 1. Zrealizowano {raport_cancel}."}), 200
         
         elif dane_poziomu_0.get("poczekalnia_0", []):
             # ############################################################################
@@ -3637,17 +3648,17 @@ def handling_responses():
                 # ustawić jako user_aswer wyedytowany szablon z odznaczonym zrealizowanym wyborem
                 gotowy_wybor_poziom_0 = str(wybor_0).replace(stara_pozycja_w_procedury_poziom_0, nowa_pozycja_w_procedury_poziom_0)
             # usunąć niepotrzebne dane i wybory z poziomów 3, 2, 1 oraz wybór z poziomu 0
-            raport_cancel +=f'Wykasowano szablon dla poziomu: 1 | '
+            raport_cancel +=f'Wykasowano szablon dla poziomu: 1\n'
             del dane_users_dict[user][f"1"]["szablon"]
-            raport_cancel +=f'Wykasowano szablon dla poziomu: 2 | '
+            raport_cancel +=f'Wykasowano szablon dla poziomu: 2\n'
             del dane_users_dict[user][f"2"]["szablon"]
-            raport_cancel +=f'Wykasowano wybór dla poziomu: 0 | '
+            raport_cancel +=f'Wykasowano wybór dla poziomu: 0\n'
             del dane_users_dict[user][f"0"]["wybor"]
             for lvels_up in range(1, 4):
                 if "wybor" in dane_users_dict[user][f"{lvels_up}"]:
-                    raport_cancel +=f'Wykasowano wybór dla poziomu: {lvels_up} | '
+                    raport_cancel +=f'Wykasowano wybór dla poziomu: {lvels_up}\n'
                     del dane_users_dict[user][f"{lvels_up}"]["wybor"]
-                    raport_cancel +=f'wyzerowano: dane dla poziomu: {lvels_up} | '
+                    raport_cancel +=f'wyzerowano: dane dla poziomu: {lvels_up}\n'
                     dane_users_dict[user][f"{lvels_up}"]["dane"] = {}
 
             if saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict):
@@ -3666,27 +3677,27 @@ def handling_responses():
             except requests.exceptions.RequestException as e:
                 return jsonify({"success": False, "error": str(e)}), 500
             
-            return jsonify({"success": True, "procedura_zakonczona": f"System został ustawiony dla użytkownika {user} do realizacji zaplanowanych procedur z poziomu 0"}), 200
+            return jsonify({"success": True, "procedura_zakonczona": f"System został ustawiony dla użytkownika {user} do realizacji zaplanowanych procedur z poziomu 0. Zrealizowano {raport_cancel}."}), 200
         else:
-            raport_cancel +=f'Wykasowano szablon dla poziomu: 1 | '
+            raport_cancel +=f'Wykasowano szablon dla poziomu: 1\n'
             del dane_users_dict[user][f"1"]["szablon"]
-            raport_cancel +=f'Wykasowano szablon dla poziomu: 2 | '
+            raport_cancel +=f'Wykasowano szablon dla poziomu: 2\n'
             del dane_users_dict[user][f"2"]["szablon"]
             for lvels_up in range(0, 4):
                 if "wybor" in dane_users_dict[user][f"{lvels_up}"]:
                     del dane_users_dict[user][f"{lvels_up}"]["wybor"]
 
                 if lvels_up == 0:
-                    raport_cancel += f'wyzerowano: dane dla poziomu: {lvels_up} | '
+                    raport_cancel += f'wyzerowano: dane dla poziomu: {lvels_up}\n'
                     del dane_users_dict[user][f"{lvels_up}"]["dane"]["procedura"]
                     
                 else:
-                    raport_cancel +=f'wyzerowano: dane dla poziomu: {lvels_up} | '
+                    raport_cancel +=f'wyzerowano: dane dla poziomu: {lvels_up}\n'
                     dane_users_dict[user][f"{lvels_up}"]["dane"] = {}
 
             if saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict):
                 dane_users_dict =saver_ver.open_ver("MINDFORGE", "dane_users_dict")
-            return jsonify({"success": True, "procedura_zakonczona": f"System został wyzerowany dla użytkownika {user}, wszystkie zaplanowane procedury zostały zrealizowane."}), 200
+            return jsonify({"success": True, "procedura_zakonczona": f"System został wyzerowany dla użytkownika {user}, wszystkie zaplanowane procedury zostały zrealizowane. Zrealizowano {raport_cancel}."}), 200
     
     # Zwracamy odpowiedź w formacie JSON
     return jsonify({"success": True, "raport_koncowy": raport_koncowy}), 200
