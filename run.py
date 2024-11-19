@@ -3564,7 +3564,7 @@ def handling_responses():
                 title = dane_do_realizacji.get("title", "")
                 content = dane_do_realizacji.get("content", "")
                 if send_emails(user, email_list, title, content):
-                    raport_zgodnosc += "Wysłano wiadomości według planu!\n"
+                    raport_cancel += "Wysłano wiadomości według planu!\n"
             
         # dodanie raportu
         raport = dane_do_realizacji.get("raport", "")
