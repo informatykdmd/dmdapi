@@ -3550,7 +3550,8 @@ def handling_responses():
             zapyanie_sql = dane_do_realizacji.get("zapytanie_sql", "")
             values = dane_do_realizacji.get("wartosci", "")
 
-            msq.insert_to_database(zapyanie_sql, values)
+            if not msq.insert_to_database(zapyanie_sql, values):
+                raport_cancel += "Błąd podczas aktualizacji bazy danych.\n"
 
         
         # ############################################################################
@@ -3578,7 +3579,8 @@ def handling_responses():
         values_raport = (user, current_procedure_name, raport)
 
         # Wstawienie danych do bazy
-        msq.insert_to_database(zapytanie_sql_raport, values_raport)
+        if not msq.insert_to_database(zapytanie_sql_raport, values_raport):
+            raport_cancel += "Błąd podczas zapisu raportu do bazy danych.\n"
 
         # procedury przygotowania do kolejnych zadań
         dane_poziomu_0 = dane_users_dict.get(user, {}).get(f"0", {}).get("dane", {})
