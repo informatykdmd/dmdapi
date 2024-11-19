@@ -3250,7 +3250,7 @@ def handling_responses():
 
                             # Zastosowanie warunku do listy pobrane_dane_z_bazy
                             pobrane_dane_z_bazy_escaped = [
-                                poz.replace('^', "").replace('"', "^") if isinstance(poz, str) and is_json_like_string(poz) else poz 
+                                poz.replace('^', "").replace('"', "^").replace('\n', " ") if isinstance(poz, str) and is_json_like_string(poz) else poz 
                                 for poz in pobrane_dane_z_bazy
                             ]
                             export_data = "{\n"
