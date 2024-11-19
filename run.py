@@ -3500,7 +3500,7 @@ def handling_responses():
             if saver_ver.save_ver("MINDFORGE", "dane_users_dict", dane_users_dict):
                 dane_users_dict =saver_ver.open_ver("MINDFORGE", "dane_users_dict")
 
-            return jsonify({"success": True, "zakoncz": "Moduł decyzyjny został porawnie zakończony, wszystkie decyzje zostały anulowane."}), 200
+            return jsonify({"success": True, "zakoncz": "Moduł decyzyjny został poprawnie zakończony, wszystkie decyzje zostały anulowane."}), 200
 
 
         # ###########################################################################
