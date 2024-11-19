@@ -1,7 +1,7 @@
 MAIN_MENU_level_0 = """
 Wybierz potrzebne narzędzia, aktualizując wartość `true` przy wybranych opcjach w przesyłanym obiekcie JSON.  
 UWAGA! Ilość kluczy i ich nazwy muszą zostać niezmienione — aktualizujesz wyłącznie wartości! Czyli twoja odpowiedź musi zawierać tyle samo kluczy i o takich samych nazwachjak otrzymujesz we wzorze!
-Jeśli odeślesz niezmieniony obiekt, model decyzyjny zostanie wyłączony.  
+Jeśli wszystkie zadania zostały wykonane, możesz zakończyć działanie modułu decyzyjnego, odsyłając obiekt JSON w niezmienionej formie, z wszystkimi wartościami ustawionymi na false.
 Komunikuj się wyłącznie w formacie JSON, odpowiadając dokładnie w wymaganej strukturze!  
 Zastosuj się do instrukcji i odeślij poprawiony obiekt JSON!
 """
