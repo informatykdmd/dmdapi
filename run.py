@@ -8,7 +8,7 @@ from bin.config_utils import allowed_API_KEYS
 from MindForge import addNewUser, get_next_template,\
     json_string_to_dict, validate_response_structure,\
         template_managment, dict_to_json_string,\
-            resumeJson_structure
+            resumeJson_structure, get_prompt_by_level_task
 import saver_ver
 import requests
 
@@ -2942,7 +2942,7 @@ def handling_responses():
                     """
                     picket_procedures = [label[1:] for label in validator_dict.get("rozne_wartosci", {}).keys()]
                     current_procedure_name = picket_procedures[0] if picket_procedures else None
-                    prompt_level_0 = "Wybierz potrzebne narzędzia, odsyłając obiekt JSON, aktualizując wartość true przy wybranych opcjach.\nJeśli odeślesz niezmieniony obiekt, model decyzyjny zostanie dezaktywowany.\nPamiętaj, że rozumiem tylko język JSON, odpowiadaj tylko jsonem komunikując się zemną! Zastosuj się do moich instrukcji i odeślij zaktualizowany obiekt json!\n"
+                    prompt_level_0 = get_prompt_by_level_task(0)
                     ustaw_dane_poziom_0 = {"prompt": prompt_level_0, "poczekalnia_0": picket_procedures}
                     ustaw_dane_poziom_1 = {}
 
@@ -2956,7 +2956,7 @@ def handling_responses():
                         kolumny = "ID, Tytul"
                         warunki = "WHERE StatusOferty=1"
                         wartosci = ()
-                        prompt_level_1 = "Wybierz ogłoszenie, aktualizując wartość true przy wybranej opcji.\nIlość kluczy i ich nazwy muszą zostać niezmienione, aktualizujesz tylko wartości!\nJeśli odeślesz dokładnie ten sam obiekt (niezmieniony), anulujesz aktualne zadanie i wrócisz do poprzedniego etapu procesu lub menu.\nPamiętaj, że rozumiem tylko język JSON, odpowiadaj tylko jsonem komunikując się zemną! Zastosuj się do moich instrukcji i odeślij zaktualizowany obiekt json!\n"
+                        prompt_level_1 = get_prompt_by_level_task(1, current_procedure_name)
 
                         ustaw_dane_poziom_1 = {
                             "procedura": current_procedure_name,
@@ -2981,7 +2981,7 @@ def handling_responses():
                         kolumny = generatorKolumn(kolumny_lista)
                         warunki = "WHERE StatusOferty=1"
                         wartosci = ()
-                        prompt_level_1 = "Wybierz ogłoszenie, aktualizując wartość true przy wybranej opcji.\nIlość kluczy i ich nazwy muszą zostać niezmienione, aktualizujesz tylko wartości!\nJeśli odeślesz dokładnie ten sam obiekt (niezmieniony), anulujesz aktualne zadanie i wrócisz do poprzedniego etapu procesu lub menu.\nPamiętaj, że rozumiem tylko język JSON, odpowiadaj tylko jsonem komunikując się zemną! Zastosuj się do moich instrukcji i odeślij zaktualizowany obiekt json!\n"
+                        prompt_level_1 = get_prompt_by_level_task(1, current_procedure_name)
 
                         ustaw_dane_poziom_1 = {
                             "procedura": current_procedure_name,
@@ -3006,7 +3006,7 @@ def handling_responses():
                         kolumny = generatorKolumn(kolumny_lista)
                         warunki = ""
                         wartosci = ()
-                        prompt_level_1 = "Wybierz osoby do których chcesz napisać wiadomość email, aktualizując wartość true przy wybranej osobie.\nIlość kluczy i ich nazwy muszą zostać niezmienione, aktualizujesz tylko wartości!\nJeśli odeślesz dokładnie ten sam obiekt (niezmieniony), anulujesz aktualne zadanie i wrócisz do poprzedniego etapu procesu lub menu.\nPamiętaj, że rozumiem tylko język JSON, odpowiadaj tylko jsonem komunikując się zemną! Zastosuj się do moich instrukcji i odeślij zaktualizowany obiekt json!\n"
+                        prompt_level_1 = get_prompt_by_level_task(1, current_procedure_name)
 
                         ustaw_dane_poziom_1 = {
                             "procedura": current_procedure_name,
@@ -3127,7 +3127,7 @@ def handling_responses():
                         warunki = "WHERE id = %s"
                         wybrane_id = split_id_current_choice(current_choice)
                         wartosci = (wybrane_id,)
-                        prompt_level_2 = """Przejrzyj szczegóły oferty i dokonaj niezbędnych zmian, aktualizując wartości odpowiednich parametrów.\nPamiętaj, że w polach takich jak 'Opis' karaty (^) zastępują cudzysłowy ("). Są one znacznikami stylowania i muszą być używane zamiast cudzysłowów.\nDodatkowo, w polu 'Opis' wartość musi reprezentować strukturę JSON typu lista słowników (np. [{^p^: ^wartość^}, {^strong^: ^wartość^}, {^h1^: ^wartość^}]) - klucze tych słowników muszą pozostać bez zmian, mimo obecnej postaci typu danych (czyli string), nawet jeśli zawiera tylko jeden element.\nZachowaj strukturę listy, nawet gdy dane opisowe są proste, ponieważ jest to wymagane do poprawnej walidacji.\nZachowaj obecną strukturę JSON, nie używaj znaków ucieczki (\\) i upewnij się, że format danych jest spójny z szablonem. To ważne!, bo opis będzie sprawdzany znak po znaku!\nIlość kluczy i ich nazwy muszą zostać niezmienione, aktualizujesz tylko wartości!\nJeśli odeślesz dokładnie ten sam obiekt (niezmieniony), anulujesz aktualne zadanie i wrócisz do poprzedniego etapu procesu lub menu.\nPamiętaj, że rozumiem tylko język JSON, odpowiadaj tylko jsonem komunikując się zemną! Zastosuj się do moich instrukcji i odeślij zaktualizowany obiekt json!\n"""
+                        prompt_level_2 = get_prompt_by_level_task(2, current_procedure_name)
 
 
                         ustaw_dane_poziom_2 = {
@@ -3164,7 +3164,7 @@ def handling_responses():
                         wybrane_id = split_id_current_choice(current_choice)
                         wartosci = (wybrane_id,)
                         
-                        prompt_level_2 = """Przejrzyj szczegóły oferty i dokonaj niezbędnych zmian, aktualizując wartości odpowiednich parametrów.\nPamiętaj, że w polach takich jak 'Opis' karaty (^) zastępują cudzysłowy ("). Są one znacznikami stylowania i muszą być używane zamiast cudzysłowów.\nDodatkowo, w polu 'Opis' wartość musi reprezentować strukturę JSON typu lista słowników (np. [{^p^: ^wartość^}, {^strong^: ^wartość^}, {^h1^: ^wartość^}]) - klucze tych słowników muszą pozostać bez zmian, mimo obecnej postaci typu danych (czyli string), nawet jeśli zawiera tylko jeden element.\nZachowaj strukturę listy, nawet gdy dane opisowe są proste, ponieważ jest to wymagane do poprawnej walidacji.\nZachowaj obecną strukturę JSON, nie używaj znaków ucieczki (\\) i upewnij się, że format danych jest spójny z szablonem. To ważne!, bo opis będzie sprawdzany znak po znaku!\nIlość kluczy i ich nazwy muszą zostać niezmienione, aktualizujesz tylko wartości!\nJeśli odeślesz dokładnie ten sam obiekt (niezmieniony), anulujesz aktualne zadanie i wrócisz do poprzedniego etapu procesu lub menu.\nPamiętaj, że rozumiem tylko język JSON, odpowiadaj tylko jsonem komunikując się zemną! Zastosuj się do moich instrukcji i odeślij zaktualizowany obiekt json!\n"""
+                        prompt_level_2 = get_prompt_by_level_task(2, current_procedure_name)
 
                         ustaw_dane_poziom_2 = {
                             "procedura": current_procedure_name,
@@ -3184,7 +3184,7 @@ def handling_responses():
                     if current_procedure_name == "WYSYLANIE_EMAILI":
                         
                         wybrane_emails = split_emails_picket_choice(picket_choice) # lista emaili
-                        prompt_level_2 = "Sprawdź wybrane emaile i uzupełnij tytuł i treści wiadomości, aktualizując wartości przy danym kluczu.\nZachowaj obecną strukturę JSON, nie używaj znaków ucieczki (\\) i upewnij się, że format danych jest spójny z szablonem. To ważne!\nIlość kluczy i ich nazwy muszą zostać niezmienione, aktualizujesz tylko wartości!\nJeśli odeślesz dokładnie ten sam obiekt (niezmieniony), anulujesz aktualne zadanie i wrócisz do poprzedniego etapu procesu lub menu.\nPamiętaj, że rozumiem tylko język JSON, odpowiadaj tylko jsonem komunikując się zemną! Zastosuj się do moich instrukcji i odeślij zaktualizowany obiekt json!\n"
+                        prompt_level_2 = get_prompt_by_level_task(2, current_procedure_name)
 
                         ustaw_dane_poziom_2 = {
                             "procedura": current_procedure_name,
@@ -3333,7 +3333,7 @@ def handling_responses():
                             wybrane_id = dane_users_dict.get(user, {}).get(f"{ostatni_level}", {}).get("dane", {}).get("wybrane_id", None)
                             wartosci = tuple(values_list + [wybrane_id])
 
-                            prompt_level_3 = "Zmiany zostaną wprowadzone po wysłaniu raportu. Wypełnij pole raportu, aby zakończyć proces aktualizacji.\nJeśli odeślesz niezmieniony obiekt, wrócisz do poprzedniej opcji decyzyjnej a zmiany nie zostaną wprowadzone.\nPamiętaj, że rozumiem tylko język JSON, odpowiadaj tylko jsonem komunikując się zemną! Zastosuj się do moich instrukcji i odeślij zaktualizowany obiekt json!\n"
+                            prompt_level_3 = get_prompt_by_level_task(3, current_procedure_name)
                             ustaw_dane_poziomu_3 = {
                                 "procedura": current_procedure_name,
                                 "tabela": tabela,
@@ -3364,7 +3364,7 @@ def handling_responses():
                             wybrane_id = dane_users_dict.get(user, {}).get(f"{ostatni_level}", {}).get("dane", {}).get("wybrane_id", None)
                             wartosci = tuple(values_list + [wybrane_id])
 
-                            prompt_level_3 = "Zmiany zostaną wprowadzone po wysłaniu raportu. Wypełnij pole raportu, aby zakończyć proces aktualizacji.\nJeśli odeślesz niezmieniony obiekt, wrócisz do poprzedniej opcji decyzyjnej a zmiany nie zostaną wprowadzone."
+                            prompt_level_3 = get_prompt_by_level_task(3, current_procedure_name)
                             ustaw_dane_poziomu_3 = {
                                 "procedura": current_procedure_name,
                                 "tabela": tabela,
@@ -3389,7 +3389,7 @@ def handling_responses():
                     # ############################################################################
                     if current_procedure_name == "WYSYLANIE_EMAILI":
                         if title_message!="" and content_message!="":
-                            prompt_level_3 = "Wiadomości zostaną wysłane po wypełnieniu raportu. Wypełnij pole raportu, aby zakończyć proces wysyłania wiadomości.\nJeśli odeślesz niezmieniony obiekt, wrócisz do poprzedniej opcji decyzyjnej a zmiany nie zostaną wprowadzone."
+                            prompt_level_3 = get_prompt_by_level_task(3, current_procedure_name)
                             ustaw_dane_poziomu_3 = {
                                 "procedura": current_procedure_name,
                                 "prompt": prompt_level_3,

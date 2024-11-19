@@ -1,4 +1,7 @@
 import json
+import prompts
+
+
 def validate_response_structure(template, response):
     """
     Sprawdza, czy struktura i typy danych w odpowiedzi są zgodne ze wzorem (template). 
@@ -217,6 +220,33 @@ def get_main_template():
     """{\n"AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM": false,\n"AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_SPRZEDAZ": false,\n"ZARZADZANIE_KAMPANIAMI_NIERUCHOMOSCI": false,\n"KAMPANIE_FB": false,\n"ZARZADZANIE_SEKCJA_KARIERA": false,\n"KAMPANIE_ANONIMOWE_FB": false,\n"WYSYLANIE_EMAILI": false,\n"ZARZADZANIE_PRACOWNIKAMI": false,\n"ZARZADZANIE_BLOGIEM": false\n}\n"""
     mainTemplate = """{\n"AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM": false,\n"AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_SPRZEDAZ": false,\n"WYSYLANIE_EMAILI": false\n}\n"""
     return mainTemplate
+
+def get_prompt_by_level_task(level: int, task=None):
+    this_prompt = "Odpowiedz Jsonem!"
+    if level == 0 and task==None:
+        this_prompt = prompts.MAIN_MENU_level_0
+    elif level == 1 and task=="AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM":
+        this_prompt = prompts.AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM_level_1
+    elif level == 2 and task=="AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM":
+        this_prompt = prompts.AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM_level_2
+    elif level == 3 and task=="AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM":
+        this_prompt = prompts.AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM_level_3
+
+    elif level == 1 and task=="AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_SPRZEDAZ":
+        this_prompt = prompts.AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_SPRZEDAZ_level_1
+    elif level == 2 and task=="AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_SPRZEDAZ":
+        this_prompt = prompts.AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_SPRZEDAZ_level_2
+    elif level == 3 and task=="AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_SPRZEDAZ":
+        this_prompt = prompts.AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_SPRZEDAZ_level_3
+    
+    elif level == 1 and task=="WYSYLANIE_EMAILI":
+        this_prompt = prompts.WYSYLANIE_EMAILI_level_1
+    elif level == 2 and task=="WYSYLANIE_EMAILI":
+        this_prompt = prompts.WYSYLANIE_EMAILI_level_2
+    elif level == 3 and task=="WYSYLANIE_EMAILI":
+        this_prompt = prompts.WYSYLANIE_EMAILI_level_3
+
+    return this_prompt
 
 def addNewUser(dane_users_dict, user_name: str, prompt_level_0=None):
     """Dodaje nowego użytkownika do bazy danych."""
