@@ -117,7 +117,7 @@ def resumeJson_structure(string_structure_with_roof):
 
     # Sprawdzamy, czy string spełnia warunki i zamieniamy ^ na "
     if isinstance(string_structure_with_roof, str) and is_json_like_string(string_structure_with_roof):
-        return string_structure_with_roof.replace("^", '"')
+        return string_structure_with_roof.replace("^", '"').replace('\n', ' ')
     
     return string_structure_with_roof
 
