@@ -3412,7 +3412,7 @@ def handling_responses():
                     if ustaw_dane_poziomu_3:
                         dane_users_dict = template_managment(dane_users_dict, user, f"3", ustaw_dane_poziomu_3)
 
-                    print("ustaw_dane_poziomu_3", ustaw_dane_poziomu_3)
+                    # print("ustaw_dane_poziomu_3", ustaw_dane_poziomu_3)
 
                     dane_users_dict[user]["2"]["wybor"] = dict_to_json_string(user_json)["json_string"]
 
