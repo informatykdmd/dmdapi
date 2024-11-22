@@ -3101,7 +3101,7 @@ def handling_responses():
                     picket_choice = [label[1:] for label in validator_dict.get("rozne_wartosci", {}).keys()]
                     picket_choice_label_vals = [(label[1:], vals) for label, vals in validator_dict.get("rozne_wartosci", {}).items()]
                     current_choice = picket_choice[0] if picket_choice else None
-
+                    print(picket_choice_label_vals)
                     # splituje id z wybranej pozycji 
                     def split_id_current_choice(current_choice_string: str):
                         if current_choice_string and current_choice_string.startswith("["):
