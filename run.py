@@ -3292,9 +3292,9 @@ def handling_responses():
                             export_data = '''{\n"WYBRANE": ['''
                             for email in dane_poziomu_2.get("wybrane_emails", []):
                                 if str(email).count("@") == 1 and str(email).count("."):
-                                    export_data += f'"{email}",\n'
+                                    export_data += f'"{email}", '
                             if export_data != '''{\n"WYBRANE": [''':
-                                export_data = export_data[:-2]  # Usunięcie ostatniego przecinka i nowej linii
+                                export_data = export_data[:-2]  # Usunięcie ostatniego przecinka i spacji
                                 export_data += "],\n"
                             else:
                                 return jsonify({"success": False, "error": f"Błąd poziomu {ostatni_level} dla {current_procedure_name}"}), 400
