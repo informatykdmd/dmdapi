@@ -2940,9 +2940,9 @@ def handling_responses():
         if user_process_response.get('error') is not None and user_process_response.get('json', False):
             return jsonify({"success": False, "error": user_process_response["error"]}), 200
         user_json = user_process_response.get('json')
+        print("curent_tempalte, user_json:", curent_tempalte, user_json)
 
         validator_dict = validate_response_structure(curent_tempalte, user_json)
-        print("validator_dict:", validator_dict)
 
         if user_json and validator_dict.get("zgodnosc_struktury")\
             and not validator_dict.get("error") and not validator_dict.get("success")\
