@@ -3109,6 +3109,7 @@ def handling_responses():
                         return splited_id
 
                     def split_emails_picket_choice(picket_choice_label_vals_list: list):
+                        print("picket_choice_label_vals_list: ", picket_choice_label_vals_list)
                         emails_list = []
                         for current_choice_string, current_value in picket_choice_label_vals_list:
                             if current_choice_string and str(current_choice_string).startswith("["):
