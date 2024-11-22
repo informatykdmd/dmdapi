@@ -90,8 +90,8 @@ Komunikuj się wyłącznie w formacie JSON i prześlij poprawiony obiekt zgodnie
 """
 
 WYSYLANIE_EMAILI_level_1 = """
-Wybierz osoby, do których chcesz wysłać wiadomość email, aktualizując wartość na `true` przy wybranych osobach.
-WAŻNE! Możesz wybrać dowolną liczbę osób, aby wysłać wiadomość zbiorczą do wszystkich wybranych adresatów. 
+Wybierz osoby, do których chcesz wysłać wiadomość email, aktualizując wartość na `true` przy wybranych osobach lub dopisz dodatkowe adresy email do pustej listy @+... .
+WAŻNE! Możesz wybrać i dodać do listy dowolną liczbę osób, aby wysłać wiadomość zbiorczą do wszystkich adresatów. 
 Zanim jednak to zrobisz, upewnij się, kto powinien zostać załączony. 
 Jeśli nie jesteś pewien, czy ktoś jeszcze powinien otrzymać tę wiadomość, zaktualizuj listę odbiorców i upewnij się, że wszyscy zainteresowani otrzymają potrzebne informacje.
 UWAGA! Ilość kluczy i ich nazwy muszą zostać niezmienione — aktualizujesz wyłącznie wartośc Czyli twoja odpowiedź musi zawierać tyle samo kluczy i o takich samych nazwach jakie otrzymujesz we wzorze!
