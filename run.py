@@ -3114,9 +3114,13 @@ def handling_responses():
                             if current_choice_string and str(current_choice_string).startswith("["):
                                 email_adr = str(current_choice_string.split("]::")[3][1:])
                                 emails_list.append(email_adr)
-                            elif current_choice_string and str(current_choice_string).startswith("@+")\
-                                and isinstance(current_value, list):
-                                emails_list += current_value 
+                            if current_choice_string and str(current_choice_string).startswith("@+")\
+                                and current_value and isinstance(current_value, list):
+                                emails_list += current_value
+
+                                print("dodano emial z poza listy")
+
+                        print("emails_list: ", emails_list)
                         return emails_list
                     
                     ustaw_dane_poziom_2 = {}
