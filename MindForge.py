@@ -57,15 +57,18 @@ def validate_response_structure(template, response):
                     if response[key] != tmpl_value:
                         different_values[path + "." + key] = response[key]
         elif isinstance(template, list):
-            for idx, tmpl_value in enumerate(template):
-                if idx < len(response):
-                    if isinstance(tmpl_value, (dict, list)):
-                        nested_diff = find_different_values(tmpl_value, response[idx], f"{path}[{idx}]")
-                        if nested_diff:
-                            different_values.update(nested_diff)
-                    else:
-                        if response[idx] != tmpl_value:
-                            different_values[f"{path}[{idx}]"] = response[idx]
+            if len(template) != len(response):  # Porównanie długości list
+                different_values[path] = response
+            else:
+                for idx, tmpl_value in enumerate(template):
+                    if idx < len(response):
+                        if isinstance(tmpl_value, (dict, list)):
+                            nested_diff = find_different_values(tmpl_value, response[idx], f"{path}[{idx}]")
+                            if nested_diff:
+                                different_values.update(nested_diff)
+                        else:
+                            if response[idx] != tmpl_value:
+                                different_values[f"{path}[{idx}]"] = response[idx]
         return different_values
 
     # 1. Sprawdź strukturę i typy danych
