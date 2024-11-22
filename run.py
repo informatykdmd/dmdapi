@@ -3085,6 +3085,7 @@ def handling_responses():
                                 export_data = export_data[:-2] + f'''": false,\n'''
 
                             if export_data != "{\n":
+                                export_data += f'''"@+[Dodatkowe adresy email]": [],\n'''
                                 export_data = export_data[:-2] + "\n}\n"
                                 dane_users_dict[user]["1"]["szablon"] = export_data
 
@@ -3098,6 +3099,7 @@ def handling_responses():
                         POZIOM 1                            POZIOM 1                            POZIOM 1
                     """
                     picket_choice = [label[1:] for label in validator_dict.get("rozne_wartosci", {}).keys()]
+                    picket_choice_label_vals = [(label[1:], vals) for label, vals in validator_dict.get("rozne_wartosci", {}).items()]
                     current_choice = picket_choice[0] if picket_choice else None
 
                     # splituje id z wybranej pozycji 
@@ -3106,12 +3108,15 @@ def handling_responses():
                             splited_id = int(current_choice_string.split("]::")[0][1:])
                         return splited_id
 
-                    def split_emails_picket_choice(picket_choice_list: list):
+                    def split_emails_picket_choice(picket_choice_label_vals_list: list):
                         emails_list = []
-                        for current_choice_string in picket_choice_list:
+                        for current_choice_string, current_value in picket_choice_label_vals_list:
                             if current_choice_string and str(current_choice_string).startswith("["):
                                 email_adr = str(current_choice_string.split("]::")[3][1:])
                                 emails_list.append(email_adr)
+                            elif current_choice_string and str(current_choice_string).startswith("@+")\
+                                and isinstance(current_value, list):
+                                emails_list += current_value 
                         return emails_list
                     
                     ustaw_dane_poziom_2 = {}
@@ -3194,7 +3199,7 @@ def handling_responses():
                     # ############################################################################
                     if current_procedure_name == "WYSYLANIE_EMAILI":
                         
-                        wybrane_emails = split_emails_picket_choice(picket_choice) # lista emaili
+                        wybrane_emails = split_emails_picket_choice(picket_choice_label_vals) # lista emaili
                         prompt_level_2 = get_prompt_by_level_task(2, current_procedure_name)
 
                         ustaw_dane_poziom_2 = {
@@ -3227,7 +3232,7 @@ def handling_responses():
                         dane_users_dict =saver_ver.open_ver("MINDFORGE", "dane_users_dict")
 
                     dane_poziomu_2 = dane_users_dict.get(user, {}).get(f"2", {}).get("dane", {})
-                    print("dane_poziomu_2:", dane_poziomu_2)
+                    # print("dane_poziomu_2:", dane_poziomu_2)
 
                     if dane_poziomu_2:
                         if current_procedure_name == "AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM"\
