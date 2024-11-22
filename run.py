@@ -2940,10 +2940,10 @@ def handling_responses():
         if user_process_response.get('error') is not None and user_process_response.get('json', False):
             return jsonify({"success": False, "error": user_process_response["error"]}), 200
         user_json = user_process_response.get('json')
-        print("curent_tempalte, user_json:", curent_tempalte, user_json)
+        # print("curent_tempalte, user_json:", curent_tempalte, user_json)
 
         validator_dict = validate_response_structure(curent_tempalte, user_json)
-        print("validator_dict:", validator_dict)
+        # print("validator_dict:", validator_dict)
 
 
         if user_json and validator_dict.get("zgodnosc_struktury")\
@@ -3044,7 +3044,7 @@ def handling_responses():
                         dane_users_dict = saver_ver.open_ver("MINDFORGE", "dane_users_dict")
 
                     dane_poziomu_1 = dane_users_dict.get(user, {}).get(f"1", {}).get("dane", {})
-                    print("dane_poziomu_1:", dane_poziomu_1)
+                    # print("dane_poziomu_1:", dane_poziomu_1)
 
                     export_data = ""
 
@@ -3104,7 +3104,7 @@ def handling_responses():
                     picket_choice = [label[1:] for label in validator_dict.get("rozne_wartosci", {}).keys()]
                     picket_choice_label_vals = [(label[1:], vals) for label, vals in validator_dict.get("rozne_wartosci", {}).items()]
                     current_choice = picket_choice[0] if picket_choice else None
-                    print(picket_choice_label_vals)
+                    # print(picket_choice_label_vals)
                     # splituje id z wybranej pozycji 
                     def split_id_current_choice(current_choice_string: str):
                         if current_choice_string and current_choice_string.startswith("["):
@@ -3112,7 +3112,6 @@ def handling_responses():
                         return splited_id
 
                     def split_emails_picket_choice(picket_choice_label_vals_list: list):
-                        print("picket_choice_label_vals_list: ", picket_choice_label_vals_list)
                         emails_list = []
                         for current_choice_string, current_value in picket_choice_label_vals_list:
                             if current_choice_string and str(current_choice_string).startswith("["):
@@ -3121,10 +3120,6 @@ def handling_responses():
                             if current_choice_string and str(current_choice_string).startswith("@+")\
                                 and current_value and isinstance(current_value, list):
                                 emails_list += current_value
-
-                                print("dodano emial z poza listy")
-
-                        print("emails_list: ", emails_list)
                         return emails_list
                     
                     ustaw_dane_poziom_2 = {}
