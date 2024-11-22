@@ -90,7 +90,7 @@ Komunikuj się wyłącznie w formacie JSON i prześlij poprawiony obiekt zgodnie
 """
 
 WYSYLANIE_EMAILI_level_1 = """
-Wybierz osoby, do których chcesz wysłać wiadomość email, aktualizując wartość na `true` przy wybranych osobach lub dopisz dodatkowe adresy email do pustej listy @+... .
+Wybierz osoby, do których chcesz wysłać wiadomość email, aktualizując wartość na `true` przy wybranych osobach lub dopisz dodatkowe adresy email do tej listy "@+[Dodatkowe adresy email]": ["adres@przykład.ai"].
 WAŻNE! Możesz wybrać i dodać do listy dowolną liczbę osób, aby wysłać wiadomość zbiorczą do wszystkich adresatów. 
 Zanim jednak to zrobisz, upewnij się, kto powinien zostać załączony. 
 Jeśli nie jesteś pewien, czy ktoś jeszcze powinien otrzymać tę wiadomość, zaktualizuj listę odbiorców i upewnij się, że wszyscy zainteresowani otrzymają potrzebne informacje.
