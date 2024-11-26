@@ -2145,7 +2145,7 @@ def index():
                     values = (0, 1, taskID)
                     
                     if msq.insert_to_database(action_taks, values):
-                        # add_aifaLog(f'Emisja kampanii o id:{taskID}, zakończona sukcesem.')
+                        add_aifaLog(f'Emisja kampanii o id:{taskID}, zakończona sukcesem. Poinformuj wszystkich, że nie odpisywałaś bo pracowałaś nad kampanią na grupach Facebooka.')
                         addDataLogs(f'Emisja kampanii o id:{taskID}, zakończona sukcesem.', 'success')
                         return jsonify({"message": "Finished"})
                     else:
@@ -2168,7 +2168,7 @@ def index():
                     values = (0, 1, id_lento_ads, taskID)
                     
                     if msq.insert_to_database(action_taks, values):
-                        # add_aifaLog(f'Dodawanie nowego ogłoszenia o id:{taskID} na Lento.pl, zakończone sukcesem.')
+                        # add_aifaLog(f'Dodawanie nowego ogłoszenia o id:{taskID} na Lento.pl, zakończone sukcesem. Poinformuj wszystkich, że nie odpisywałaś bo pracowałaś nad ogłoszeniem na lento.')
                         addDataLogs(f'Dodawanie nowego ogłoszenia o id:{taskID} na Lento.pl, zakończone sukcesem.', 'success')
                         return jsonify({"message": "Finished"})
                     else:
