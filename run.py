@@ -2702,7 +2702,7 @@ def index():
 
                 if action_taks and values:
                     if msq.insert_to_database(action_taks, values):
-                        # add_aifaLog(f'Uwaga! Zaleziono błędy {errorMessage}, o fladze: {message_flag} dla idZadania: {taskID}.')
+                        add_aifaLog(f'Uwaga! ALARM! Zaleziono błędy {errorMessage}, o fladze: {message_flag} dla id_Zadania: {taskID}.')
                         addDataLogs(f'Uwaga! Zaleziono błędy {errorMessage}, o fladze: {message_flag} dla idZadania: {taskID}.', 'danger')
                         return jsonify({"message": "The error description has been saved"})
                     else:
