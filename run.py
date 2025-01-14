@@ -765,7 +765,8 @@ def getMainResponder():
                 "forma_wlasnosci": item[21],
                 "zdjecia_string": zdjecia_string, # lista stringów
                 "osoba_kontaktowa": item[23],
-                "nr_telefonu": item[24]         
+                "nr_telefonu": item[24],
+                "rynek": item[32]
             }
         }
 
