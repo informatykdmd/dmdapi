@@ -2939,16 +2939,16 @@ def get_data():
                 VISIBILITY-MONITOR
             """
             if platform and platform == 'VISIBILITY-MONITOR':
-                data = request.json.get('data', {})
-                portal = data.get('portal')
+                got_data = request.json.get('data', {})
+                portal = got_data.get('portal')
                 if portal == 'lento':
                     # Pobieranie danych z żądania
-                    rekord_id = data.get('rekord_id')
-                    ogloszenie_id = data.get('ogloaszenie_id')
-                    status_systemowy = data.get('ststus_systemowy')
-                    status_wyszukiwania_id = data.get('ststus_wyszukiwania_id')
-                    poprawnosc_statusu = data.get('poprawnosc_statusu')
-                    status_w_portalu = data.get('ststus_w_portalu')
+                    rekord_id = got_data.get('rekord_id')
+                    ogloszenie_id = got_data.get('ogloaszenie_id')
+                    status_systemowy = got_data.get('ststus_systemowy')
+                    status_wyszukiwania_id = got_data.get('ststus_wyszukiwania_id')
+                    poprawnosc_statusu = got_data.get('poprawnosc_statusu')
+                    status_w_portalu = got_data.get('ststus_w_portalu')
 
                     # Sprawdzanie, czy wszystkie wymagane dane są dostępne
                     if not (rekord_id and ogloszenie_id and status_systemowy):
