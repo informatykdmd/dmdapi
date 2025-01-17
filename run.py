@@ -2940,6 +2940,7 @@ def get_data():
             """
             if platform and platform == 'VISIBILITY-MONITOR':
                 got_data = request.json.get('data', {})
+                print(got_data)
                 portal = got_data.get('portal')
                 if portal == 'lento':
                     # Pobieranie danych z żądania
