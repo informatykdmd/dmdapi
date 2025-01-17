@@ -2952,7 +2952,7 @@ def get_data():
                     status_w_portalu = got_data.get('ststus_w_portalu')
 
                     # Sprawdzanie, czy wszystkie wymagane dane są dostępne
-                    if not (rekord_id and ogloszenie_id and status_w_portalu):
+                    if not (rekord_id and ogloszenie_id):
                         return jsonify({"error": "Brak wymaganych danych!"})
 
                     # Logika aktualizacji lub usuwania danych
