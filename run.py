@@ -2950,7 +2950,7 @@ def get_data():
                     status_wyszukiwania_id = got_data.get('ststus_wyszukiwania_id')
                     poprawnosc_statusu = got_data.get('poprawnosc_statusu')
                     status_w_portalu = got_data.get('ststus_w_portalu')
-
+                    print((rekord_id, ogloszenie_id))
                     # Sprawdzanie, czy wszystkie wymagane dane są dostępne
                     if not (rekord_id and ogloszenie_id):
                         return jsonify({"error": "Brak wymaganych danych!"})
