@@ -99,6 +99,26 @@ def addDataLogs(message: str, category: str, file_name_json: str = "/home/johndo
     with open(file_name_json, "w") as file:
         json.dump(data_json, file, indent=4)
 
+def decode_task_data(task_data: str) -> list:
+    """
+    Dekoduje zapisane stringi w kolumnie `dane_wykonawcze` na listę krotek.
+    Sprawdza, czy id i status dają się skonwertować na int. 
+    W przypadku błędu zwraca pustą krotkę dla danego elementu.
+    """
+    decoded_data = []
+    for item in task_data.split(';'):
+        parts = item.split('|')
+        if len(parts) == 3:
+            try:
+                record_id = int(parts[0])  # Konwersja id na int
+                ogloszenie_id = parts[1]  # Pozostawiamy jako string
+                status = int(parts[2])    # Konwersja statusu na int
+                decoded_data.append({"record_id": record_id, "ogloszenie_id": ogloszenie_id, "status": status})
+            except ValueError:
+                # Jeśli id lub status nie da się przekonwertować
+                print('id lub status nie da się przekonwertować')
+    
+    return decoded_data
 
 def getMainResponder():
     task_data = {
@@ -2023,6 +2043,29 @@ def getMainResponder():
             task_data["update"].append(theme)
             return task_data
     
+    tasks_check_visibility = msq.connect_to_database(f'SELECT * FROM tasks_check_visibility WHERE status = 4 AND active_task = 0;')
+    # check visibility    
+    for i, item in enumerate(tasks_check_visibility):
+
+        ready_dict_list = decode_task_data(item[3])
+        
+
+        theme = {
+            'task_id': item[1],
+            'portal_nazwa': item[2],
+            'dane_wykonawcze': ready_dict_list,
+            "platform": f"VISIBILITY-MONITOR"
+        }
+        action_taks = f'''
+            UPDATE tasks_check_visibility
+            SET active_task=%s
+            WHERE id = %s;
+        '''
+        values = (1, item[0])
+        if msq.insert_to_database(action_taks, values):
+            task_data["update"].append(theme)
+            return task_data
+    
     mind_forge_si = msq.connect_to_database(f'SELECT * FROM mind_forge_si WHERE status = 5 AND active_task = 0;')
     # FB GROUPS STATS   
     for i, item in enumerate(mind_forge_si):
@@ -2575,6 +2618,24 @@ def index():
                         return jsonify({"message": "Finished"})
                     else:
                         return jsonify({"error": 500})
+
+                if message == 'Done-visibility-check': 
+
+                    action_taks = f'''
+                        UPDATE tasks_check_visibility
+                        SET 
+                            active_task=%s,
+                            status=%s
+                        WHERE id_zadania = %s;
+                    '''
+                    values = (0, 1, taskID)
+                    
+                    if msq.insert_to_database(action_taks, values):
+                        # add_aifaLog(f'Aktualizacja ogłoszenia o id:{taskID} na otodom.pl, przebiegła pomyślnie!')
+                        addDataLogs(f'Zadania modułu sprawdzania widoczności o id: {taskID} zostało zrealizowane!', 'success')
+                        return jsonify({"message": "Finished"})
+                    else:
+                        return jsonify({"error": 500})
                     
             elif action == 'error':
                 taskID = request.headers.get('taskID')
@@ -2694,6 +2755,17 @@ def index():
                 if message_flag == 'error-mind-forge':
                     action_taks = f'''
                         UPDATE mind_forge_si
+                        SET 
+                            active_task=%s,
+                            status=%s,
+                            errors=%s
+                        WHERE id_zadania = %s;
+                    '''
+                    values = (0, 2, errorMessage, taskID)
+
+                if message_flag == 'error-visibility':
+                    action_taks = f'''
+                        UPDATE tasks_check_visibility
                         SET 
                             active_task=%s,
                             status=%s,
@@ -2862,6 +2934,60 @@ def get_data():
                     return jsonify({'success': 'Dane zostały zapisane'})
                 else:
                     return jsonify({"error": "Bad structure json file!"})
+
+            """
+                VISIBILITY-MONITOR
+            """
+            if platform and platform == 'VISIBILITY-MONITOR':
+                data = request.json.get('data', {})
+                portal = data.get('portal')
+                if portal == 'lento':
+                    # Pobieranie danych z żądania
+                    rekord_id = data.get('rekord_id')
+                    ogloszenie_id = data.get('ogloaszenie_id')
+                    status_systemowy = data.get('ststus_systemowy')
+                    status_wyszukiwania_id = data.get('ststus_wyszukiwania_id')
+                    poprawnosc_statusu = data.get('poprawnosc_statusu')
+                    status_w_portalu = data.get('ststus_w_portalu')
+
+                    # Sprawdzanie, czy wszystkie wymagane dane są dostępne
+                    if not (rekord_id and ogloszenie_id and status_systemowy):
+                        return jsonify({"error": "Brak wymaganych danych!"})
+
+                    # Logika aktualizacji lub usuwania danych
+                    if status_wyszukiwania_id:
+                        if not poprawnosc_statusu:
+                            # Ustalanie nowego statusu
+                            if status_w_portalu == 'Aktywne':
+                                status_int = 1
+                            elif status_w_portalu == 'Wstrzymane':
+                                status_int = 0
+                            else:
+                                status_int = 2
+
+                            # Tworzenie zapytania do aktualizacji statusu
+                            action_task = '''
+                                UPDATE ogloszenia_lento
+                                SET status = %s
+                                WHERE id = %s;
+                            '''
+                            values = (status_int, rekord_id)
+                        else:
+                            return jsonify({'success': 'Dane są poprawne!'})
+                    else:
+                        # Tworzenie zapytania do usunięcia rekordu
+                        action_task = '''
+                            DELETE FROM ogloszenia_lento WHERE id = %s;
+                        '''
+                        values = (rekord_id,)
+
+                    # Wykonywanie zapytania do bazy danych
+                    if msq.insert_to_database(action_task, values):
+                        return jsonify({'success': 'Dane zostały zapisane'})
+                    else:
+                        return jsonify({"error": "Wystąpił błąd podczas zapisu danych!"})
+
+
 
             return jsonify({"error": "Bad structure json file!"})
         return jsonify({"error": "Bad POST data!"})
