@@ -2944,15 +2944,15 @@ def get_data():
                 portal = got_data.get('portal')
                 if portal == 'lento':
                     # Pobieranie danych z żądania
-                    rekord_id = got_data.get('rekord_id')
-                    ogloszenie_id = got_data.get('ogloaszenie_id')
-                    status_systemowy = got_data.get('ststus_systemowy')
-                    status_wyszukiwania_id = got_data.get('ststus_wyszukiwania_id')
+                    record_id = got_data.get('record_id')
+                    ogloszenie_id = got_data.get('ogloszenie_id')
+                    status_systemowy = got_data.get('status_systemowy')
+                    status_wyszukiwania_id = got_data.get('status_wyszukiwania_id')
                     poprawnosc_statusu = got_data.get('poprawnosc_statusu')
-                    status_w_portalu = got_data.get('ststus_w_portalu')
-                    print((rekord_id, ogloszenie_id))
+                    status_w_portalu = got_data.get('status_w_portalu')
+                    print((record_id, ogloszenie_id))
                     # Sprawdzanie, czy wszystkie wymagane dane są dostępne
-                    if not (rekord_id and ogloszenie_id):
+                    if not (record_id and ogloszenie_id):
                         return jsonify({"error": "Brak wymaganych danych!"})
 
                     # Logika aktualizacji lub usuwania danych
@@ -2972,7 +2972,7 @@ def get_data():
                                 SET status = %s
                                 WHERE id = %s;
                             '''
-                            values = (status_int, rekord_id)
+                            values = (status_int, record_id)
                         else:
                             return jsonify({'success': 'Dane są poprawne!'})
                     else:
@@ -2980,7 +2980,7 @@ def get_data():
                         action_task = '''
                             DELETE FROM ogloszenia_lento WHERE id = %s;
                         '''
-                        values = (rekord_id,)
+                        values = (record_id,)
 
                     # Wykonywanie zapytania do bazy danych
                     if msq.insert_to_database(action_task, values):
