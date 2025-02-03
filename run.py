@@ -3037,7 +3037,6 @@ def handling_responses():
     api_key = data.get("api_key", None)
     api_url = data.get("api_url", None)
 
-    print(data)
     if not user_aswer or not user or not api_key or not api_url:
         return  jsonify({"success": False, "error": "Niewłaściwe dane zapytania!"}), 200
     
