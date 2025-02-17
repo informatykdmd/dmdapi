@@ -1459,6 +1459,63 @@ def getMainResponder():
             task_data["update"].append(theme)
             return task_data
 
+    add_ads_fb_profil = msq.connect_to_database(f'SELECT * FROM ogloszenia_socialsync WHERE status = 4 AND active_task = 0;')
+    # FACEBOOK - sprzedaż - edit
+    for i, item in enumerate(add_ads_fb_profil):
+        zdjecia_string = str(item[8]).split('-@-')
+
+        theme = {
+            "task_id": int(time.time()) + i,
+            "platform": "SOCIALSYNC",
+            "id": item[0],
+            "rodzaj_ogloszenia": item[1],
+            "id_ogloszenia": item[2],
+            "details": {
+                "tresc_ogloszenia": item[5],
+                "zdjecia_string": zdjecia_string, # lista stringów
+                "created_by": item[15]
+            }
+        }
+
+        action_taks = f'''
+            UPDATE ogloszenia_socialsync
+            SET 
+                active_task=%s,
+                id_zadania=%s
+            WHERE id = %s;
+        '''
+        values = (1, theme["task_id"], item[0])
+        if msq.insert_to_database(action_taks, values):
+            task_data["create"].append(theme)
+            return task_data
+
+    generate_description_fb_profil = msq.connect_to_database(f'SELECT * FROM ogloszenia_socialsync WHERE status = 5 AND active_task = 0;')
+    # FACEBOOK - sprzedaż - edit
+    for i, item in enumerate(generate_description_fb_profil):
+
+        theme = {
+            "task_id": int(time.time()) + i,
+            "platform": "SOCIALSYNC-DESCRIPTION",
+            "id": item[0],
+            "id_ogloszenia": item[2],
+            "details": {
+                "tresc_ogloszenia": item[5],
+                "polecenie_ai": item[7]
+            }
+        }
+
+        action_taks = f'''
+            UPDATE ogloszenia_socialsync
+            SET 
+                active_task=%s,
+                id_zadania=%s
+            WHERE id = %s;
+        '''
+        values = (1, theme["task_id"], item[0])
+        if msq.insert_to_database(action_taks, values):
+            task_data["update"].append(theme)
+            return task_data
+
     edit_data_from_rent_lento = take_data_where_ID_AND_somethig_AND_Something('*', 'ogloszenia_lento', 'rodzaj_ogloszenia', 'r', 'status', 5, 'active_task', 0)
     # LENTO.PL - wynajem - edit
     for i, item in enumerate(edit_data_from_rent_lento):
@@ -2637,6 +2694,42 @@ def index():
                     else:
                         return jsonify({"error": 500})
                     
+                if message == 'Done-public-socialsync': 
+
+                    action_taks = f'''
+                        UPDATE ogloszenia_socialsync
+                        SET 
+                            active_task=%s,
+                            status=%s
+                        WHERE id_zadania = %s;
+                    '''
+                    values = (0, 1, taskID)
+                    
+                    if msq.insert_to_database(action_taks, values):
+                        # add_aifaLog(f'Aktualizacja ogłoszenia o id:{taskID} na otodom.pl, przebiegła pomyślnie!')
+                        addDataLogs(f'Publikacja posta w trybie SocialSync o id: {taskID} zostało zrealizowane!', 'success')
+                        return jsonify({"message": "Finished"})
+                    else:
+                        return jsonify({"error": 500})
+                    
+                if message == 'Done-socialsync-description': 
+
+                    action_taks = f'''
+                        UPDATE ogloszenia_socialsync
+                        SET 
+                            active_task=%s,
+                            status=%s
+                        WHERE id_zadania = %s;
+                    '''
+                    values = (0, 4, taskID)
+                    
+                    if msq.insert_to_database(action_taks, values):
+                        # add_aifaLog(f'Aktualizacja ogłoszenia o id:{taskID} na otodom.pl, przebiegła pomyślnie!')
+                        addDataLogs(f'Generowanie treści posta w trybie SocialSync o id: {taskID} zostało zrealizowane!', 'success')
+                        return jsonify({"message": "Finished"})
+                    else:
+                        return jsonify({"error": 500})
+                    
             elif action == 'error':
                 taskID = request.headers.get('taskID')
                 errorMessage = request.headers.get('error')
@@ -2766,6 +2859,28 @@ def index():
                 if message_flag == 'error-visibility':
                     action_taks = f'''
                         UPDATE tasks_check_visibility
+                        SET 
+                            active_task=%s,
+                            status=%s,
+                            errors=%s
+                        WHERE id_zadania = %s;
+                    '''
+                    values = (0, 2, errorMessage, taskID)
+                
+                if message_flag == 'error-public-socialsync':
+                    action_taks = f'''
+                        UPDATE ogloszenia_socialsync
+                        SET 
+                            active_task=%s,
+                            status=%s,
+                            errors=%s
+                        WHERE id_zadania = %s;
+                    '''
+                    values = (0, 2, errorMessage, taskID)
+                
+                if message_flag == 'error-socialsync-description':
+                    action_taks = f'''
+                        UPDATE ogloszenia_socialsync
                         SET 
                             active_task=%s,
                             status=%s,
@@ -2940,7 +3055,7 @@ def get_data():
             """
             if platform and platform == 'VISIBILITY-MONITOR':
                 got_data = request.json.get('data', {})
-                print(got_data)
+                # print(got_data)
                 portal = got_data.get('portal')
                 if portal == 'lento':
                     # Pobieranie danych z żądania
@@ -3885,6 +4000,43 @@ def handling_responses():
     # Zwracamy odpowiedź w formacie JSON
     return jsonify({"success": True, "raport_koncowy": raport_koncowy}), 200
 
+@app.route('/api/generated-socialsync-description/', methods=['POST'])
+def generated_socialsync_description():
+
+    # Pobieramy dane JSON z żądania
+    data = request.get_json()
+    # Sprawdzamy, czy dane zostały poprawnie przesłane
+    if not data:
+        return jsonify({"success": False, "error": "Brak danych"}), 400
+    aswer = data.get("answer", None)
+    id_zadania = data.get("id_zadania", None)
+    api_key = data.get("api_key", None)
+
+    if not aswer or not api_key or not id_zadania:
+        return  jsonify({"success": False, "error": "Niewłaściwe dane zapytania!"}), 200
+    
+    if api_key and api_key not in allowed_API_KEYS:
+        return  jsonify({"success": False, "error": "Unauthorized access"}), 401
+    
+    curent_tempalte = json_string_to_dict('{"tresc_ogloszenia": ""}').get('json', {})
+    answer_json = json_string_to_dict(aswer).get('json', {'error': 'False'})
+    validator_dict = validate_response_structure(curent_tempalte, answer_json)
+    if not validator_dict.get("zgodnosc_struktury", False):
+        return  jsonify({"success": False, "error": validator_dict.get("error", 'Błąd struktury json.')}), 200
+
+    if validator_dict.get("rozne_wartosci", None) and not validator_dict.get("anuluj_zadanie", True)\
+        and "tresc_ogloszenia" in answer_json and answer_json.get("tresc_ogloszenia"):
+        action_taks = f'''
+            UPDATE ogloszenia_socialsync
+            SET tresc_ogloszenia=%s
+            WHERE id_zadania = %s;
+        '''
+        values = (answer_json.get("tresc_ogloszenia"), id_zadania)
+        if msq.insert_to_database(action_taks, values):
+            return jsonify({"success": True}), 200
+        else:
+            return jsonify({"success": False, "error": "Błąd aktualizacji wygenerowanego opisu!"}), 404
+        
 if __name__ == "__main__":
     # app.run(debug=True, port=4000)
     app.run(debug=True, host='0.0.0.0', port=4040)
