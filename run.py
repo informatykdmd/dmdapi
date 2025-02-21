@@ -3124,16 +3124,24 @@ def get_data():
                                 status_int = 1
                             elif status_w_portalu == 'Oferta wstrzymana':
                                 status_int = 0
+                            elif status_w_portalu == 'Usunięte: Usunięte samodzielnie przez użytkownika':
+                                status_int = 3
                             else:
                                 status_int = 2
 
-                            # Tworzenie zapytania do aktualizacji statusu
-                            action_task = '''
-                                UPDATE ogloszenia_adresowo
-                                SET status = %s
-                                WHERE id = %s;
-                            '''
-                            values = (status_int, record_id)
+                            if status_int != 3:
+                                # Tworzenie zapytania do aktualizacji statusu
+                                action_task = '''
+                                    UPDATE ogloszenia_adresowo
+                                    SET status = %s
+                                    WHERE id = %s;
+                                '''
+                                values = (status_int, record_id)
+                            else:
+                                action_task = '''
+                                    DELETE FROM ogloszenia_adresowo WHERE id = %s;
+                                '''
+                                values = (record_id,)
                         else:
                             return jsonify({'success': 'Dane są poprawne!'})
                     else:
