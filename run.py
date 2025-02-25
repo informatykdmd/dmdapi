@@ -3157,6 +3157,55 @@ def get_data():
                     else:
                         return jsonify({"error": "Wystąpił błąd podczas zapisu danych!"})
 
+                if portal == 'otodom':
+                    # Pobieranie danych z żądania
+                    record_id = got_data.get('record_id')
+                    ogloszenie_id = got_data.get('ogloszenie_id')
+                    status_systemowy = got_data.get('status_systemowy')
+                    status_wyszukiwania_id = got_data.get('status_wyszukiwania_id')
+                    poprawnosc_statusu = got_data.get('poprawnosc_statusu')
+                    status_w_portalu = got_data.get('status_w_portalu')
+                    print((record_id, ogloszenie_id))
+                    # Sprawdzanie, czy wszystkie wymagane dane są dostępne
+                    if not (record_id and ogloszenie_id):
+                        return jsonify({"error": "Brak wymaganych danych!"})
+
+                    # Logika aktualizacji lub usuwania danych
+                    if status_wyszukiwania_id:
+                        if not poprawnosc_statusu:
+                            # Ustalanie nowego statusu
+                            if status_w_portalu == 'aktywne':
+                                status_int = 1
+                            else:
+                                status_int = 3
+
+                            if status_int != 3:
+                                # Tworzenie zapytania do aktualizacji statusu
+                                action_task = '''
+                                    UPDATE ogloszenia_otodom
+                                    SET status = %s
+                                    WHERE id = %s;
+                                '''
+                                values = (status_int, record_id)
+                            else:
+                                action_task = '''
+                                    DELETE FROM ogloszenia_otodom WHERE id = %s;
+                                '''
+                                values = (record_id,)
+                        else:
+                            return jsonify({'success': 'Dane są poprawne!'})
+                    else:
+                        # Tworzenie zapytania do usunięcia rekordu
+                        action_task = '''
+                            DELETE FROM ogloszenia_otodom WHERE id = %s;
+                        '''
+                        values = (record_id,)
+
+                    # Wykonywanie zapytania do bazy danych
+                    if msq.insert_to_database(action_task, values):
+                        return jsonify({'success': 'Dane zostały zapisane'})
+                    else:
+                        return jsonify({"error": "Wystąpił błąd podczas zapisu danych!"})
 
             return jsonify({"error": "Bad structure json file!"})
         return jsonify({"error": "Bad POST data!"})
