@@ -3081,21 +3081,41 @@ def get_data():
                             else:
                                 status_int = 2
 
-                            # Tworzenie zapytania do aktualizacji statusu
-                            action_task = '''
-                                UPDATE ogloszenia_lento
-                                SET status = %s
-                                WHERE id = %s;
-                            '''
-                            values = (status_int, record_id)
+                            if status_int in [1, 0]:
+                                # Tworzenie zapytania do aktualizacji statusu
+                                action_task = '''
+                                    UPDATE ogloszenia_lento
+                                    SET status = %s
+                                    WHERE id = %s;
+                                '''
+                                values = (status_int, record_id)
+                            else:
+                                # --- NOWA LOGIKA DLA BŁĘDÓW SCRAPERA ---
+                                action_task = '''
+                                    UPDATE ogloszenia_lento
+                                    SET status = 2,
+                                        action_before_errors = 5,
+                                        errors = %s,
+                                        active_task = 0
+                                    WHERE id = %s;
+                                '''
+                                error_msg = f"Ogłoszenie ID {ogloszenie_id} błąd Ustalania nowego statusu!"
+                                values = (error_msg, record_id)
+                        
                         else:
                             return jsonify({'success': 'Dane są poprawne!'})
                     else:
-                        # Tworzenie zapytania do usunięcia rekordu
+                        # --- NOWA LOGIKA DLA BŁĘDÓW SCRAPERA ---
                         action_task = '''
-                            DELETE FROM ogloszenia_lento WHERE id = %s;
+                            UPDATE ogloszenia_lento
+                            SET status = 2,
+                                action_before_errors = 5,
+                                errors = %s,
+                                active_task = 0
+                            WHERE id = %s;
                         '''
-                        values = (record_id,)
+                        error_msg = f"Ogłoszenie ID {ogloszenie_id} nie znalezione na Lento. Możliwa przyczyna: brak załadowania strony lub zmiana layoutu."
+                        values = (error_msg, record_id)
 
                     # Wykonywanie zapytania do bazy danych
                     if msq.insert_to_database(action_task, values):
