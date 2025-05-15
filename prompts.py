@@ -33,7 +33,11 @@ Zasady:
 
 Przykłady poprawnej struktury pola 'Opis':
 1. Pojedynczy element:
-"Opis": "[{^p^: ^To jest przykładowy paragraf.^}]"
+    "Opis": "[{^p^: ^To jest przykładowy paragraf.^}]"
+2. Złożony element z użyciem znacznika specjalnego ^li^:
+    "Opis": "[{^p^: ^To jest przykładowy paragraf.^}, {^li^: [^punkt listy^, ^punkt listy^, ^punkt listy^]}]"
+
+UWAGA! Zwróć uwagę, że klucze ^p^, ^strong^, ^h1^, ^h2^, ^h3^, ^h1-strong^, ^h2-strong^, ^h3-strong^ mają pojedyńczego tekstu a wartością klucza ^li^ jest lista tekstów [^teskt^, ^teskt^, ...]
 
 Zachowaj integralność struktury JSON, upewniając się, że nie ma niezgodności w formacie.  
 Jeśli odeślesz niezmieniony obiekt, zadanie zostanie anulowane, a proces cofnie się do poprzedniego etapu.  
@@ -76,6 +80,10 @@ Zasady:
 Przykłady poprawnej struktury pola 'Opis':
 1. Pojedynczy element:
     "Opis": "[{^p^: ^To jest przykładowy paragraf.^}]"
+2. Złożony element z użyciem znacznika specjalnego ^li^:
+    "Opis": "[{^p^: ^To jest przykładowy paragraf.^}, {^li^: [^punkt listy^, ^punkt listy^, ^punkt listy^]}]"
+
+UWAGA! Zwróć uwagę, że klucze ^p^, ^strong^, ^h1^, ^h2^, ^h3^, ^h1-strong^, ^h2-strong^, ^h3-strong^ mają pojedyńczego tekstu a wartością klucza ^li^ jest lista tekstów [^teskt^, ^teskt^, ...]
 
 Zachowaj integralność struktury JSON, upewniając się, że nie ma niezgodności w formacie.  
 Jeśli odeślesz niezmieniony obiekt, zadanie zostanie anulowane, a proces cofnie się do poprzedniego etapu.  
