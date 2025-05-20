@@ -3227,6 +3227,39 @@ def get_data():
                     else:
                         return jsonify({"error": "Wystąpił błąd podczas zapisu danych!"})
 
+            """
+                FORMS-API-TEST
+            """
+            if platform and platform == 'FORMS-API-TEST':
+                task_id = request.json.get('task_id')
+                portal = request.json.get('portal')
+                data = request.json.get('data')
+                
+                # Przykładowe przetwarzanie danych
+                print(f'task_id: {task_id}')
+                print(f'platform: {platform}')
+                print(f'portal: {portal}')
+                print(f'Data: {data}')
+                prepared_message = ""
+                for cat, podkategorie in data.items():
+                    rodzaj = 'wynajem' if cat == 'r' else 'sprzedaż'
+                    for przedmiot, lista in podkategorie.items():
+                        prepared_message += f'{portal}-{rodzaj}-{przedmiot} errors-> [{", ".join(lista)}]\n'
+
+                action_taks = f'''
+                        INSERT INTO forms_errors_api
+                            (verificated, status)
+                        VALUES 
+                            (%s, %s);
+                    '''
+                values = (prepared_message, 2)
+                    
+                if msq.insert_to_database(action_taks, values):
+                    
+                    return jsonify({'success': 'Dane zostały zapisane'})
+                else:
+                    return jsonify({"error": "Bad structure json file!"})
+
             return jsonify({"error": "Bad structure json file!"})
         return jsonify({"error": "Bad POST data!"})
     else:
