@@ -3244,8 +3244,10 @@ def get_data():
                 for cat, podkategorie in data.items():
                     rodzaj = 'wynajem' if cat == 'r' else 'sprzedaż'
                     for przedmiot, lista in podkategorie.items():
-                        prepared_message += f'{portal}-{rodzaj}-{przedmiot} errors-> [{", ".join(lista)}]\n'
-
+                        if lista:
+                            prepared_message += f'{portal}-{rodzaj}-{przedmiot} errors-> [{", ".join(lista)}]\n'
+                prepared_message = prepared_message.strip()
+                
                 action_taks = f'''
                         INSERT INTO forms_errors_api
                             (verificated, status)
