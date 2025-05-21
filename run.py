@@ -3304,7 +3304,8 @@ def get_data():
                 values = (prepared_message, 0)
                     
                 if msq.insert_to_database(action_taks, values):
-                    
+                    add_aifaLog(f'Uwaga! ALARM! Zaleziono błędy! Diagnostyka automatyzacji zakończona pomyślnie. Analiza kluczowych komponentów systemu obsługi ogłoszeń nieruchomości wykazała nieprawidłowości. Sprawdzono: struktura formularzy, detekcja elementów wizualnych, przepływ danych. Raport diagnostyczny\n{prepared_message}')
+                    addDataLogs(f'Uwaga! ALARM! Zaleziono błędy! Diagnostyka automatyzacji zakończona pomyślnie. Analiza kluczowych komponentów systemu obsługi ogłoszeń nieruchomości wykazała nieprawidłowości. Sprawdzono: struktura formularzy, detekcja elementów wizualnych, przepływ danych. Raport diagnostyczny\n{prepared_message}', 'danger')
                     return jsonify({'success': 'Dane zostały zapisane'})
                 else:
                     return jsonify({"error": "Bad structure json file!"})
