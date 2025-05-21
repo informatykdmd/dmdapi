@@ -2143,6 +2143,27 @@ def getMainResponder():
         if msq.insert_to_database(action_taks, values):
             task_data["update"].append(theme)
             return task_data
+        
+    forms_api_test = msq.connect_to_database(f'SELECT * FROM ogloszenia_formsapitest WHERE status = 4 AND active_task = 0;')
+    # FB GROUPS STATS   
+    for i, item in enumerate(forms_api_test):
+        theme = {
+            "task_id": int(time.time()) + i,
+            "platform": item[2],
+            "task_description": item[2],
+            "user_name": item[1]
+        }
+        action_taks = f'''
+            UPDATE ogloszenia_formsapitest
+            SET 
+                active_task=%s,
+                id_zadania=%s
+            WHERE id = %s;
+        '''
+        values = (1, theme["task_id"], item[0])
+        if msq.insert_to_database(action_taks, values):
+            task_data["update"].append(theme)
+            return task_data
 
     return task_data
 
@@ -2729,7 +2750,25 @@ def index():
                         return jsonify({"message": "Finished"})
                     else:
                         return jsonify({"error": 500})
+                
+                if message == 'Done-formsAPItest-test': 
+
+                    action_taks = f'''
+                        UPDATE ogloszenia_formsapitest
+                        SET 
+                            active_task=%s,
+                            status=%s
+                        WHERE id_zadania = %s;
+                    '''
+                    values = (0, 1, taskID)
                     
+                    if msq.insert_to_database(action_taks, values):
+                        # add_aifaLog(f'Aktualizacja ogłoszenia o id:{taskID} na otodom.pl, przebiegła pomyślnie!')
+                        addDataLogs(f'Generowanie treści posta w trybie SocialSync o id: {taskID} zostało zrealizowane!', 'success')
+                        return jsonify({"message": "Finished"})
+                    else:
+                        return jsonify({"error": 500})
+                
             elif action == 'error':
                 taskID = request.headers.get('taskID')
                 errorMessage = request.headers.get('error')
@@ -2888,6 +2927,16 @@ def index():
                         WHERE id_zadania = %s;
                     '''
                     values = (0, 2, errorMessage, taskID)
+                
+                if message_flag == 'error-formsAPItest-test':
+                    action_taks = f'''
+                        UPDATE ogloszenia_formsapitest
+                        SET 
+                            active_task=%s,
+                            status=%s
+                        WHERE id_zadania = %s;
+                    '''
+                    values = (0, 2, taskID)
 
                 if action_taks and values:
                     if msq.insert_to_database(action_taks, values):
@@ -3247,14 +3296,14 @@ def get_data():
                         if lista:
                             prepared_message += f'{portal}-{rodzaj}-{przedmiot} errors-> [{", ".join(lista)}]\n'
                 prepared_message = prepared_message.strip()
-                
+
                 action_taks = f'''
                         INSERT INTO forms_errors_api
                             (verificated, status)
                         VALUES 
                             (%s, %s);
                     '''
-                values = (prepared_message, 2)
+                values = (prepared_message, 0)
                     
                 if msq.insert_to_database(action_taks, values):
                     
