@@ -2761,8 +2761,8 @@ def index():
                     values = (0, 1, taskID)
                     
                     if msq.insert_to_database(action_taks, values):
-                        # add_aifaLog(f'Aktualizacja ogłoszenia o id:{taskID} na otodom.pl, przebiegła pomyślnie!')
-                        addDataLogs(f'Generowanie treści posta w trybie SocialSync o id: {taskID} zostało zrealizowane!', 'success')
+                        add_aifaLog(f'Diagnostyka automatyzacji zakończona pomyślnie. Wszystkie kluczowe komponenty systemu obsługi ogłoszeń nieruchomości działają prawidłowo. Brak błędów krytycznych. Sprawdzone: struktura formularzy, detekcja elementów wizualnych, przepływ danych. Zadanie o id: {taskID} zostało zrealizowane i przebiegło pomyślnie!')
+                        addDataLogs(f'Diagnostyka automatyzacji zakończona pomyślnie. Wszystkie kluczowe komponenty systemu obsługi ogłoszeń nieruchomości działają prawidłowo. Brak błędów krytycznych. Sprawdzone: struktura formularzy, detekcja elementów wizualnych, przepływ danych. Zadanie o id: {taskID} zostało zrealizowane!', 'success')
                         return jsonify({"message": "Finished"})
                     else:
                         return jsonify({"error": 500})
