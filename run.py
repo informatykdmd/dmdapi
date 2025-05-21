@@ -2149,9 +2149,7 @@ def getMainResponder():
     for i, item in enumerate(forms_api_test):
         theme = {
             "task_id": int(time.time()) + i,
-            "platform": item[2],
-            "task_description": item[2],
-            "user_name": item[1]
+            "platform": item[1]
         }
         action_taks = f'''
             UPDATE ogloszenia_formsapitest
