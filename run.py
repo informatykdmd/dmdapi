@@ -3289,7 +3289,12 @@ def get_data():
                 print(f'Data: {data}')
                 prepared_message = ""
                 for cat, podkategorie in data.items():
-                    rodzaj = 'wynajem' if cat == 'r' else 'sprzedaż'
+                    # obsługa META
+                    if cat == 'r' or cat == 's':
+                        rodzaj = 'wynajem' if cat == 'r' else 'sprzedaż'
+                    else:
+                        rodzaj = cat
+
                     for przedmiot, lista in podkategorie.items():
                         if lista:
                             prepared_message += f'{portal}-{rodzaj}-{przedmiot} errors-> [{", ".join(lista)}]\n'
