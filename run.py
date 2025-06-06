@@ -3326,7 +3326,7 @@ def get_data():
                 print(f'task_id: {task_id}')
                 print(f'platform: {platform}')
                 print(f'Data: {data}')
-                if not data or not all(k in data for k in ["messages", "status", "module"]):
+                if not data or not all(k in data for k in ["message", "status", "module"]):
                     return jsonify({"error": "Bad structure json data!"})
                 
                 action_task = '''
@@ -3338,7 +3338,7 @@ def get_data():
                 values = (
                     task_id,
                     data.get("module"),
-                    data.get("messages"),
+                    data.get("message"),
                     data.get("status")
                 )
                     
