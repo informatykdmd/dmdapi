@@ -3315,6 +3315,38 @@ def get_data():
                 else:
                     return jsonify({"error": "Bad structure json file!"})
 
+            """
+                    NOISY-SYSTEM
+            """
+            if platform and platform == 'NOISY-SYSTEM':
+                task_id = request.json.get('task_id')
+                data = request.json.get('data')
+                
+                # Przykładowe przetwarzanie danych
+                print(f'task_id: {task_id}')
+                print(f'platform: {platform}')
+                print(f'Data: {data}')
+                if not data or not all(k in data for k in ["messages", "status", "module"]):
+                    return jsonify({"error": "Bad structure json data!"})
+                
+                action_task = '''
+                    INSERT INTO noisy_system
+                        (task_id, module, message, status, update_date)
+                    VALUES 
+                        (%s, %s, %s, %s, NOW());
+                '''
+                values = (
+                    task_id,
+                    data.get("module"),
+                    data.get("messages"),
+                    data.get("status")
+                )
+                    
+                if msq.insert_to_database(action_taks, values):
+                    return jsonify({'success': 'Dane zostały zapisane'})
+                else:
+                    return jsonify({"error": "Błąd zapisu do bazy"})
+
             return jsonify({"error": "Bad structure json file!"})
         return jsonify({"error": "Bad POST data!"})
     else:
