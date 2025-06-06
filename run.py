@@ -3329,7 +3329,7 @@ def get_data():
                 if not data or not all(k in data for k in ["message", "status", "module"]):
                     return jsonify({"error": "Bad structure json data!"})
                 
-                action_task = '''
+                action_taks = '''
                     INSERT INTO noisy_system
                         (task_id, module, message, status, update_date)
                     VALUES 
