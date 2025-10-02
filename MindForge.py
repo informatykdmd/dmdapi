@@ -1,5 +1,6 @@
 import json
 import prompts
+import re
 
 
 def validate_response_structure(template, response):
@@ -177,7 +178,7 @@ def json_string_to_dict(response_text, return_type="json"):
     brace_count = 0
     in_json = False
     json_blocks = []
-    
+    response_text = re.sub(r"[^\S ]+", "", response_text)
     for char in str(response_text):
         if char == '{':
             in_json = True
