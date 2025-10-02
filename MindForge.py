@@ -21,13 +21,20 @@ def validate_response_structure(template, response):
             - 'anuluj_zadanie' (bool): True, jeśli wszystkie dane są niezmienione, False w przeciwnym razie.
     """
     def check_structure_and_types(template, response, path=""):
+        def _join_path(p, k):
+            return k if not p else f"{p}.{k}"
+                
         if isinstance(template, dict):
             if not isinstance(response, dict):
                 return f"Klucz '{path}' powinien być typu dict, a jest typu {type(response).__name__}."
+            response = {re.sub(r"[^\S ]+", "", k): v for k, v in response.items()}
             for key, tmpl_value in template.items():
+                
                 if key not in response:
-                    return f"Brak klucza '{path + '.' + key}' w odpowiedzi."
-                error = check_structure_and_types(tmpl_value, response[key], path + "." + key)
+                    # return f"Brak klucza '{path + '.' + key}' w odpowiedzi."
+                    return f"Brak klucza '{_join_path(path, key)}' w odpowiedzi."
+                # error = check_structure_and_types(tmpl_value, response[key], path + "." + key)                
+                error = check_structure_and_types(tmpl_value, response[key], _join_path(path, key))
                 if error:
                     return error
         elif isinstance(template, list):
@@ -178,7 +185,7 @@ def json_string_to_dict(response_text, return_type="json"):
     brace_count = 0
     in_json = False
     json_blocks = []
-    response_text = re.sub(r"[^\S ]+", "", response_text)
+    
     for char in str(response_text):
         if char == '{':
             in_json = True
@@ -202,13 +209,46 @@ def json_string_to_dict(response_text, return_type="json"):
         return {"error": "Brak struktury JSON w tekście.", "json": None, "remaining_text": remaining_text.strip(), "success": False}
 
     try:
-        parsed_json = json.loads(json_blocks[0])
+        parsed_json = normalize_json_keys(
+            json.loads(json_blocks[0]), 
+            remove_spaces=False
+        )
+        
         if return_type == "json":
             return {"error": None, "json": parsed_json, "remaining_text": None, "success": True}
         elif return_type == "string":
             return {"error": None, "json": None, "remaining_text": remaining_text.strip(), "success": True}
     except json.JSONDecodeError:
         return {"error": "Błąd parsowania JSON.", "json": None, "remaining_text": remaining_text.strip(), "success": False}
+
+def normalize_json_keys(obj, remove_spaces: bool = False):
+    """
+    Rekurencyjnie czyści klucze w dict: usuwa białe znaki w kluczach.
+    - remove_spaces=True  -> usuwa WSZYSTKIE białe znaki (w tym spacje) z kluczy
+    - remove_spaces=False -> usuwa białe znaki poza spacją; dodatkowo stripuje brzegi
+    """
+    def _clean_key(k: str) -> str:
+        if not isinstance(k, str):
+            k = str(k)
+        if remove_spaces:
+            # usuń wszystkie białe znaki (również ' ')
+            return re.sub(r"\s+", "", k)
+        else:
+            # usuń białe znaki poza spacją + przytnij brzegi
+            return re.sub(r"[^\S ]+", "", k).strip()
+
+    if isinstance(obj, dict):
+        out = {}
+        for k, v in obj.items():
+            nk = _clean_key(k)
+            if nk in out:
+                raise ValueError(f"Konflikt kluczy po normalizacji: '{k}' -> '{nk}' już istnieje")
+            out[nk] = normalize_json_keys(v, remove_spaces)
+        return out
+    elif isinstance(obj, list):
+        return [normalize_json_keys(x, remove_spaces) for x in obj]
+    else:
+        return obj
 
 def dict_to_json_string(data):
     """Konwertuje słownik Python na format JSON w postaci stringa."""
