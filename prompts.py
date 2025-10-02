@@ -2,7 +2,7 @@ MAIN_MENU_level_0 = """
 Wybierz potrzebne narzędzia, aktualizując wartość `true` przy wybranych opcjach w przesyłanym obiekcie JSON.  
 UWAGA! Ilość kluczy i ich nazwy muszą zostać niezmienione — aktualizujesz wyłącznie wartości! Czyli twoja odpowiedź musi zawierać tyle samo kluczy i o takich samych nazwach jakie otrzymujesz we wzorze!
 Jeśli wszystkie zadania zostały wykonane, możesz zakończyć działanie modułu decyzyjnego, odsyłając obiekt JSON w niezmienionej formie, z wszystkimi wartościami ustawionymi na false.
-Komunikuj się wyłącznie w formacie JSON, odpowiadając dokładnie w wymaganej strukturze!  
+Komunikuj się wyłącznie w formacie JSON, odpowiadając dokładnie w wymaganej strukturze, zawsze generuj kod JSON!
 Zastosuj się do instrukcji i odeślij poprawiony obiekt JSON!
 """
 
@@ -10,14 +10,14 @@ AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM_level_1 = """
 Wybierz ogłoszenie do aktualizacji, zmieniając wartość na `true` przy wybranej opcji.  
 UWAGA! Ilość kluczy i ich nazwy muszą zostać niezmienione — aktualizujesz wyłącznie wartości! Czyli twoja odpowiedź musi zawierać tyle samo kluczy i o takich samych nazwach jakie otrzymujesz we wzorze!
 Jeśli odeślesz dokładnie ten sam obiekt (niezmieniony), proces zostanie anulowany i powrócisz do poprzedniego etapu.  
-Komunikuj się wyłącznie w formacie JSON, odpowiadając zgodnie z wymaganiami!  
+Komunikuj się wyłącznie w formacie JSON, odpowiadając zgodnie z wymaganiami, zawsze generuj kod JSON!!  
 Prześlij poprawiony obiekt JSON zgodnie z instrukcjami!
 """
 AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM_level_2 = """
 Przejrzyj szczegóły oferty i dokonaj niezbędnych zmian, aktualizując wartości odpowiednich parametrów.  
 UWAGA! Ilość kluczy i ich nazwy muszą zostać niezmienione — aktualizujesz wyłącznie wartości! Czyli twoja odpowiedź musi zawierać tyle samo kluczy i o takich samych nazwach jakie otrzymujesz we wzorze!
 Jeśli odeślesz dokładnie ten sam obiekt (niezmieniony), anulujesz aktualne zadanie i wrócisz do poprzedniego etapu procesu.  
-Pamiętaj, że rozumiem tylko język JSON, odpowiadaj wyłącznie jsonem, komunikując się ze mną!
+Pamiętaj, że rozumiem tylko język JSON, odpowiadaj wyłącznie jsonem, komunikując się ze mną, zawsze generuj kod JSON!!
 
 Szczególna uwaga na pole 'Opis':
     - Pole 'Opis' to string w formacie pseudo-JSON, który zostanie przekształcony na poprawny obiekt JSON.  
@@ -41,14 +41,14 @@ UWAGA! Zwróć uwagę, że klucze ^p^, ^strong^, ^h1^, ^h2^, ^h3^, ^h1-strong^, 
 
 Zachowaj integralność struktury JSON, upewniając się, że nie ma niezgodności w formacie.  
 Jeśli odeślesz niezmieniony obiekt, zadanie zostanie anulowane, a proces cofnie się do poprzedniego etapu.  
-Komunikuj się wyłącznie w języku JSON, spełniając wymagania walidacyjne. Prześlij poprawiony obiekt JSON!
+Komunikuj się wyłącznie w języku JSON, spełniając wymagania walidacyjne, zawsze generuj kod JSON. Prześlij poprawiony obiekt JSON!
 """
 AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_WYNAJEM_level_3 = """
 Aby zakończyć proces aktualizacji, wypełnij pole raportu zgodnie z instrukcją.  
 UWAGA! Ilość kluczy i ich nazwy muszą zostać niezmienione — aktualizujesz wyłącznie wartości! Czyli twoja odpowiedź musi zawierać tyle samo kluczy i o takich samych nazwach jakie otrzymujesz we wzorze!
 Dopiero po przesłaniu poprawnie wypełnionego raportu zmiany zostaną wprowadzone.  
 Jeśli odeślesz obiekt bez zmian, powrócisz do poprzedniego kroku decyzyjnego, a zmiany nie zostaną zapisane.  
-Komunikuj się wyłącznie w formacie JSON i prześlij poprawiony obiekt zgodnie z wymaganiami!
+Komunikuj się wyłącznie w formacie JSON i prześlij poprawiony obiekt zgodnie z wymaganiami, zawsze generuj kod JSON!
 """
 
 
@@ -56,14 +56,14 @@ AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_SPRZEDAZ_level_1 = """
 Wybierz ogłoszenie do aktualizacji, zmieniając wartość na `true` przy wybranej opcji.  
 UWAGA! Ilość kluczy i ich nazwy muszą zostać niezmienione — aktualizujesz wyłącznie wartości! Czyli twoja odpowiedź musi zawierać tyle samo kluczy i o takich samych nazwach jakie otrzymujesz we wzorze!
 Jeśli odeślesz dokładnie ten sam obiekt (niezmieniony), proces zostanie anulowany i powrócisz do poprzedniego etapu.  
-Komunikuj się wyłącznie w formacie JSON, odpowiadając zgodnie z wymaganiami!  
+Komunikuj się wyłącznie w formacie JSON, odpowiadając zgodnie z wymaganiami, zawsze generuj kod JSON!  
 Prześlij poprawiony obiekt JSON zgodnie z instrukcjami!
 """
 AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_SPRZEDAZ_level_2 = """
 Przejrzyj szczegóły oferty i dokonaj niezbędnych zmian, aktualizując wartości odpowiednich parametrów.  
 UWAGA! Ilość kluczy i ich nazwy muszą zostać niezmienione — aktualizujesz wyłącznie wartości! Czyli twoja odpowiedź musi zawierać tyle samo kluczy i o takich samych nazwach jakie otrzymujesz we wzorze!
 Jeśli odeślesz dokładnie ten sam obiekt (niezmieniony), anulujesz aktualne zadanie i wrócisz do poprzedniego etapu procesu.  
-Pamiętaj, że rozumiem tylko język JSON, odpowiadaj wyłącznie jsonem, komunikując się ze mną!
+Pamiętaj, że rozumiem tylko język JSON, odpowiadaj wyłącznie jsonem, komunikując się ze mną, zawsze generuj kod JSON!
 
 Szczególna uwaga na pole 'Opis':
     - Pole 'Opis' to string w formacie pseudo-JSON, który zostanie przekształcony na poprawny obiekt JSON.  
@@ -85,16 +85,16 @@ Przykłady poprawnej struktury pola 'Opis':
 
 UWAGA! Zwróć uwagę, że klucze ^p^, ^strong^, ^h1^, ^h2^, ^h3^, ^h1-strong^, ^h2-strong^, ^h3-strong^ mają pojedyńczego tekstu a wartością klucza ^li^ jest lista tekstów [^teskt^, ^teskt^, ...]
 
-Zachowaj integralność struktury JSON, upewniając się, że nie ma niezgodności w formacie.  
+Zachowaj integralność struktury JSON, upewniając się, że nie ma niezgodności w formacie, zawsze generuj kod JSON!.  
 Jeśli odeślesz niezmieniony obiekt, zadanie zostanie anulowane, a proces cofnie się do poprzedniego etapu.  
-Komunikuj się wyłącznie w języku JSON, spełniając wymagania walidacyjne. Prześlij poprawiony obiekt JSON!
+Komunikuj się wyłącznie w języku JSON, spełniając wymagania walidacyjne, zawsze generuj kod JSON!. Prześlij poprawiony obiekt JSON!
 """
 AKTUALIZACJA_OGLOSZEN_NIERUCHOMOSCI_NA_SPRZEDAZ_level_3 = """
 Aby zakończyć proces aktualizacji, wypełnij pole raportu zgodnie z instrukcją.  
 UWAGA! Ilość kluczy i ich nazwy muszą zostać niezmienione — aktualizujesz wyłącznie wartości! Czyli twoja odpowiedź musi zawierać tyle samo kluczy i o takich samych nazwach jakie otrzymujesz we wzorze!
 Dopiero po przesłaniu poprawnie wypełnionego raportu zmiany zostaną wprowadzone.  
 Jeśli odeślesz obiekt bez zmian, powrócisz do poprzedniego kroku decyzyjnego, a zmiany nie zostaną zapisane.  
-Komunikuj się wyłącznie w formacie JSON i prześlij poprawiony obiekt zgodnie z wymaganiami!
+Komunikuj się wyłącznie w formacie JSON i prześlij poprawiony obiekt zgodnie z wymaganiami, zawsze generuj kod JSON!
 """
 
 WYSYLANIE_EMAILI_level_1 = """
@@ -105,7 +105,7 @@ Zanim jednak to zrobisz, upewnij się, kto powinien zostać załączony.
 Jeśli nie jesteś pewien, czy ktoś jeszcze powinien otrzymać tę wiadomość, zaktualizuj listę odbiorców i upewnij się, że wszyscy zainteresowani otrzymają potrzebne informacje.
 UWAGA! Ilość kluczy i ich nazwy muszą zostać niezmienione — aktualizujesz wyłącznie wartośc Czyli twoja odpowiedź musi zawierać tyle samo kluczy i o takich samych nazwach jakie otrzymujesz we wzorze!
 Jeśli odeślesz dokładnie ten sam obiekt (niezmieniony), proces zostanie anulowany i wrócisz do poprzedniego etapu.
-Komunikuj się wyłącznie w formacie JSON, odpowiadając zgodnie z wymaganiami!  
+Komunikuj się wyłącznie w formacie JSON, odpowiadając zgodnie z wymaganiami, zawsze generuj kod JSON!  
 Prześlij poprawiony obiekt JSON zgodnie z instrukcjami!
 """
 WYSYLANIE_EMAILI_level_2 = """
@@ -113,7 +113,7 @@ Sprawdź wybrane adresy email i uzupełnij brakujące dane, takie jak tytuł ora
 UWAGA! Ilość kluczy i ich nazwy muszą zostać niezmienione — aktualizujesz wyłącznie wartości! Czyli twoja odpowiedź musi zawierać tyle samo kluczy i o takich samych nazwach jakie otrzymujesz we wzorze!
 Zachowaj integralność struktury JSON, upewniając się, że format danych jest zgodny z wymaganiami.  
 Jeśli odeślesz niezmieniony obiekt, proces zostanie anulowany, a zadanie cofnie się do poprzedniego kroku.  
-Komunikuj się wyłącznie w języku JSON i prześlij poprawiony obiekt zgodnie z instrukcjami!
+Komunikuj się wyłącznie w języku JSON i prześlij poprawiony obiekt zgodnie z instrukcjami, zawsze generuj kod JSON!
 
 """
 WYSYLANIE_EMAILI_level_3 = """
@@ -121,5 +121,5 @@ Aby zakończyć proces wysyłania wiadomości, wypełnij pole raportu zgodnie z 
 UWAGA! Ilość kluczy i ich nazwy muszą zostać niezmienione — aktualizujesz wyłącznie wartości! Czyli twoja odpowiedź musi zawierać tyle samo kluczy i o takich samych nazwach jakie otrzymujesz we wzorze!
 Dopiero po przesłaniu poprawnie wypełnionego raportu wiadomości zostaną wysłane.  
 Jeśli odeślesz obiekt bez zmian, wrócisz do poprzedniego kroku decyzyjnego, a wiadomości nie zostaną wysłane.  
-Komunikuj się wyłącznie w formacie JSON i prześlij poprawiony obiekt zgodnie z wymaganiami!
+Komunikuj się wyłącznie w formacie JSON i prześlij poprawiony obiekt zgodnie z wymaganiami, zawsze generuj kod JSON!
 """
