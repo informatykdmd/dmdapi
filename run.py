@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, g
 import json
 import os
 import mysqlDB as msq
@@ -12,8 +12,15 @@ from MindForge import addNewUser, get_next_template,\
 import sendEmailBySmtp
 import saver_ver
 import requests
+from MySQLModel import MySQLModel
 
 app = Flask(__name__)
+
+# Instancja MySql
+def get_db():
+    if 'db' not in g:
+        g.db = MySQLModel(permanent_connection=False)
+    return g.db
 
 def take_data_where_ID(key, table, id_name, ID):
     dump_key = msq.connect_to_database(f'SELECT {key} FROM {table} WHERE {id_name} = {ID};')
@@ -3351,7 +3358,157 @@ def get_data():
         return jsonify({"error": "Bad POST data!"})
     else:
         return jsonify({"error": "Unauthorized access"}), 401  # Zwrot kodu 401 w przypadku braku autoryzacji
+
+@app.route('/api/get-video-status/', methods=['POST'])
+def get_video_status():
+    data = request.get_json(silent=True) or {}
+
+    if "api_key" not in data \
+        or "video_hash_green" not in data \
+            or "video_hash_silver" not in data \
+                or "video_hash_gold" not in data:
+        return jsonify({"error": "invalid_payload"}), 400
     
+    api_key = data.get("api_key")    
+    video_hash_green = data.get("video_hash_green")
+    video_hash_silver = data.get("video_hash_silver")
+    video_hash_gold = data.get("video_hash_gold")
+
+    if api_key and api_key not in allowed_API_KEYS:
+        return  jsonify({"error": "unauthorized"}), 401
+
+    def hashValidSlot(vid_hash, slot):
+        db = get_db()
+        query = """SELECT * FROM presentations WHERE slot=%s AND status=%s;"""
+        presentations_items = db.getFrom(query=query, params=(slot, 1), as_dict=True)
+
+        update = False
+        row = None
+
+        if presentations_items:
+            row = presentations_items[0]
+            db_hash = row.get("video_hash", None)
+
+            # jeśli brak hash-a z RPi lub nie zgadza się z bazą → update
+            if db_hash != vid_hash:
+                update = True
+            else:
+                # identyczny hash → nie ma co przesyłać, czyścimy row
+                row = None
+
+        # jeśli nie ma rekordu w DB:
+        # update=False, row=None → Raspberry wie, że nic nie musi robić
+        return update, row
+
+    green_update, row_green = hashValidSlot(video_hash_green, 'green')
+    silver_update, row_silver = hashValidSlot(video_hash_silver, 'silver')
+    gold_update, row_gold = hashValidSlot(video_hash_gold, 'gold')
+
+    return jsonify({
+        "green": {
+            "need_update": green_update,
+            "raw_data": row_green,
+        },
+        "silver": {
+            "need_update": silver_update,
+            "raw_data": row_silver,
+        },
+        "gold": {
+            "need_update": gold_update,
+            "raw_data": row_gold,
+        }
+    }), 200
+
+@app.route('/api/set-video-status/', methods=['POST'])
+def set_video_status():
+    data = request.get_json(silent=True) or {}
+
+    api_key = data.get("api_key")
+    if not api_key or api_key not in allowed_API_KEYS:
+        return jsonify({"ok": False, "error": "unauthorized"}), 401
+
+    slot = data.get("slot")
+    presentation_id = data.get("presentation_id")
+    status = data.get("status")  # "success" albo "error"
+    video_hash = data.get("video_hash")  # opcjonalny nowy hash
+    last_sync_status = data.get("last_sync_status")  # opcjonalne
+    last_sync_error = data.get("last_sync_error")    # opcjonalne
+
+    # Walidacja podstawowa payloadu
+    if slot not in ("green", "silver", "gold") \
+       or not presentation_id \
+       or status not in ("success", "error"):
+        return jsonify({"ok": False, "error": "invalid_payload"}), 400
+
+    db = get_db()
+    now = datetime.datetime.now()  # jeśli chcesz UTC – użyj datetime.datetime.utcnow()
+
+    if status == "success":
+        # 1) aktualizujemy wybrany rekord jako zsynchronizowany
+        query_ok = """
+            UPDATE presentations
+            SET
+                published_at    = %s,
+                sync            = 1,
+                last_sync_at    = %s,
+                last_sync_status= %s,
+                last_sync_error = NULL,
+                video_hash      = COALESCE(%s, video_hash)
+            WHERE id = %s AND slot = %s
+        """
+        db.executeTo(
+            query=query_ok,
+            params=(
+                now,
+                now,
+                last_sync_status or "success",
+                video_hash,
+                presentation_id,
+                slot
+            )
+        )
+
+        # 2) pozostałe rekordy w tym slocie – oznaczamy jako "disconnected"
+        query_other = """
+            UPDATE presentations
+            SET last_sync_status = 'disconnected'
+            WHERE slot = %s AND id <> %s
+        """
+        db.executeTo(query=query_other, params=(slot, presentation_id))
+
+    else:
+        # status == "error"
+        # 1) aktualizujemy bieżący rekord jako "error" + treść błędu
+        query_err = """
+            UPDATE presentations
+            SET
+                sync            = 0,
+                last_sync_at    = %s,
+                last_sync_status= %s,
+                last_sync_error = %s
+            WHERE id = %s AND slot = %s
+        """
+        db.executeTo(
+            query=query_err,
+            params=(
+                now,
+                last_sync_status or "error",
+                last_sync_error,
+                presentation_id,
+                slot
+            )
+        )
+
+        # 2) czyścimy cały slot – żadna prezentacja nie jest aktywna
+        query_clear = """
+            UPDATE presentations
+            SET status = 0
+            WHERE slot = %s
+        """
+        db.executeTo(query=query_clear, params=(slot,))
+
+    return jsonify({"ok": True}), 200
+
 
 @app.route('/api/get-template/', methods=['POST'])
 def get_template():
