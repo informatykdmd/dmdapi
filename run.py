@@ -3422,7 +3422,7 @@ def get_video_status():
 @app.route('/api/set-video-status/', methods=['POST'])
 def set_video_status():
     data = request.get_json(silent=True) or {}
-
+    print('/api/set-video-status/', data)
     api_key = data.get("api_key")
     if not api_key or api_key not in allowed_API_KEYS:
         return jsonify({"ok": False, "error": "unauthorized"}), 401
