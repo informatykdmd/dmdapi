@@ -3362,7 +3362,7 @@ def get_data():
 @app.route('/api/get-video-status/', methods=['POST'])
 def get_video_status():
     data = request.get_json(silent=True) or {}
-
+    print('/api/get-video-status/', data)
     if "api_key" not in data \
         or "video_hash_green" not in data \
             or "video_hash_silver" not in data \
