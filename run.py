@@ -3388,9 +3388,13 @@ def get_video_status():
         if presentations_items:
             row = presentations_items[0]
             db_hash = row.get("video_hash", None)
+            db_status = row.get("status", 0)
+            db_sync = row.get("sync", 0)
 
             # jeśli brak hash-a z RPi lub nie zgadza się z bazą → update
             if db_hash != vid_hash:
+                update = True
+            elif db_status == 1 and db_sync == 0:
                 update = True
             else:
                 # identyczny hash → nie ma co przesyłać, czyścimy row
