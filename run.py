@@ -2131,7 +2131,7 @@ def getMainResponder():
             return task_data
     
     mind_forge_si = msq.connect_to_database(f'SELECT * FROM mind_forge_si WHERE status = 5 AND active_task = 0;')
-    # FB GROUPS STATS   
+    # mind_forge
     for i, item in enumerate(mind_forge_si):
         theme = {
             "task_id": int(time.time()) + i,
@@ -2219,7 +2219,7 @@ def index():
     
     api_key = request.headers.get('api_key')  # Pobieranie klucza API z nagłówka
     # print(request.headers)
-    if api_key and api_key in allowed_API_KEYS:
+    if isinstance(api_key, str) and api_key and api_key in allowed_API_KEYS:
         if 'action' in request.headers:
             action = request.headers.get('action')
             if action == 'get_json':
@@ -2964,7 +2964,7 @@ def index():
 @app.route('/get-data/', methods=['POST'])
 def get_data():
     api_key = request.json.get('api_key')  # Pobieranie klucza API 
-    if api_key and api_key in allowed_API_KEYS:
+    if isinstance(api_key, str) and api_key and api_key in allowed_API_KEYS:
         if request.method == 'POST':
             platform = request.json.get('platform')
             """
@@ -3374,7 +3374,7 @@ def get_video_status():
     video_hash_silver = data.get("video_hash_silver")
     video_hash_gold = data.get("video_hash_gold")
 
-    if api_key and api_key not in allowed_API_KEYS:
+    if not isinstance(api_key, str) or not api_key or api_key not in allowed_API_KEYS:
         return  jsonify({"error": "unauthorized"}), 401
 
     def hashValidSlot(vid_hash, slot):
@@ -3408,6 +3408,11 @@ def get_video_status():
     silver_update, row_silver = hashValidSlot(video_hash_silver, 'silver')
     gold_update, row_gold = hashValidSlot(video_hash_gold, 'gold')
 
+    db = get_db()
+    query = """UPDATE admin_settings SET last_rpi_request=%s WHERE ID=%s;"""
+    now = datetime.datetime.now()
+    db.executeTo(query=query, params=(now, 1))
+
     return jsonify({
         "green": {
             "need_update": green_update,
@@ -3428,7 +3433,8 @@ def set_video_status():
     data = request.get_json(silent=True) or {}
     print('/api/set-video-status/', data)
     api_key = data.get("api_key")
-    if not api_key or api_key not in allowed_API_KEYS:
+    # if not api_key or api_key not in allowed_API_KEYS:
+    if not isinstance(api_key, str) or not api_key or api_key not in allowed_API_KEYS:
         return jsonify({"ok": False, "error": "unauthorized"}), 401
 
     slot = data.get("slot")
@@ -3520,7 +3526,7 @@ def get_template():
     user = data.get("user")
     api_key = data.get("api_key")
 
-    if api_key and api_key not in allowed_API_KEYS:
+    if not isinstance(api_key, str) or not api_key or api_key not in allowed_API_KEYS:
         return  jsonify({"data": None, "prompt": None, "level": None, "error": "Unauthorized access"}), 401
 
     if not user:
@@ -3558,7 +3564,7 @@ def handling_responses():
     if not user_aswer or not user or not api_key or not api_url:
         return  jsonify({"success": False, "error": "Niewłaściwe dane zapytania!"}), 200
     
-    if api_key and api_key not in allowed_API_KEYS:
+    if not isinstance(api_key, str) or not api_key or api_key not in allowed_API_KEYS:
         return  jsonify({"success": False, "error": "Unauthorized access"}), 401
 
     if user not in dane_users_dict:
@@ -4358,6 +4364,8 @@ def handling_responses():
     # Zwracamy odpowiedź w formacie JSON
     return jsonify({"success": True, "raport_koncowy": raport_koncowy}), 200
 
+
+
 @app.route('/api/generated-socialsync-description/', methods=['POST'])
 def generated_socialsync_description():
 
@@ -4373,7 +4381,7 @@ def generated_socialsync_description():
     if not aswer or not api_key or not id_zadania:
         return  jsonify({"success": False, "error": "Niewłaściwe dane zapytania!"}), 200
     
-    if api_key and api_key not in allowed_API_KEYS:
+    if not isinstance(api_key, str) or not api_key or api_key not in allowed_API_KEYS:
         return  jsonify({"success": False, "error": "Unauthorized access"}), 401
     
     curent_tempalte = json_string_to_dict('{"tresc_ogloszenia": ""}').get('json', {})
