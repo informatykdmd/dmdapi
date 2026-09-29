@@ -3362,7 +3362,7 @@ def get_data():
 @app.route('/api/get-video-status/', methods=['POST'])
 def get_video_status():
     data = request.get_json(silent=True) or {}
-    print('/api/get-video-status/', data)
+    # print('/api/get-video-status/', data)
     if "api_key" not in data \
         or "video_hash_green" not in data \
             or "video_hash_silver" not in data \
@@ -3431,9 +3431,8 @@ def get_video_status():
 @app.route('/api/set-video-status/', methods=['POST'])
 def set_video_status():
     data = request.get_json(silent=True) or {}
-    print('/api/set-video-status/', data)
+    # print('/api/set-video-status/', data)
     api_key = data.get("api_key")
-    # if not api_key or api_key not in allowed_API_KEYS:
     if not isinstance(api_key, str) or not api_key or api_key not in allowed_API_KEYS:
         return jsonify({"ok": False, "error": "unauthorized"}), 401
 
